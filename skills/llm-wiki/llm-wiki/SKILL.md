@@ -76,22 +76,20 @@ LLM 負責整理、結構化、交叉連結、維護索引與時間線。
 - 若 `defuddle` 失敗、回傳空內容、或內容明顯不完整，立即回退到目前既有方式（直接讀原頁與既有擷取流程）再繼續後續步驟。
 - YouTube、X/Twitter 等有既有專用流程的來源，仍優先走專用流程；專用流程不可用時再回退到既有方式。
 
-### Step 1 — 寫入 Obsidian 00-inbox（最優先）
+### Step 1 — 寫入 Obsidian（最優先）
 
 - 辨識來源型別：YouTube / X / article / repo
 - 抽取必要 metadata：title、url、author、published date、source id
-- 先寫入 `00-inbox/`
+- 先寫入對應的 `Learning/` 子目錄
 - frontmatter 至少保留：`source`、`source_url`、`processed: true`、`classification_path`
-- 筆記內容格式必須參考 `references/pigo-note-format-notebooklm-chrome-plugins.md`
 
 ### Step 2 — Optional Notion input sync
 
-如果這次流程有要求同步 Notion input database（Lumentum 相關資訊除外）：
+如果這次流程有要求同步 Notion input database：
 
 - 先查重
 - 有則 update，無則 create
 - 至少回填：title、URL、source、status
-- YouTube / X / article / 外部學習內容 → input database
 
 ### Step 3 — Update index / log / cross-links
 
@@ -131,7 +129,7 @@ LLM 負責整理、結構化、交叉連結、維護索引與時間線。
 
 | Source type | Destination |
 | --- | --- |
-| YouTube / Twitter / article / external learning content | `00-inbox/` |
+| YouTube / Twitter / article / external learning content | `Learning/*` |
 | Lumentum weekly report | `Lumentum/Weekly Reports/<year>/` |
 | Lumentum meeting notes | `Lumentum/Meetings/` |
 | Lumentum project notes | `Lumentum/Projects/` |
