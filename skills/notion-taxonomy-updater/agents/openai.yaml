@@ -1,0 +1,4 @@
+interface:
+  display_name: "Notion Taxonomy Updater"
+  short_description: "Batch-update taxonomy in Ai DataBase View"
+  default_prompt: "Use -taxonomy-updater to classify and batch-update pages in Ai DataBase View."

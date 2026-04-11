@@ -1,0 +1,81 @@
+RISK: NVIDIA NVDA Research — Risk, Blocker, Assumption, and Mitigation Map
+
+## EXECUTION RISKS
+
+### 1. Rubin Production Delay (HIGH → CRITICAL)
+- Rubin (R200) slipping from Q2 2026 toward H2 2026; 2026 unit target cut from 2M → 1.5M.
+- Root Causes: HBM4 shortages & extended validation (SK Hynix/Micron prioritizing Blackwell); ConnectX-9 NIC transitions; higher power draw; liquid cooling re-optimization; TSMC CoWoS bottleneck; recent tape-out redesigns.
+- Impact: AI infra rollout slows; customers forced toward Blackwell; RTX 60 gaming pushback to 2028.
+- Mitigation: Plan Blackwell-heavy transition strategy; hedge with AMD MI450 for inference workloads.
+
+### 2. HBM Memory Shortage — Persistent Through 2027+ (HIGH)
+- HBM4 supply constrained; no quick scaling given unprecedented AI datacenter demand.
+- Impact: Inflates costs, caps GPU production volumes for all advanced NVIDIA chips.
+- Mitigation: Monitor SK Hynix/Micron allocation; model scenarios with <1M Rubin units in 2026.
+
+### 3. Geopolitical / Taiwan Strait (CRITICAL — Long-Term)
+- 100% of advanced NVIDIA GPUs manufactured in Taiwan; US export controls on China tightening.
+- Impact: Any Taiwan event = catastrophic supply disruption; China market increasingly inaccessible.
+- Mitigation: Intel 18A node (Feynman GPUs ~2028) as diversification; track TSMC Arizona进度.
+
+## DEPENDENCY RISKS
+
+### 4. TSMC CoWoS Packaging Bottleneck (HIGH → 2026)
+- Advanced packaging shifting from wafer limit to CoWoS limit; 120-130K wafers/month projected end-2026, still insufficient.
+- Impact: Constrains Rubin, Blackwell, and future GPU yields equally.
+
+### 5. Single-Source TSMC Manufacturing (CRITICAL)
+- No alternative foundry currently viable for advanced AI GPUs; Intel 18A/Samsung 2nm early-stage.
+- Impact: Any TSMC disruption (natural disaster, political) cascades immediately to NVIDIA.
+- Mitigation: NVIDIA-Intel partnership ($5B, 18A node) is strategic hedge; Feynman (2028) as first non-TSMC tape-out.
+
+### 6. Vera Rubin Rack Forecast Overstatement (MEDIUM)
+- Initial Vera Rubin rack forecasts of 12,000-14,000 downgraded to ~6,000; Blackwell fills gap.
+- Impact: Downstream AI infrastructure planning may be built on inflated assumptions.
+
+## HIDDEN ASSUMPTIONS
+
+### 7. Rubin Ships Q2 2026 "On Track" — Unverified
+- NVIDIA official statements say on track; but same messaging preceded actual Blackwell ramp issues.
+- Treat As: Plan for H2 2026 earliest volume.
+
+### 8. HBM4 Yields & Performance at Scale — Unknown
+- First-generation HBM4 integrations historically have yield learning curves; early spin risk.
+- Treat As: Specs (288GB/GPU, 13 TB/s) may not hold at volume production.
+
+### 9. AMD/Intel Competition Stays Behind — Assumption
+- NVIDIA assumed to retain >75% discrete GPU market share through 2027.
+- Risk: AMD MI450/Helios (H2 2026) and Intel Nova Lake-AX with RTX IP (2026-2027) could erode high-end inference share.
+- Counter: CUDA moat is deep; MI300 adoption by Microsoft/Oracle shows inroads are real.
+
+### 10. Data Center AI Spending Growth Rate Sustains (HIGH UNCERTAINTY)
+- Assumption: $110B+ NVIDIA revenue by 2026 materializes as hyperscalers maintain capex.
+- Risk: Hyperscaler AI ROI disappoints → capex cycle flattens.
+- Mitigation: Stress-test NVDA valuations against 20-30% capex reduction scenario.
+
+## FAILURE MODES
+
+| Mode | Probability | Impact | Trigger |
+|------|-------------|--------|---------|
+| Rubin delay > 6 months | Medium-High | High | HBM4 validation failure or CoWoS miss |
+| TSMC supply disruption (Taiwan) | Low-Medium | Catastrophic | Geopolitical flashpoint or earthquake |
+| AMD inference GPU > 15% share | Medium | Medium | MI450 perf/watt + SW stack improvement |
+| HBM4 cost inflation > 30% | High | Medium | Memory suppliers extract rents |
+| US-China full export halt | Low-Medium | High | Political decision; reduces accessible market ~25-30% |
+
+## MITIGATION SUMMARY
+
+1. Rubin delay: Build Blackwell-dominant scenarios; don't assume Rubin volume before Q4 2026.
+2. HBM shortage: Model memory-constrained supply curves; prepare alt sourcing analysis.
+3. Geopolitical concentration: Monitor Intel 18A progress; flag Feynman tape-out dates.
+4. Competitive erosion: Track AMD MI450/Helios benchmarks and hyperscaler adoption signals.
+5. Capex cycle risk: Identify hyperscaler announcement patterns; correlate with NVIDIA guidance.
+
+## WHAT SHOULD STOP OR DELAY EXECUTION
+
+- Do NOT assume Rubin volume > 1.5M units in 2026 — plan around Blackwell majority share.
+- Do NOT assume China-accessible product mix — export control trajectory tightening.
+- Do NOT ignore Intel 18A as 2028 manufacturing alternative — Feynman could be first non-TSMC NVIDIA GPU.
+- Do NOT assume current HBM4 specs hold at volume production — first-gen integration risk real.
+
+[confidence: 0.8]

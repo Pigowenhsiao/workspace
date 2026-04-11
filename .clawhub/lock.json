@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "skills": {
+    "find-skills": {
+      "version": "0.1.0",
+      "installedAt": 1772962993677
+    },
+    "multi-search-engine": {
+      "version": "2.0.1",
+      "installedAt": 1772963162607
+    },
+    "agent-browser": {
+      "version": "0.2.0",
+      "installedAt": 1773059401576
+    },
+    "self-improving": {
+      "version": "1.2.10",
+      "installedAt": 1773059823284
+    },
+    "skill-vetter": {
+      "version": "1.0.0",
+      "installedAt": 1773060001750
+    },
+    "openclaw-tavily-search": {
+      "version": "0.1.0",
+      "installedAt": 1773060783281
+    },
+    "news-aggregator": {
+      "version": "1.0.3",
+      "installedAt": 1775174902152
+    },
+    "clawscan": {
+      "version": "2.0.0",
+      "installedAt": 1775176284182
+    },
+    "skill-vetting": {
+      "version": "1.1.0",
+      "installedAt": 1775176287218
+    },
+    "soul-guardian": {
+      "version": "0.0.2",
+      "installedAt": 1775176304430
+    },
+    "obsidian-official-cli": {
+      "version": "1.0.0",
+      "installedAt": 1775186521672
+    },
+    "openai-codex-operator": {
+      "version": "1.0.1",
+      "installedAt": 1775187914572
+    },
+    "summarize-pro": {
+      "version": "1.0.0",
+      "installedAt": 1775291675265
+    },
+    "lightpanda-browser": {
+      "version": "1.0.3",
+      "installedAt": 1775390204833
+    },
+    "edison-agent-reach": {
+      "version": "1.0.0",
+      "installedAt": 1775390378100
+    },
+    "agent-reach": {
+      "version": "1.1.0",
+      "installedAt": 1775390380361
+    },
+    "baoyu-article-illustrator": {
+      "version": "1.60.3",
+      "installedAt": 1775800822028
+    },
+    "bb-browser": {
+      "version": "0.6.0",
+      "installedAt": 1775812633333
+    }
+  }
+}

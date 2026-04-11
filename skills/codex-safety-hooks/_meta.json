@@ -1,0 +1,7 @@
+{
+  "name": "codex-safety-hooks",
+  "version": "1.0.0",
+  "description": "Codex safety hooks: block dangerous commands, log all operations, auto-commit",
+  "author": "Pigo",
+  "files": ["block_dangerous.py", "log_commands.py", "auto_commit.sh", "SKILL.md"]
+}

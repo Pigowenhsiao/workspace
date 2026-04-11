@@ -1,0 +1,4 @@
+interface:
+  display_name: "NotebookLM Learning Loop"
+  short_description: "NotebookLM 與 Obsidian 學習循環"
+  default_prompt: "Use $notebooklm-obsidian-learning to turn a NotebookLM notebook into a practical learning workflow and Obsidian note strategy."
