@@ -70,6 +70,12 @@ LLM 負責整理、結構化、交叉連結、維護索引與時間線。
 
 當使用者提供 YouTube / X / article / repo URL 並要求用 `llm-wiki` ingest 時，預設順序如下：
 
+### Step 0 — URL 擷取策略（預設 defuddle，失敗回退）
+
+- 一般網址（article / repo docs / web pages）預設先使用 `defuddle` 擷取正文 Markdown。
+- 若 `defuddle` 失敗、回傳空內容、或內容明顯不完整，立即回退到目前既有方式（直接讀原頁與既有擷取流程）再繼續後續步驟。
+- YouTube、X/Twitter 等有既有專用流程的來源，仍優先走專用流程；專用流程不可用時再回退到既有方式。
+
 ### Step 1 — 寫入 Obsidian（最優先）
 
 - 辨識來源型別：YouTube / X / article / repo
