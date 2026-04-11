@@ -1,115 +1,243 @@
 ---
 name: llm-wiki
-description: "Unified LLM Wiki ingestion orchestrator. Use when Pigo provides YouTube/X/article URLs and wants one workflow that: (1) writes to Obsidian first, (2) syncs to Notion input database, (3) updates llm-wiki index/log/cross-links, (4) commits and pushes."
+description: Use when ingesting external sources or work materials into Pigo's Obsidian wiki, especially when a workflow needs Obsidian-first filing, optional Notion input sync, index/log maintenance, cross-reference updates, git sync, or routing content into either the Learning area or the parallel Lumentum work knowledge area.
 ---
 
 # LLM Wiki Skill
 
-## Description
-
-此 Skill 是統一入口（single entrypoint）：
-
-- 一次處理 YouTube / X / 一般文章 URL
-- Step 1（最優先）：寫入 Obsidian vault
-- Step 2：寫入 Notion input database
-- Step 3：維護 llm-wiki 骨架（`index.md`、`log.md`、cross-links）
-- Step 4：Git commit + push
-
 ## Core Principle
 
-The vault at `/home/pigo/Documents/Pigo` is an LLM-maintained wiki.
+Pigo 的 Obsidian vault 是一個由 LLM 維護的可累積知識庫，不是每次重新推理的暫存區。
 
-> **別讓 AI 每次都從零開始幫你想，讓它幫你把知識攢起來。**
-> — 范凱（fankaishuoai），2+ 個月 OpenClaw + Obsidian 實踐
+實際主 vault：
 
-**Human's job:** curate sources, ask good questions, think about meaning.
-**LLM's job:** summarize, cross-reference, file, lint — all bookkeeping.
+`C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian`
 
-## Unified Entry
+Human 負責挑來源、問問題、判斷價值。  
+LLM 負責整理、結構化、交叉連結、維護索引與時間線。
 
-當使用者提供 URL 時，統一使用以下入口意圖：
+## Two Parallel Knowledge Areas
 
-`請用 llm-wiki ingest 這個連結：<URL>`
+### 1. Learning
 
-## Default Targets
+`Learning/` 保留給外部學習型知識：
 
-- Obsidian Vault: `/home/pigo/Documents/Pigo`
-- Notion database: `Ai DataBase View`（input database）
-- Notion data source: `collection://6c262f43-ffdb-4b3b-b5a5-38c02ac8a2e1`
+- YouTube
+- Twitter/X
+- 文章
+- Notion 知識整理
+- Repo 學習筆記
 
-若使用者明確指定其他路徑或資料庫，優先遵照使用者指定。
+### 2. Lumentum
 
-## Unified Ingest Pipeline（正確順序）
+`Lumentum/` 是與 `Learning/` 平行的工作知識區，專門存放：
 
-### Step 1 — 來源判斷與 Obsidian 寫入（最優先）
+- 週報
+- 會議筆記
+- 專案追蹤
+- 問題單 / 異常 / RMA / FA / customer issue
 
-1. **來源判斷與 metadata 萃取**
-   - 辨識來源型別：YouTube / X / Article / Repo
-   - 抽取最小必要 metadata（title、url、id、author、published date）
+不要把 Lumentum 工作內容混寫進 `Learning/`。
 
-2. **寫入 Obsidian vault**
-   - 寫入對應 `Learning/` 子目錄（YouTube → `youtube/`、X → `twitter/`、Article → `articles/`、Repo → `repos/`）
-   - frontmatter 至少包含：`source`、`source_url`、`processed: true`、`classification_path`
-   - **每篇筆記必須包含 `## 全文（繁中重寫）` 區塊**：用繁體中文將原文內容重新轉寫成流暢、可讀的段落，不可省略此區塊
-   - 內容以「可重用知識」為主，同時保留全文轉寫作為背後依據
-   - 先完成 Obsidian 檔案寫入與路徑確認
+## Three Core Actions
 
-### Step 2 — Notion Input Database 同步
+### Ingest
 
-- 查重（同 URL 或同來源 ID）
+1. 讀取來源內容
+2. 抽取重點，不逐字轉錄
+3. 根據 routing rule 寫入正確區域
+4. 更新該區域的 `index.md`
+5. 必要時補上交叉連結
+6. 更新該區域的 `log.md`
+7. 若這次 ingest 屬於正式同步流程，再做 git commit + push
+
+### Query
+
+1. 先查 vault 現有內容
+2. 用既有筆記回答
+3. 若在回答過程發現缺少連結、摘要或新關聯，應寫回 wiki
+
+### Lint
+
+定期檢查：
+
+- 遺漏入口的筆記
+- 缺少 cross-reference 的工作議題
+- 舊結論被新週報覆蓋但未更新
+- 重複建立但未整併的主題
+
+## Unified URL Ingest Pipeline
+
+當使用者提供 YouTube / X / article / repo URL 並要求用 `llm-wiki` ingest 時，預設順序如下：
+
+### Step 1 — 寫入 Obsidian（最優先）
+
+- 辨識來源型別：YouTube / X / article / repo
+- 抽取必要 metadata：title、url、author、published date、source id
+- 先寫入對應的 `Learning/` 子目錄
+- frontmatter 至少保留：`source`、`source_url`、`processed: true`、`classification_path`
+
+### Step 2 — Optional Notion input sync
+
+如果這次流程有要求同步 Notion input database：
+
+- 先查重
 - 有則 update，無則 create
-- 至少回填：標題、URL、來源平台、處理狀態
-- Notion page URL 取得後再繼續下一步
+- 至少回填：title、URL、source、status
 
-### Step 3 — 維護 llm-wiki 骨架
+### Step 3 — Update index / log / cross-links
 
-- 更新 `index.md` 對應分類入口（Sources / Entities / Concepts 適當位置）
+- 更新對應區域入口
 - 補齊 related links / cross-links
-- 在 `log.md` 追加一筆 ingest 記錄（append-only，格式：`## [YYYY-MM-DD] ingest | <標題>`）
+- append `log.md`
 
-### Step 4 — Git Commit + Push（最後執行）
+### Step 4 — Git sync
+
+只有在這次 ingest 明確屬於正式同步流程時才做：
 
 - `git add -A`
-- `git commit -m "feat: add <type> - <title>"`
+- `git commit -m "..."`
 - `git pull origin main --rebase`
 - `git push origin main`
 
----
+## Zone-Local Index and Log
 
-## Source Routing Rules
+這個 vault 採用「區域自管」而不是單一全域 `index.md` / `log.md`。
 
-| Source | Delegate Skill / Method | Obsidian Destination |
-|--------|------------------------|---------------------|
-| YouTube URL | `youtube-obsidian-notion-ingest`（由 llm-wiki 統一編排） | `Learning/youtube/` |
-| Twitter/X URL | `curl`/`jina` + llm-wiki 整理 | `Learning/twitter/` |
-| Substack/News/Blog | `curl`/`web_fetch`/`jina` + llm-wiki 整理 | `Learning/articles/` |
-| GitHub repo | metadata + llm-wiki 整理 | `Learning/repos/` |
+### Learning
 
----
+由 `Learning/` 下各子目錄依既有方式維護。
 
-## Query（查詢）
+### Lumentum
 
-1. Search vault for relevant notes
-2. Synthesize answer from existing notes
-3. If new connections discovered during query, write them back to wiki
-4. If answer is valuable, file it as a new note
-5. Cite note paths
+固定維護：
 
----
+- `Lumentum/index.md`
+- `Lumentum/log.md`
 
-## Lint（健康檢查）
+`log.md` 格式固定為：
 
-Periodic checks for:
-- Orphan pages (no inbound links)
-- Stale claims superseded by newer sources
-- Missing cross-references
-- Contradictions between pages
-- Concepts mentioned but without their own page
+`## [YYYY-MM-DD] <action> | <description>`
 
----
+## Routing Rules
 
-## Schema Reference
+| Source type | Destination |
+| --- | --- |
+| YouTube / Twitter / article / external learning content | `Learning/*` |
+| Lumentum weekly report | `Lumentum/Weekly Reports/<year>/` |
+| Lumentum meeting notes | `Lumentum/Meetings/` |
+| Lumentum project notes | `Lumentum/Projects/` |
+| Lumentum issue / RMA / FA / abnormality note | `Lumentum/Issues/` |
 
-See `references/llm-wiki-architecture.md` for Karpathy's original LLM Wiki Idea File.
+## Weekly Report Rule
 
-See `references/agents-md-guide.md` for how to structure AGENTS.md as the wiki's schema layer.
+Lumentum 週報一律視為結構化工作知識，而不是學習資料。
+
+### Path format
+
+`Lumentum/Weekly Reports/<year>/CY<yy>W<ww> - <title>.md`
+
+### Required frontmatter
+
+- `title`
+- `company: Lumentum`
+- `workspace: Lumentum`
+- `type: weekly-report`
+- `team`
+- `cycle_year`
+- `week`
+- `source_file`
+- `source_path`
+- `tags`
+
+### Required sections
+
+- `## 核心摘要`
+- `## 本週重點`
+- `## 風險與異常`
+- `## 待追蹤事項`
+- `## 我會怎麼用這份週報`
+- `## Source`
+
+### Relationship indexing
+
+對週報做 index / lint 時，除了年度與週次索引，還要維護兩種「可查找主 key」：
+
+- `RMA / Issue key`
+- `Customer key`
+
+預設維護方式：
+
+- `Lumentum/Issues/index.md`
+- `Lumentum/Issues/RMA Keys/<slug>.md`
+- `Lumentum/Customers/index.md`
+- `Lumentum/Customers/Keys/<slug>.md`
+
+其中：
+
+- `RMA / Issue key` 以週報裡可持續追蹤的問題主題為準
+  - 例如：`HL13B5(EML) Kink failure`
+  - 例如：`LD Open after Burn-in`
+  - 例如：`JT6C (Takao-CW-LD)`
+- `Customer key` 以客戶名稱或客戶縮寫為準
+  - 例如：`Coherent`
+  - 例如：`INLT`
+  - 例如：`NVIDIA`
+  - 例如：`TFC`
+
+每次重建 weekly report index 時，應：
+
+1. 從週報筆記抽出 `RMA / Issue key`
+2. 從同一筆記抽出 `Customer key`
+3. 讓同一 issue page 能回到所有相關週報
+4. 讓同一 customer page 能回到所有相關週報
+5. 在 issue/customer page 中保留對向關聯
+   - issue page 列出相關 customers
+   - customer page 列出相關 issues
+
+## Writing Standard
+
+- 用結構化摘要，不要只是貼原文
+- 保留產品、客戶、owner、風險、deadline、RMA/FA 關聯
+- 如果週報提到可持續追蹤的議題，可在 `Issues/` 或 `Projects/` 建立後續筆記並互連
+- 如果只是單次事件，至少要在週報筆記中留下清楚可搜尋的關鍵字
+
+## Preferred Note Template (Pigo Longform)
+
+當使用者明確要求「照指定格式整理筆記」或提到 `NotebookLM / Notion 內容重寫` 時，優先套用以下章節順序：
+
+1. `## 核心摘要`
+2. `## 文章分析`
+3. `## 關鍵知識點`
+4. `## 我會怎麼用這篇文章`
+5. `## 全文（繁中重寫）`
+6. `## 原文區塊`
+7. `## Source`
+8. `## 關聯筆記`
+
+補充規則：
+
+- 若來源資訊不足，必須在 `文章分析` 或 `風險與限制` 明確標記「已驗證內容邊界」。
+- `原文區塊` 只保留可驗證原文，不要補寫未驗證段落。
+- `Source` 必須包含可追溯欄位（URL、頁面 ID、擷取時間、平台屬性）。
+- `關聯筆記` 優先連到該領域 index / MOC 與同主題高相關筆記。
+
+完整範本與示例見：
+
+- `references/pigo-note-format-notebooklm-chrome-plugins.md`
+
+## Query Behavior
+
+當 Pigo 問工作問題時：
+
+1. 先查 `Lumentum/`
+2. 若是學習性問題再查 `Learning/`
+3. 若查詢過程中發現某週報應該補上 issue / project 連結，應順手補寫
+
+## References
+
+See `references/llm-wiki-architecture.md` for the original LLM Wiki concept.
+
+See `references/agents-md-guide.md` for schema-layer guidance.
+
+See `references/pigo-note-format-notebooklm-chrome-plugins.md` for the preferred longform note template and worked example.
