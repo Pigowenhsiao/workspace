@@ -72,6 +72,14 @@
     "bb-browser": {
       "version": "0.6.0",
       "installedAt": 1775812633333
+    },
+    "obsidian-cli": {
+      "version": "2.0.0",
+      "installedAt": 1776174669821
+    },
+    "taste": {
+      "version": "1.0.0",
+      "installedAt": 1776330326582
     }
   }
 }

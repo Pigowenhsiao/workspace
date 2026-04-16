@@ -1,68 +1,105 @@
 ---
 name: news-aggregator
-version: 1.0.3
-description: 国内外社会、科技、军事新闻汇总。自动搜索、筛选、整理新闻要点。
+version: 2.0.0
+description: 科技、軍事、財經、國際新聞彙總。全部翻譯為繁體中文。每個類別抓取10筆新聞。
 license: MIT
 ---
 
 # News Aggregator
 
-聚合国内外社会、科技、军事新闻，自动筛选要点。
+聚合科技、軍事、財經、國際新聞，翻譯為繁體中文輸出。每個類別抓取 10 筆新聞。
 
-## 新闻源
+## 新聞源與備用源
 
-### 国内科技
-- 36氪 (https://36kr.com/information/tech/)
-- 机器之心 (https://www.jiqizhixin.com/)
-- 量子位 (https://www.1baijia.com/)
-- IT之家 (https://www.ithome.com/)
+### 🤖 科技新聞（主要：Reddit）
+- 主要：Reddit r/technology、r/programming、r/artificial
+- RSS：`https://www.reddit.com/r/{subreddit}/new.rss`
+- 備用 1：TechCrunch (https://techcrunch.com)
+- 備用 2：The Verge (https://www.theverge.com)
+- 備用 3：Ars Technica (https://arstechnica.com)
+- 備用 4：Hacker News (https://news.ycombinator.com)
 
-### 国内军事
-- 观察者网 (https://www.guancha.cn/)
-- 澎湃新闻 (https://www.thepaper.cn/)
-- 腾讯军事 (https://new.qq.com/om/mil/)
+### ⚔️ 軍事新聞（主要：NBC News）
+- 主要：NBC News Military (https://www.nbcnews.com/military)
+- 備用 1：Defense News (https://www.defensenews.com)
+- 備用 2：Military Times (https://www.militarytimes.com)
+- 備用 3：Jane's Defence (https://www.janes.com)
+- 備用 4：路透社軍事 (https://www.reuters.com/topics/arms)
 
-### 国际科技
-- TechCrunch
-- The Verge
-- Wired
-- Ars Technica
+### 💰 財經新聞（主要：CNBC）
+- 主要：CNBC Top News (https://www.cnbc.com)
+- RSS：`https://www.cnbc.com/id/100003114/device/rss/rss.html`
+- 備用 1：Yahoo Finance (https://finance.yahoo.com)
+- 備用 2：Bloomberg (https://www.bloomberg.com)
+- 備用 3：MarketWatch (https://www.marketwatch.com)
+- 備用 4：CNN Business (https://money.cnn.com)
 
-### 国际军事
-- Defense News
-- Jane's Defence
-- Military Times
+### 🌍 國際新聞（主要：CNN）
+- 主要：CNN World News (https://www.cnn.com/world)
+- 備用 1：BBC News (https://www.bbc.com/news)
+- 備用 2：路透社 (https://www.reuters.com)
+- 備用 3：AP News (https://www.apnews.com)
+- 備用 4：Al Jazeera (https://www.aljazeera.com)
 
 ## 工作流
 
-1. **搜索** - 用 tavily 或 web_fetch 搜索各源
-2. **筛选** - 过滤重复、过期、不可靠来源
-3. **整理** - 按类别整理，每条含标题、来源、要点
-4. **输出** - 生成结构化汇总
+1. **優先抓主要 RSS** - 用 curl 帶 User-Agent 抓 RSS（最快）
+2. **RSS 失敗時換備用** - 依序嘗試備用 RSS，最後用 Tavily 搜尋
+3. **翻譯** - 所有內容翻譯為繁體中文
+4. **整理** - 每類 10 條新聞，標題 + 來源 + 摘要
+5. **輸出** - 寫入 Obsidian vault
 
-## 可信度规则
+## RSS 抓取方式
 
-**优先：**
+```bash
+# Reddit RSS
+curl -L -A "Mozilla/5.0" --max-time 15 "https://www.reddit.com/r/technology/new.rss"
+
+# CNBC RSS
+curl -L -A "Mozilla/5.0" --max-time 15 "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+```
+
+## 可信度規則
+
+**優先：**
 - 官方媒体报道
-- 权威机构发布
+- 權威機構發布
 
-**谨慎：**
-- 论坛帖子
+**謹慎：**
+- 論壇帖文
 - 匿名消息
-- 二手转载
 
-## 输出格式
+## 輸出格式
 
 ```markdown
-## 科技新闻
+## 🤖 科技新聞（10則）
 
-1. [标题](链接)
-   来源：xxx | 时间：xxx
-   要点：xxx
+1. [標題](連結)
+   來源：xxx | 時間：xxx
+   摘要：xxx（繁體中文）
 
-## 军事新闻
+## ⚔️ 軍事新聞（10則）
 
-1. [标题](链接)
-   来源：xxx | 时间：xxx
-   要点：xxx
+1. [標題](連結)
+   來源：NBC News | 時間：xxx
+   摘要：xxx（繁體中文）
+
+## 💰 財經新聞（10則）
+
+1. [標題](連結)
+   來源：CNBC | 時間：xxx
+   摘要：xxx（繁體中文）
+
+## 🌍 國際新聞（10則）
+
+1. [標題](連結)
+   來源：CNN | 時間：xxx
+   摘要：xxx（繁體中文）
 ```
+
+## 翻譯原則
+
+- 全部翻譯為繁體中文
+- 術語保留原文並附上翻譯（如：AI（人工智慧）、LLM（大語言模型））
+- 保持原文語氣和風格
+- 標注新聞來源與發布時間

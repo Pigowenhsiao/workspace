@@ -1,6 +1,9 @@
 ---
 name: ce:review
-description: "Structured code review using tiered persona agents, confidence-gated findings, and a merge/dedup pipeline. Use when reviewing code changes before creating a PR."
+description: |
+  Structured code review using tiered persona agents, confidence-gated findings, and a merge/dedup pipeline. Use when reviewing code changes before creating a PR.
+  觸發詞：「review」、「code review」、「審查代碼」、「審視PR」、「檢查代碼」、「程式碼審查」、「cr review」、「PR review」、「review這個」、「看看這個PR」、「程式碼健檢」
+  使用時機：建立 PR 前、或迭代實作過程中需要審查代碼變更時使用。
 argument-hint: "[blank to review current branch, or provide PR link]"
 ---
 

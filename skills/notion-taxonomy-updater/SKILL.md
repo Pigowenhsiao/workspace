@@ -1,6 +1,9 @@
 ---
 name: notion-taxonomy-updater
-description: Batch-update classification properties in the user's Notion `Ai DataBase View` via Notion MCP. Use when the user asks to read a topic/tag, add taxonomy columns, classify pages like Clawdbot/Codex/Claude/Gemini, or write back multi-select properties in that database.
+description: |
+  Batch-update classification properties in the user's Notion `Ai DataBase View` via Notion MCP. Use when the user asks to read a topic/tag, add taxonomy columns, classify pages like Clawdbot/Codex/Claude/Gemini, or write back multi-select properties in that database.
+  觸發詞：「更新Notion分類」、「分類這些頁面」、「Notion資料庫」、「標籤更新」、「Codex分類」、「Gemini分類」、「寫入Notion」、「notion taxonomy」、「classify pages」、「更新已處理」、「Notion同步Obsidian」
+  使用時機：使用者要求對 Notion 資料庫中的頁面進行分類、更新標籤、寫入多選項屬性，或將 Notion 頁面同步到 Obsidian。
 ---
 
 # Notion Taxonomy Updater

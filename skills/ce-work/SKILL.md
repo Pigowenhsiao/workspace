@@ -1,6 +1,9 @@
 ---
 name: ce:work
-description: Execute work efficiently while maintaining quality and finishing features
+description: |
+  Execute work efficiently while maintaining quality and finishing features. Takes a plan document or bare prompt describing the work, then executes systematically with task tracking, pattern matching, continuous testing, and incremental commits.
+  觸發詞：「開始工作」、「執行計畫」、「完成功能」、「幫我做這個」、「幫我開發」、「做這個功能」、「寫完這個」、「執行這個task」、「ce work」、「開始coding」、「交付功能」
+  使用時機：使用者提供一個計畫文件或工作描述，要求執行並完成時使用本技能。
 argument-hint: "[Plan doc path or description of work. Blank to auto use latest plan doc]"
 ---
 

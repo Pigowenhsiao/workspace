@@ -1,7 +1,10 @@
 ---
 name: skill-vetter
 version: 1.0.0
-description: Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.
+description: |
+  Security-first skill vetting for AI agents. Use before installing any skill from ClawdHub, GitHub, or other sources. Checks for red flags, permission scope, and suspicious patterns.
+  觸發詞：「安裝skill」、「install skill」、「vet skill」、「安全檢查」、「skill安全」、「檢查這個skill」、「skill審查」、「新skill安全嗎」、「這個skill能不能裝」、「安全性審查」、「ClawHub skill」、「第三方skill」
+  使用時機：安裝任何第三方 skill 前、評估來自 ClawdHub/GitHub 的 skill 時使用。
 ---
 
 # Skill Vetter 🔒

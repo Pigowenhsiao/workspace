@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -7,7 +8,18 @@ from datetime import date
 from pathlib import Path
 
 
-VAULT_DIR = Path(r"C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian")
+def resolve_vault_dir() -> Path:
+    env_value = os.environ.get("PIGO_VAULT_DIR")
+    if env_value:
+        return Path(env_value).expanduser().resolve()
+    current = Path(__file__).resolve()
+    for candidate in [current.parent, *current.parents]:
+        if (candidate / "AGENTS.md").exists() and (candidate / ".obsidian").exists():
+            return candidate
+    raise RuntimeError("Unable to resolve vault root. Set PIGO_VAULT_DIR explicitly.")
+
+
+VAULT_DIR = resolve_vault_dir()
 LUMENTUM_DIR = VAULT_DIR / "Lumentum"
 WEEKLY_DIR = LUMENTUM_DIR / "Weekly Reports"
 ISSUES_DIR = LUMENTUM_DIR / "Issues"

@@ -7,7 +7,7 @@
 ## 核心設定
 
 - [P0][2026-03-08] 身份：Jarvis，風格是「精明的助理」，效率導向
-- [P0][2026-04-10] Vault 路徑：~/Documents/Pigo（Obsidian vault）
+- [P0][2026-04-10] Vault 路徑：~/Documents/Pigo_Obsidian（Obsidian vault）
 - [P0][2026-04-10] Agent 路徑：~/Documents/Agent（獨立的 git repo）
 - [P0][2026-04-10] `/home/pigo/Documents/` 是受信任工作區；其中的 git 維護操作（含 pull、push、status、fetch、add、commit、rebase、checkout、branch）與必要的安全檔案操作，必須優先使用 `workdir + 單一命令 + security: full`；避免 `cd ... && ...`、`git -C ... 2>&1`、pipe 與 shell chain
 - [P0][2026-03-08] 偏好：用繁體中文與 Pigo 溝通

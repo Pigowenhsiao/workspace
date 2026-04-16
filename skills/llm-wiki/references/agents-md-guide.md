@@ -1,78 +1,100 @@
-# AGENTS.md as Wiki Schema Layer
+# AGENTS.md Guide for LLM Wiki Runtime
 
-`AGENTS.md` 是定義 LLM Wiki 操作規則的核心配置文件。相當於 vault 的「法則」——告訴任何接手這個 vault 的 LLM：目錄結構是什麼、約定是什麼、每個 workflow 怎麼跑。
+這份文件說明 `AGENTS.md` 在 `Pigo_Obsidian` 中扮演的角色。
 
----
+## 定位
 
-## 基本結構
+`AGENTS.md` 是整個 vault 的中央 dispatcher 與操作規則層。
 
-```markdown
-# Vault Schema
+它負責：
 
-## 目錄結構
-- `Learning/` — 學習筆記
-  - `youtube/` — YouTube 影片報告
-  - `twitter/` — Twitter/X 推文存檔
-  - `articles/` — 部落格、Newsletter 文章
-  - `notion-*/` — Notion 遷移內容
-- `index.md` — Wiki 全域目錄
-- `log.md` — 時間線日誌
+- 定義技能與 agent 的路由順序
+- 指定哪些 workflow 要優先走 local skill
+- 指定 vault 的固定路徑與操作習慣
+- 約束哪些內容可以寫、哪些位置不能再用
 
-## 命名約定
-- 檔名：`主題-關鍵描述.md`（中文）
-- 範例：`Gemma-on-Raspberry-Pi-本地AI設定.md`
+它不是用來承載知識內容本身，而是用來約束知識如何被處理。
 
-## Frontmatter 格式
-```yaml
----
-date: YYYY-MM-DD
-source: URL or Channel name
-tags: [tag1, tag2]
----
-```
+## 在 llm-wiki 流程中的作用
 
-## Ingest Workflow
-1. Fetch source
-2. Synthesize (not transcribe)
-3. Write to appropriate subdirectory
-4. Update index.md
-5. Update cross-references
-6. Append to log.md
+當 `llm-wiki` 被觸發時，`AGENTS.md` 會決定：
 
-## Query Response Format
-- Synthesize from existing notes
-- File valuable discoveries back to wiki
-- Always cite sources with [[links]]
+- 是否真的該走 `llm-wiki`
+- 還是其實應該走：
+  - `note-update`
+  - `inbox-check`
+  - `vault-check`
+  - 其他更合適的 local skill
 
-## Lint Frequency
-每週或每累積 10 個新來源後，主動做一次 lint。
+因此 `AGENTS.md` 是 routing layer，`llm-wiki` 是 execution workflow。
 
-## Git Workflow
-- `git add -A && git commit -m "feat: add <type> - <title>"`
-- `git pull origin main --rebase && git push origin main`
-- Always use --rebase, never merge
-```
+## 與舊 Schema 模型的關係
 
----
+舊的通用 LLM Wiki 常會使用：
 
-## 為什麼 AGENTS.md 重要
+- `SCHEMA.md`
+- `index.md`
+- `log.md`
 
-- **不綁定特定 AI**：無論是 OpenClaw、Claude Code、還是其他 Agent，讀了 AGENTS.md 就能正確操作 vault
-- **沉澱工作流**：你和 LLM 共同演化出來的約定，不會因為換 session 就消失
-- **自我說明的 wiki**：新 AI 接手時，不需要人類解釋，直接讀 AGENTS.md
+作為知識庫約束層。
 
----
+在 `Pigo_Obsidian` 中，這個角色已由以下組合取代：
 
-## 與 Karpathy Schema 的對應
+- `AGENTS.md`：全域 routing 與操作規則
+- `Meta/vault-structure.md`：結構說明
+- `Learning/.../index.md`：內容入口
+- `Learning/status/LLM-Wiki-Index.md`：llm-wiki 專用索引
+- `Learning/status/LLM-Wiki-Ingest-Log.md`：llm-wiki 專用歷史
 
-| Karpathy 說的 | AGENTS.md 裡的位置 |
-|--------------|-------------------|
-| Raw sources 目錄 | `Learning/` 各子目錄 |
-| Wiki 結構 | `index.md` + `Learning/` 子目錄 |
-| 操作規則（Schema） | 本文件 `AGENTS.md` |
-| Index file | `index.md` |
-| Log file | `log.md` |
+也就是說，這個 vault 不再依賴單一 `SCHEMA.md` 作為規則中心。
 
----
+## 建議在 AGENTS.md 內維持的 llm-wiki 規則
 
-*由 Librarian skill 自動歸檔*
+### 1. 路由優先順序
+
+- skills first
+- agents second
+- 同類需求優先走已存在的 local crew workflow
+
+### 2. llm-wiki 的邊界
+
+應明確規定：
+
+- `llm-wiki` 用於外部來源 ingest、結構化知識沉澱、索引與 cross-link 維護
+- 單篇既有筆記升級應優先考慮 `note-update`
+- 批次整理 Inbox 應優先考慮 `inbox-check`
+
+### 3. 內容落點
+
+應明確規定：
+
+- `llm-wiki/` 只保留 runtime/reference
+- 正式內容落到 `Learning/` 與其他既有內容域
+
+### 4. 驗證義務
+
+每次 llm-wiki 相關修改後，應檢查：
+
+- 是否放對目錄
+- 是否更新索引
+- 是否有壞連結
+- 是否誤把內容寫回 `llm-wiki/`
+
+## 實際使用原則
+
+如果之後有人要調整 `llm-wiki`，應先看：
+
+1. `AGENTS.md`
+2. `Meta/vault-structure.md`
+3. `llm-wiki/SKILL.md`
+4. `llm-wiki/references/`
+
+不要只改單一 skill 而忽略 dispatcher 規則，不然很容易造成：
+
+- 路由與落點不一致
+- 舊目錄被重新啟用
+- skill 邊界再次漂移
+
+## 一句話總結
+
+在這個 vault 中，`AGENTS.md` 是 llm-wiki 的上位規則層；它不是知識內容模板，而是整個 runtime 的操作憲法。
