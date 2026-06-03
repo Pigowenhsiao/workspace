@@ -80,6 +80,30 @@
     "taste": {
       "version": "1.0.0",
       "installedAt": 1776330326582
+    },
+    "inter-agent-communication": {
+      "version": "0.1.0",
+      "installedAt": 1777446880374
+    },
+    "multi-agent-group-chat": {
+      "version": "2.0.0",
+      "installedAt": 1777446884397
+    },
+    "openclaw-aisa-web-search-tavily": {
+      "version": "1.0.0",
+      "installedAt": 1777565123804
+    },
+    "aihot": {
+      "version": "0.1.1",
+      "installedAt": 1778276558184
+    },
+    "codex": {
+      "version": "1.0.0",
+      "installedAt": 1778284555326
+    },
+    "gstack-openclaw": {
+      "version": "2.5.10",
+      "installedAt": 1778284557791
     }
   }
 }

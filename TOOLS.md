@@ -39,6 +39,12 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 Add whatever helps you do your job. This is your cheat sheet.
 
+## Agent Repo
+
+- Path: `/home/pigo/Documents/Agent/`
+- Skill Index: `docs/Skill_Index.md`（473 skills）
+- Git repo，sync with remote
+
 ## News Fetch Notes
 
 - CNBC 官方 RSS 可用：

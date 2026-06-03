@@ -7,139 +7,194 @@ description: Use when the user wants a low-frequency full-vault health check for
 
 ## Description
 
-`vault-check` æ˜¯ Pigo vault çš„ä½Žé »å…¨å±€æª¢æŸ¥æ¨¡å¼ã€‚  
-å®ƒçš„å·¥ä½œä¸æ˜¯å¤§é‡æ”¹æª”ï¼Œè€Œæ˜¯å…ˆç”¨ `.vault-index` åšå€™é¸ç›¤é»žï¼Œå†è¼¸å‡ºä¸€ä»½å¯åŸ·è¡Œçš„å¥åº·æª¢æŸ¥çµæžœã€é¢¨éšªåˆ†ç´šèˆ‡å¾ŒçºŒå»ºè­°ã€‚
+`vault-check` 是 Pigo vault 的低頻全局檢查模式。
+它的工作不是大量改檔，而是先用 vault index 做候選聚焦，再輸出一份可執行的健康檢查結果、風險分級與後續建議。
 
 ## When to Use
 
-ä½¿ç”¨æ™‚æ©Ÿï¼š
+使用時機：
 
-- ä½ è¦åšæ•´å€‹ vault çš„å¥åº·æª¢æŸ¥
-- ä½ æ‡·ç–‘æœ‰é‡è¤‡ç­†è¨˜ã€å­¤å…’ç­†è¨˜ã€åˆ†é¡žæ¼‚ç§»æˆ– index éºæ¼
-- å¤§é‡æ¬ç§»ã€åˆä½µæˆ–é‡åˆ†é¡žä¹‹å‰ï¼Œè¦å…ˆç›¤é»žé¢¨éšª
-- `vault-reshape` æˆ– `vault-deep-clean` åŸ·è¡Œå‰å¾Œï¼Œéœ€è¦ä¸€ä»½åŸºæº–å ±å‘Š
+- 你要做整個 vault 的健康檢查
+- 你懷疑有重複筆記、孤島筆記、分類漂移或 index 遺漏
+- 大量搬移、合併或重分類之前，要先聚焦風險
+- `vault-reshape` 或 `vault-deep-clean` 執行前後，需要一份基準報告
 
-ä¸è¦ç”¨åœ¨ï¼š
+不要用在：
 
-- å–®ç¯‡ç­†è¨˜æ­£å¼åŒ–ï¼šæ”¹ç”¨ `note-update`
-- `00-Inbox` å°æ‰¹æ¬¡æ•´ç†ï¼šæ”¹ç”¨ `inbox-triage`
-- å¤§è¦æ¨¡çµæ§‹é‡æ•´ï¼šæ”¹ç”¨ `vault-reshape`
-- æ·±åº¦ä¿®å¾©èˆ‡æ‰¹æ¬¡æ¸…ç†ï¼šæ”¹ç”¨ `vault-deep-clean`
+- 單篇筆記正式化：改用 `note-update`
+- `00-Inbox` 小批次整理：改用 `inbox-triage`
+- 大規模結構重整：改用 `vault-reshape`
+- 深度修補與批次清理：改用 `vault-deep-clean`
 
-## Vault Index Usage
+## Vault Root
 
-æŠŠ vault index è¦–ç‚º primary lookupï¼Œä¸è¦ä¸€é–‹å§‹å°±æš´åŠ›æŽƒæ•´å€‹ vaultã€‚
+`/home/pigo/Documents/Pigo_Obsidian`
 
-- Vault rootï¼š
-  `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian`
-- Query toolï¼š
-  `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian\.vault-index\query_vault.py`
-- Databaseï¼š
-  `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian\.vault-index\notes.db`
+---
 
-å„ªå…ˆæŸ¥é€™äº›ï¼š
+## 執行流程（實測修正版）
 
-- `duplicate-candidates`
-- `fts`
-- `by-classification`
-- `links-to`
-- `links-from`
+### Phase 1：分層探測（嚴禁一開始暴力掃描）
 
-åŽŸå‰‡ï¼š
+Vault 有大量目錄，直接用 `find . -name "*.md" | wc -l` 或 `rg` 很容易觸發 allowlist 限制。
+**正確做法：分層 spot-check + targeted 查詢。**
 
-1. å…ˆç”¨ index æ‰¾å€™é¸é›†åˆ
-2. å†å°é«˜é¢¨éšªæˆ–é«˜åƒ¹å€¼å€™é¸åšé€æª”æª¢æŸ¥
-3. åªæœ‰åœ¨ index ä¸å¯ç”¨ã€æˆ–è¦é©—è­‰ç´°ç¯€æ™‚æ‰ fallback åˆ° `rg`
+**Step 1：建立 vault 地圖**
+
+```bash
+# 根目錄結構造形
+ls /home/pigo/Documents/Pigo_Obsidian/
+
+# 重點區域 spot-check
+ls /home/pigo/Documents/Pigo_Obsidian/00-Inbox/ | head -30    # inbox 現況
+ls /home/pigo/Documents/Pigo_Obsidian/08-Learning/          # 學習區結構
+ls /home/pigo/Documents/Pigo_Obsidian/09-Article-Notes/      # 文章區結構
+ls /home/pigo/Documents/Pigo_Obsidian/10-LLM-Wiki/           # 確認舊 runtime 無正式內容
+ls /home/pigo/Documents/Pigo_Obsidian/12-Meta/               # 維護文件
+ls /home/pigo/Documents/Pigo_Obsidian/11-MOC/                 # 導航層
+```
+
+**Step 2：Targeted 問題查詢（用 `find` 但只對特定問題）**
+
+```bash
+# staging/backup 檔
+ls /home/pigo/Documents/Pigo_Obsidian/*.bak.md 2>/dev/null
+ls /home/pigo/Documents/Pigo_Obsidian/STATUS_*.md 2>/dev/null
+
+# 舊分類殘留
+ls /home/pigo/Documents/Pigo_Obsidian/01.1-TEST\ STUDY/ 2>/dev/null
+ls /home/pigo/Documents/Pigo_Obsidian/"Archive 5j"/ 2>/dev/null
+
+# 確認 10-LLM-Wiki 無正式內容
+ls /home/pigo/Documents/Pigo_Obsidian/10-LLM-Wiki/entities/ 2>/dev/null
+ls /home/pigo/Documents/Pigo_Obsidian/10-LLM-Wiki/raw/ 2>/dev/null
+```
+
+### Phase 2：每次 check 都要檢查的 5 類結構問題
+
+1. **Staging 檔堆積**（vault root）
+   - `AGENTS.*.bak.md`、`skill_diff_*.json`、`skill_sync_*.log`
+   - `STATUS_*.md`（多個，可能是狀態報告）
+   - `CLAUDE.md` at root（可能是遷移殘留）
+   - `Vault-Classification.base`
+
+2. **命名異常目錄**
+   - `01.1-TEST STUDY/`（多了一個 dot）
+   - `Archive 5j/`
+
+3. **`10-LLM-Wiki/` 舊 runtime 殘留**
+   - `log.md`、`entities/`、`raw/`、`README.md`
+   - 現已遷移到 `~/.openclaw/workspace/skills/llm-wiki/`
+
+4. **Source 型分類殘留**
+   - `08-Learning/twitter/`、`08-Learning/youtube/`、`08-Learning/news/`
+   - 原則上逐漸收納成 topic-type，但仍可保留純 sources
+
+5. **00-Inbox 累積量**
+   - 抽樣：前 30 筆可見進度
+   - 超過 30 筆未整理要報告
+
+### Phase 3：Output 寫入規範
+
+**Check Report 寫到：**
+```
+12-Meta/vault-check-report-YYYY-MM-DD.md
+```
+
+**結構：**
+```
+1. 核心結論
+2. 主要風險（5 類結構問題）
+3. Low-risk 直接可處理清單
+4. Pending Approval Plan
+5. 建議下一步
+```
+
+---
 
 ## Risk-Tier Contract
 
 - `Low-risk`
-  å¯ç›´æŽ¥ç”¢å‡ºå ±å‘Šã€çµ±è¨ˆã€å€™é¸åå–®èˆ‡æ˜Žç¢ºå¯é€†çš„å°åž‹ hygiene å»ºè­°ã€‚
+  可直接產出報告、統計、明確可逆的小型 hygiene 建議。
 - `Medium-risk`
-  ä¸ç›´æŽ¥åŸ·è¡Œã€‚æ•´ç†æˆ `Pending Approval Plan`ï¼Œåˆ—å‡ºç²¾ç¢ºè·¯å¾‘ã€å»ºè­°å‹•ä½œã€å›žæ»¾æ–¹å¼ã€‚
+  不直接執行。整理成 `Pending Approval Plan`，列出精確路徑、建議動作、回滾方式。
 - `High-risk`
-  ä¸åœ¨ `vault-check` å…§åŸ·è¡Œã€‚æ‡‰è½‰çµ¦ `vault-reshape` æˆ– `vault-deep-clean`ã€‚
+  不在 `vault-check` 內執行。應移交 `vault-reshape` 或 `vault-deep-clean`。
+
+---
 
 ## Audit Workflow
 
 ### 1. Coverage Scan
 
-ç›¤é»žæ•´é«”è¦æ¨¡èˆ‡ä¸»è¦å€å¡Šï¼š
+聚焦整體規模與主要駐留：
 
-- note æ•¸é‡
-- ä¸»åˆ†é¡žè¦†è“‹
-- æœ€è¿‘æ›´æ–°ç†±å€
-- `youtube/twitter` é€™é¡žä¾†æºåž‹æ®˜ç•™å€å¡Š
+- 用 `ls` spot-check 各主要目錄現況
+- note 數量：抽樣估算（用 `ls` + count，不用 `find` 全量）
+- 主要分類覆蓋（`ls 08-Learning/`、`ls 09-Article-Notes/`）
+- `youtube/twitter` 這類來源型殘留區域
 
 ### 2. Duplicate Review
 
-æª¢æŸ¥ï¼š
+檢查：
 
-- åŒæ¨™é¡Œç«¶çˆ­é 
-- åŒ `source_url` ç«¶çˆ­é 
-- é«˜åº¦ç›¸è¿‘çš„æ­£å¼ç­†è¨˜
-
-è¼¸å‡ºï¼š
-
-- å¯ç›´æŽ¥æŽ’é™¤çš„å‡é™½æ€§
-- éœ€è¦äººå·¥åˆ¤æ–·çš„ merge candidates
+- 同標題競爭頁
+- 同 `source_url` 競爭頁
+- 高度相近的正式筆記
 
 ### 3. Link Health
 
-æª¢æŸ¥ï¼š
+檢查：
 
-- broken wikilinks
-- orphan notes
-- åªå‡ºç¾åœ¨å–®ä¸€å­¤ç«‹å€å¡Šçš„ç­†è¨˜
-- æ‡‰è¢« `index.md` æˆ–ä¸»é¡Œé æ”¶éŒ„ä½†å°šæœªæ”¶éŒ„çš„å…§å®¹
+- 指向舊 vault 路徑（如 `C:\Users\...`）的殘留連結
+- orphan notes（可用 `ls` spot-check 各 topic 目錄是否有 index.md）
+- 應被 `index.md` 或主題頁收錄但尚未收錄的內容
 
 ### 4. Metadata Health
 
-æª¢æŸ¥ï¼š
+檢查：
 
-- frontmatter ç¼ºæ¬„
-- `classification_path` èˆ‡å¯¦éš›è·¯å¾‘ä¸ä¸€è‡´
-- `processed` / `status` ä¸åˆç†
-- `Source` èˆ‡ `source_url` ç´€éŒ„ä¸ä¸€è‡´
+- frontmatter 欠缺（抽樣檢查）
+- `classification_path` 與實際路徑不一致
+- `processed` / `status` 不合理
 
 ### 5. Navigation Health
 
-æª¢æŸ¥ï¼š
+檢查：
 
-- `index.md` æ˜¯å¦ç¼ºå…¥å£
-- æ˜¯å¦å­˜åœ¨å€¼å¾—ç¨ç«‹æˆä¸»é¡Œé çš„ cluster
-- æ˜¯å¦æœ‰ä¾†æºåž‹åˆ†é¡žæ®˜ç•™ï¼Œæ‡‰æ”¶æ–‚æˆä¸»é¡Œåž‹åˆ†é¡ž
+- `index.md` 是否欠缺入口（`ls` 各目錄確認）
+- 是否存在值得立成主題頁的 cluster
+- 是否有來源型分類殘留，應收納成主題型分類
+
+---
 
 ## Expected Output
 
-è¼¸å‡ºæ‡‰è‡³å°‘åŒ…å«ï¼š
+輸出應至少包含：
 
-- `æ ¸å¿ƒçµè«–`
-- `ä¸»è¦é¢¨éšª`
-- `å¯ç›´æŽ¥è™•ç†çš„ low-risk é …ç›®`
+- `核心結論`
+- `主要風險`（5 類結構問題）
+- `Low-risk 直接可處理清單`
 - `Pending Approval Plan`
-- `å»ºè­°ä¸‹ä¸€æ­¥`
+- `建議下一步`
 
-è‹¥æœ‰å¯¦éš›ç”¢å‡ºæª”æ¡ˆï¼Œå„ªå…ˆæ”¾åœ¨ï¼š
+---
 
-- `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian\.vault-index\`
-  æˆ–
-- ç•¶å‰å°ˆæ¡ˆæ–‡ä»¶å€
+## 常見 mistake（犯過的，不要再犯）
 
-## Common Mistakes
+1. **一開始就用 `find . -name "*.md" | wc -l"` 計數** → 被 allowlist 拒絕
+2. **直接 `rg` 全 vault** → 容易被 allowlist 擋，改用 `ls` spot-check
+3. **跳過 vault root** → staging/backup/status 檔常在 vault root
+4. **忘記檢查 `10-LLM-Wiki/`** → 它已經是 runtime package，不是內容目錄
+5. **把所有問題一次處理** → 沒有風險分級，執行量過大
 
-- æŠŠ `vault-check` ç•¶æˆå…¨é¢æ”¹æª”å·¥å…·
-- ä¸ç¶“éŽ index å°±ç›´æŽ¥å…¨ vault æŽƒæ
-- æŠŠçµæ§‹é‡æ•´æ··é€² audit
-- åªåˆ—å•é¡Œï¼Œä¸åˆ—ç²¾ç¢ºè·¯å¾‘èˆ‡å»ºè­°å‹•ä½œ
-- æŠŠå–®ç¯‡ä¿®è£œå·¥ä½œå¡žé€²å…¨å±€ audit
+---
 
 ## Handoff
 
-`vault-check` å®Œæˆå¾Œï¼Œä¸‹ä¸€æ­¥é€šå¸¸æ˜¯ï¼š
+`vault-check` 完成後，下一步通常是：
 
-- `vault-reshape`
-- `vault-deep-clean`
+- `vault-deep-clean`（接著清理發現的問題）
+- `vault-reshape`（處理 Medium/High risk 的結構問題）
 - `tag-check`
-- æˆ–å›žåˆ° `note-update` / `inbox-triage` åšå®šé»žä¿®è£œ
-
+- 或回到 `note-update` / `inbox-triage` 做定點修補

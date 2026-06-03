@@ -2,6 +2,9 @@
 title: memory index
 description: 全域知識筆記快速索引與導航（自動產生）
 ---
+- memory/tasks/index.md
+  - title: 任務日誌（Task Log）
+  - description: 所有完成任務的時間線追蹤，格式：YYYY-MM-DD.md
 - memory/learning/5_Agent_Skill_Design_Patterns_Summary.md
   - title: 5 種 Agent 技能設計模式（摘要）
 - memory/learning/Advanced_OpenClaw.md
@@ -36,3 +39,5 @@ description: 全域知識筆記快速索引與導航（自動產生）
   - title: OpenClaw 與 gstack 連結與實作要點
 - memory/learning/OpenClaw_Three_Tier_Memory.md
   - title: OpenClaw 三層記憶模型與外部知識庫架構
+- memory/2026-05-03-memory-restore.md
+  - title: 2026-05-03 OpenClaw Memory Restore

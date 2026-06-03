@@ -19,6 +19,7 @@ This folder is home. Treat it that way.
   - `MEMORY.md`
   - `memory/index.md`
 - 然後列出 workspace 檔案清單，再按相關性擴充閱讀。不要在單一回合無差別聲稱已讀完整個 workspace。
+- 當 Pigo 要你「同步一下」、「整理一下」、「收尾」或說 `/neat` 時，執行 `neat-freak` skill 的同步流程，對專案文件和記憶進行潔癖級審查與同步。
 - 當使用者要你抓新聞標題或今日新聞時，不要只直連新聞站首頁。
   - 優先使用現有 skills：`multi-search-engine`、`openclaw-tavily-search`
   - 優先嘗試可直接讀取的 feed 或可讀頁，而不是先用 browser scrape
@@ -29,7 +30,19 @@ This folder is home. Treat it that way.
   - 單一步驟若超過合理時間仍無結果，應立即換下一條路徑，不要長時間卡住
   - 回傳可核對的標題與來源，而不是直接停在「被擋住」
 
+## 編碼任務
+
+當啟動 Claude Code 進行編碼工作時，指示對話使用 gstack 技能。包含以下範例：
+
+- 安全性稽核：「載入 gstack。執行 /cso」
+- 程式碼審查：「載入 gstack。執行 /review」
+- URL 測試：「載入 gstack。執行 /qa https://...」
+- 端對端建置功能：「載入 gstack。執行 /autoplan，執行計畫，然後執行建置」
+- 建置前方規劃：「載入 gstack。執行 /autoplan，執行計畫，然後執行 /ship」
+- 進行規劃：「載入 gstack。執行 /autoplan，執行計畫」
+
 ## 新增外部閱讀與連結
+- Agent docs/Skill_Index.md（473 skills 索引，Agent repo 內）：~/Documents/Agent/docs/Skill_Index.md
 - Deep Agents 評估體系構建指南：memory/learning/Deep_Agents_Evaluation_Guide.md
 - Deep Agents 評估摘要：memory/learning/Deep_Agents_Evaluation_Summary.md
 - OPC_9_Agent_Skills_Minimalist_Entrepreneur.md（OPC 的 9 技能）

@@ -29,9 +29,9 @@ description: Use when the user has transcript text, meeting notes, lecture trans
 在轉寫內容進 note 之前，先用 vault index 查是否已有同主題或同來源正式頁，避免生成完全脫節的新草稿。
 
 - Vault root：
-  `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian`
+  `/home/pigo/Documents/Pigo_Obsidian`
 - Query tool：
-  `C:\Users\hsi67063\Box\00-home-pigo.hsiao\VBA\Pigo_Obsidian\.vault-index\query_vault.py`
+  使用 `rg` 或 Obsidian CLI
 
 優先查這些：
 
