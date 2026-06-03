@@ -1,0 +1,14 @@
+# OpenClaw / workspace local-only artifacts
+# Do NOT commit these — they contain PII, runtime data, or are independent projects.
+
+# Local OpenClaw runtime config (auth tokens, allowlists, system prompt overrides)
+openclaw.json
+
+# Independent open-source monorepo (cloned, not part of this workspace)
+open-slide/
+
+# OpenClaw internal runtime state (memory dreams, short-term recall)
+memory/.dreams/
+
+# Stale vault index from an aborted run (.vault-index/ is also deleted manually)
+.vault-index/
