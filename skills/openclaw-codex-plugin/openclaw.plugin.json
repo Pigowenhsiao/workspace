@@ -1,0 +1,33 @@
+{
+  "id": "codex-cli",
+  "name": "OpenAI Codex CLI",
+  "description": "Integrates OpenAI Codex CLI as a text inference backend for OpenClaw",
+  "contracts": {
+    "cliBackends": ["codex-cli"]
+  },
+  "setup": {
+    "cliBackends": ["codex-cli"],
+    "requiresRuntime": false
+  },
+  "activation": {
+    "onStartup": false
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "command": {
+        "type": "string",
+        "default": "codex"
+      },
+      "args": {
+        "type": "string",
+        "default": ""
+      },
+      "model": {
+        "type": "string",
+        "default": "gpt-4o"
+      }
+    },
+    "additionalProperties": false
+  }
+}
