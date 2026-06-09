@@ -29,16 +29,14 @@
 
 ## 當前階段
 
-- [P2][2026-03-08] 剛啟動，與 Pigo 初次設定完成
-- [P2][2026-03-08] 安裝了 agent-browser、playwright
 - [P1][2026-04-29] llm-wiki 預設目的地改為 `00-Inbox/`，完成後再移至正式分類（Learning/articles/ 等）
 - [P1][2026-05-03] 新筆記落地規則（強制）：所有新筆記一律先寫入 `00-Inbox/`，完成整理分類後再搬至正式位置（`08-Learning/` 各子目錄或 `09-Article-Notes/`）；此規則已寫入 `llm-wiki` 與 `note-update` 兩個 skill 的 SKILL.md
 - [P1][2026-05-03] 任務日誌機制：建立 `memory/tasks/` 目錄，index.md 為首頁，每月一個 `.md` 檔；完成任務後同步更新 `memory/tasks/YYYY-MM.md` 和 `memory/tasks/index.md` 的待處理队列
 - [P1][2026-04-29] Telegram groupPolicy 改為 mention-only（groupPolicy 受保護無法修改，但 requireMention 已設為 true）
+- [P0][2026-06-05] 當前模型：minimax/MiniMax-M3（openclaw.json primary: minimax/MiniMax-M2.7，runtime 顯示 M3）；Node v22.22.3；openclaw-tavily-search 已替代 tavily-search
 
 ---
 
 ## 臨時記錄
 
-- [P2][2026-03-09] 技能安裝失敗與替代嘗試：proactive-agent (頻率限制), tavily-search (已用 openclaw-tavily-search 替代)
-- [P2][2026-03-09] 系統維護事項：需要升級 Node.js 到 22 才能重啟 OpenClaw gateway 並使模型設定生效 (目標模型：openai/gpt-5-nano)
+- [P2][2026-03-09] 技能安裝失敗歷史（已結案）：proactive-agent 頻率限制改由 self-improving 替代；tavily-search 改用 openclaw-tavily-search
