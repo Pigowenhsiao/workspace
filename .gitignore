@@ -1,14 +1,64 @@
-# OpenClaw / workspace local-only artifacts
-# Do NOT commit these — they contain PII, runtime data, or are independent projects.
+# ─────────────────────────────────────────────
+# OpenClaw workspace .gitignore
+# Created: 2026-06-26 by Jarvis (沿用異常清理批次)
+# 原則：handover 是輸出 (不是 source of truth)；
+#       arxiv_papers / tmp_* 是本地 cache (不該進 git)
+# ─────────────────────────────────────────────
 
-# Local OpenClaw runtime config (auth tokens, allowlists, system prompt overrides)
+# ── 1. 任務輸出 (handover / daily-news / paper notes) ──
+# 這些是 cron 跑的「交付物」，留著作為 history 但太佔空間
+# MEMORY 是 source of truth，handover 重新跑就會重生
+memory/handoffs/
+memory/handovers/
+
+# 當月任務 log（已被 MEMORY + handover 結構取代）
+memory/tasks/*.md
+!memory/tasks/index.md
+
+# ── 2. arXiv / HuggingFace 本地 cache ──
+# cron 跑的時候會下載 PDF 跟 extract text，純粹 cache
+arxiv_papers/
+arxiv_text/
+tmp_papers/
+tmp_papers_txt/
+
+# ── 3. 一次性工作目錄 ──
+tmp/
+tmp_*/
+
+# ── 4. 不該 commit 的單檔（特例） ──
+# 06-10 新聞檔是「已產出但還沒人處理」，先保留但不 commit
+# 2026-06-10_News-Update.md
+# 等 Pigo 決定要不要搬到 vault 才移除這行
+
+# ── 5. 標準排除 ──
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OpenClaw 系統配置（auth profiles / model 設定）— 不該進 git
 openclaw.json
 
-# Independent open-source monorepo (cloned, not part of this workspace)
-open-slide/
-
-# OpenClaw internal runtime state (memory dreams, short-term recall)
+# OpenClaw 內部短期記憶系統（dreams / short-term-recall）
 memory/.dreams/
 
-# Stale vault index from an aborted run (.vault-index/ is also deleted manually)
-.vault-index/
+# 意外誤放的專案目錄（待搬到 ~/Downloads/，不該在 workspace）
+open-slide/
+
+# 根目錄的單檔 PDF（HF / arxiv cron 跑出來的本地 cache）
+*.pdf
+
+# 誤入 templates 的 daily handover 範本
+memory/templates/hf-daily-papers_*.md
+
+# ── 6. Python (Hermes 那邊的工具) ──
+__pycache__/
+*.pyc
+*.pyo
+
+# ── 7. Node (openclaw 本體) ──
+node_modules/
+npm-debug.log*
