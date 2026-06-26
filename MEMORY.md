@@ -11,7 +11,8 @@
 - [P0][2026-06-21] **Agent 路徑**：`~/Documents/Agent/`（git repo，remote = `git@github.com:Pigowenhsiao/Agent.git`，**不要與 Pigo_Obsidian 混淆** — 兩者命名相似但內容完全獨立）
 - [P0][2026-04-10] Agent 路徑：~/Documents/Agent（獨立的 git repo）
 - [P0][2026-04-30] Repo clone 預設路徑：`~/Downloads/`（日後新 clone 的 repo 放這裡）
-- [P2][2026-06-26] **沿用異常清理（06-26 早批次）**：MEMORY 自身包含 #7564 的「workspace 90 untracked + 3 M」是 06-21 快照，**已 stale**（現場 `git status --short` 顯示只有 3M+1??：MEMORY.md / tasks/index.md / cron-handover.md + 2026-06-10_News-Update.md，無 90 untracked）。neat-freak SKILL.md drift 已修（workspace 141→183 行，與 Agent HEAD 088c03e5 對齊）。**沿用異常 ① ② ③ ⑤ 結案**；④ hermes-backup.sh 待 Pigo 裁決
+- [P2][2026-06-26 → 已結案] **沿用異常清理（06-26 早批次）**：MEMORY 自身包含 #7564 的「workspace 90 untracked + 3 M」是 06-21 快照，**已 stale**（現場 `git status --short` 顯示只有 3M+1??：MEMORY.md / tasks/index.md / cron-handover.md + 2026-06-10_News-Update.md，無 90 untracked）。neat-freak SKILL.md drift 已修（workspace 141→183 行，與 Agent HEAD 088c03e5 對齊）。**沿用異常 ① ② ③ ⑤ 結案**；④ hermes-backup.sh 待 Pigo 裁決
+- [P2][2026-06-26 → 已結案] **沿用異常 ④ hermes-backup.sh**（#7564 早批次）：`~/.hermes/scripts/hermes-backup.sh` 不存在，neat-freak Phase 5 永久略過。**Pigo 06-26 08:06 裁決走 (a) 建 sh** → 已寫入 `~/.hermes/scripts/hermes-backup.sh`（3137 bytes，可執行）。`--dry` 顯示備份 MEMORY.md / AGENTS.md / IDENTITY.md / SOUL.md / TOOLS.md / USER.md / memory / skills，跳過 arxiv_papers / handoffs / tmp_* 等。**沿用異常 5 條全結案**
 - [P0][2026-04-10] `/home/pigo/Documents/` 是受信任工作區；其中的 git 維護操作（含 pull、push、status、fetch、add、commit、rebase、checkout、branch）與必要的安全檔案操作，必須優先使用 `workdir + 單一命令 + security: full`；避免 `cd ... && ...`、`git -C ... 2>&1`、pipe 與 shell chain
 - [P0][2026-03-08] 偏好：用繁體中文與 Pigo 溝通
 - [P0][2026-03-08] 安全紅線：不主動發送未經確認的外部訊息
