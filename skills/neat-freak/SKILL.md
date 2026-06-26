@@ -1,142 +1,183 @@
-# 潔癖大師 — 知識庫同步整理
+---
+name: neat-freak
+description: 潔癖級知識整理與工作區同步助手。會話結束後對專案文件和 Agent 記憶進行潔癖級審查與同步，確保知識體系不因時間而腐壞。核心職責：vault ↔ git 同步、記憶框架健康度、Agent skills 一致性檢查、懸垂物件清理。
+---
 
-> **跨平台 Agent Skill** — Claude Code · OpenAI Codex · OpenCode · OpenClaw 通用。
+# Neat Freak — 潔癖級工作區同步
 
-你是一個**知識庫編輯**，不是記錄員。記錄員只會往後追加，編輯會審查全域、合併重複、修正過期、刪除廢棄。你的工作是讓整個專案的知識體系始終保持**乾淨、精準、對新人友善**的狀態——像有潔癖一樣。
+> 觸發關鍵字：`neat-freak`、`跑一下`、`潔癖同步`、`vault 整潔`、`整理工作區`
 
-## 為什麼這件事重要
+## Description
 
-在 AI 協作開發中，程式碼可以隨時重寫，但**文件與記憶是跨會話、跨 Agent 的唯一橋梁**。如果記憶裡有過期資訊，下一個 Agent（無論它是 Claude、Codex 還是別的）會基於錯誤前提做決策。如果 docs/ 混乱或缺失，接手者（尤其是下游專案的同事）會浪費大量時間搞清楚這套系統怎麼用。
+潔癖級知識整理與工作區同步助手。會話結束後對專案文件和 Agent 記憶進行潔癖級審查與同步，確保知識體系不因時間而腐壞。
 
-這個 Skill 的價值就在於：**讓知識體系的每一層都跟得上程式碼的變化。**
+核心職責：
+- **Vault ↔ Git 同步**：確保 vault 乾淨（無 uncommitted，無 dangling objects）
+- **記憶框架健康度**：檢查 `~/.hermes/memory/` 與 Codex memory 同步狀態
+- **Agent Skills 一致性**：確認 Agent repo skills 與文檔同步，無腐敗 drift
+- **Cron Output 清理**：執行 7-day retention 清理，移除過期輸出檔
+- **懸垂物件處理**：清理 git dangling objects，保持 repo 健康
 
-## 關鍵概念：三類知識，三種受眾
+---
 
-**必須先理解這件事，否則你只會改 CLAUDE.md 就結束，把下游同事和其他 agent 晾在那邊。**
+## Execution Checklist
 
-| 位置 | 受眾 | 職責 | 不同步的代價 |
-|------|------|------|--------------|
-| **Agent 記憶系統**（若 agent 支援） | Agent 自己跨會話複用 | 個人偏好、非显而易见的專案事實、跨專案 reference | 下次會話 Agent 忘記歷史決策 |
-| 專案根 `CLAUDE.md` / `AGENTS.md` | 當前專案裡的 AI（下次會話自己） | 專案約定、架構、紅線、環境變數、路由清單 | 下次 AI 在這個專案裡走冤枉路 |
-| 專案 `docs/` + `README.md` | **其他人**（同事、下游開發者、未來接手的 AI） | 接入指南、架構圖、運維手冊、交接說明、API 參考 | **其他人或系統無法正確接入或運維** |
+執行 neat-freak 時，依序完成以下項目：
 
-這三層**受眾不同，職責不重疊**。CLAUDE.md 裡寫「新增了 device flow 五個路由」≠ docs/integration-guide.md 裡「下游怎麼接這套 flow」—— 前者是提醒自己，後者是教別人。**兩份都要寫。**
+### Phase 1 — Vault Git Health
 
-## 執行流程
+- [ ] `cd ~/Documents/Pigo_Obsidian && git status --short`
+- [ ] 如有 uncommitted → `git add -A && git commit -m "chore: pre-neat-freak sync"` 並 push
+- [ ] `git fsck --full --no-progress 2>&1 | grep dangling` → 如有，執行 `bash ~/.hermes/skills/neat-freak/scripts/git-dangling-cleanup.sh ~/Documents/Pigo_Obsidian`
+- [ ] 驗證乾淨：`git fsck --full --no-progress 2>&1 | grep dangling` → 無輸出
 
-### 第一步：盤點現況（強制機械式列舉，不能跳過）
+### Phase 2 — Memory Sync
 
-**先做 ls，再做判斷。**
+- [ ] `diff ~/.hermes/memory/P0-core.md ~/Documents/Agent/memory/P0-core.md && echo "P0 SYNC-OK" || echo "P0 DIFT"`
+- [ ] `diff ~/.hermes/memory/P1-90days.md ~/Documents/Agent/memory/P1-90days.md && echo "P1 SYNC-OK" || echo "P1 DIFF"`
+- [ ] `diff ~/.hermes/memory/P2-30days.md ~/Documents/Agent/memory/P2-30days.md && echo "P2 SYNC-OK" || echo "P2 DIFF"`
+- [ ] 如有 DIFF → 以 `~/.hermes/memory/` 為準，同步到 `~/Documents/Agent/memory/`，並 commit
+- [ ] **Trailing newline 注意**：`diff` 報告 identical 但比對失敗時，檢查檔案結尾是否有 `\n`（見 `references/memory-sync-protocol.md`）
 
-1. 列出 agent 的記憶檔案（如有）：
-   - Claude Code：`ls ~/.claude/projects/<...>/memory/` 並讀 `MEMORY.md` 及所有被引用的 `.md`
-   - Codex / OpenCode / 其他：找該 agent 的等價位置（見 references/agent-paths.md）
-2. 對本次對話涉及的**每一個專案**：
-   - `ls <project-root>/` → 確認根目錄結構
-   - `ls <project-root>/docs/ 2>/dev/null` → **列舉所有 docs**（缺失也要確認）
-   - `find <project-root> -maxdepth 2 -name "*.md" -not -path "*/node_modules/*" -not -path "*/.git/*"` → 兜底抓散落的 .md
-   - 讀 `README.md`、`CLAUDE.md` / `AGENTS.md`、每一個 `docs/*.md`
-3. 讀全域 agent 設定（若有，如 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`）
-4. 回顧本次對話全部內容
+### Phase 3 — Skills Consistency
 
-**輸出一張檔案清單**（內部用，不用給使用者看），對每個檔案標：「評估過 / 要改 / 不用改」。**漏一個不行**——這是這個 skill 最容易翻車的地方。
+- [ ] `ls ~/Documents/Agent/skills/neat-freak/SKILL.md` → 確認 workspace 副本存在
+- [ ] 驗證 frontmatter：`head -5 ~/Documents/Agent/skills/neat-freak/SKILL.md` 確認 `name: neat-freak`
+  - ⚠️ **已知 bug（兩種 pattern）:**
+    - **Pattern A**: `name: hermes-cron-jobs`（sync 時被 hermes-cron-jobs 內容覆寫）
+    - **Pattern B**: 檔案以 `import json` 開頭（Python import 殘留，見 `references/frontmatter-corruption-bug.md`）
+  - 如發現任一 pattern → 以 canonical 覆蓋後 `git -C ~/Documents/Agent add -A && git commit`
+- [ ] 比對 canonical vs workspace：`diff ~/.hermes/skills/neat-freak/SKILL.md ~/Documents/Agent/skills/neat-freak/SKILL.md`
+- [ ] 如有 drift 且以 canonical 為準 → 同步並 commit
 
-### 第二步：識別變更——用「變更影響矩陣」思考
+### Phase 4 — Cron Output Retention
 
-**不要只看對話增量有什麼新事實，要看新事實會波及哪些文件層級。**
+- [ ] 檢查：`for d in ~/.hermes/cron/output/*/; do count=$(ls "$d"/*.md 2>/dev/null | wc -l); echo "$(basename $d): $count files"; done`
+- [ ] 超過 500 檔的 job 目錄 → 執行 `python3 ~/.hermes/skills/neat-freak/scripts/cron-output-cleanup.py`
+- [ ] 驗證：重新計算 count，確認刪除後數量合理
 
-常見模式速覽：
-- 新增 API / 路由 → CLAUDE.md 路由清單 + integration-guide + architecture 的 Routes
-- 新增 / 改名 環境變數 → CLAUDE.md 環境變數表 + runbook + 下游 integration-guide
-- 新增資料庫表 → CLAUDE.md + architecture 的 Data Model
-- 新增大特性（跨多檔案） → 以上全部 + architecture 新章節 + handoff 已完成清單
-- 跨專案改動 → 上下游兩邊的 docs **都要對齊**（最常見的漏改場景）
-- 記憶層面：相對時間→絕對日期、過期事實→改、重複→合併、已完成待辦→刪
+### Phase 5 — Hermes Backup (if scheduled)
 
-完整映射表（覆蓋更多變更類型與對應文件）見 **[references/sync-matrix.md](references/sync-matrix.md)**——遇到不确定的改動先查這張表。
+- [ ] 確認備份腳本存在且可執行：`ls ~/.hermes/scripts/hermes-backup.sh`
+  - 如不存在 → **略過此 phase**，於回報中標記 ⚠️ 告知 Pigo 備份機制未設定
+- [ ] 執行備份：`bash ~/.hermes/scripts/hermes-backup.sh`
+- [ ] 驗證備份產出存在於預期路徑
 
-**關鍵檢查**：這次對話是不是**跨專案**的？如果改了專案 A 且專案 B 依賴它（透過 SDK、API、子網域、環境變數），**專案 B 的 docs 也要改**。這是曆次同步最常翻車的場景。
+---
 
-### 第三步：實際修改（用工具，不只是描述）
+## jobs.json Structure
 
-你必須**真的用 Edit 修改現有檔案、用 Write 建立新檔案、用刪除命令清理廢棄檔案**。「我會怎麼改」的描述不算完成。
+Location: `~/.hermes/cron/jobs.json`
 
-**順序建議**：先改 docs/（改錯影響外部）→ 再改 CLAUDE.md/AGENTS.md → 最後理記憶。先動外部優先順序最高的，即使中途被打斷，讀者看到的也是對齊的最新狀態。
+Top-level key is `"jobs"` (array), NOT a dict keyed by job name.
 
-**編輯原則**：
-
-- **合併優於追加**：新資訊是對舊資訊的更新，改舊條目，不要再加一條
-- **刪除優於保留**：完成的臨時計畫、推翻的決策、過期的上下文，刪掉
-- **精準優於冗長**：一條記憶說清楚一件事，別塞三件
-- **絕對時間**：永遠 `2026-04-29`，不寫「今天」、「最近」
-- **面向讀者**：docs/ 的讀者是「第一次接觸這個專案的外部人」，寫的時候想像對方只有 5 分鐘能看完
-- **受眾不混**：CLAUDE.md 裡不抄 docs/ 的全文，docs/ 裡不寫「我記得上次……」——這是記憶的事
-
-**全域設定極度克制**：`~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md` 只有使用者在對話中明確表達了**跨專案的核心原則**才動。日常專案細節絕不進全域。
-
-**docs/ 編輯要點**——新增一個能力的文件變更通常要四處都補：
-1. **integration-guide** 或對應「外部視角」文件：加**怎麼用**（curl / SDK 範例 / 錯誤碼表）
-2. **architecture**：加**怎麼運作**（資料流、狀態機、設計取捨）
-3. **runbook**：加**怎麼運維**（冒煙命令、故障排除、環境變數）
-4. **handoff** 或 CHANGELOG：加**已完成**
-
-API 速查表、環境變數表、術語表是高頻查詢的結構化資訊，**必須保持「所見即最新」**。
-
-### 第四步：自檢清單（必須逐項過一遍）
-
-這一步防止「漏改 docs」。改完後逐條檢查：
-
-- [ ] 第一步列出的每個檔案，都判斷了「不用改」或「已改」
-- [ ] 記憶索引（若有）裡的每個連結指向存在的檔案
-- [ ] 每個記憶檔案的 description 和內容對得上
-- [ ] 記憶之間沒有互相矛盾
-- [ ] CLAUDE.md / AGENTS.md 裡提到的路徑 / 命令 / 工具 / 環境變數在程式碼中真實存在
-- [ ] README 的安裝 / 執行步驟跟程式碼一致
-- [ ] 新增 API 路由：**在 integration-guide 和 architecture 都出現了**
-- [ ] 新增環境變數：**在 runbook 和專案根 markdown 都出現了**
-- [ ] 新增資料庫表：**在 architecture 的 Data Model 和專案根 markdown 都出現了**
-- [ ] 跨專案影響：下游專案的 docs 也跟著改了
-- [ ] 沒有相對時間遺留（`grep -E "今天|昨天|剛剛|最近|上週|today|yesterday|recently"` 清零）
-
-哪條打不了勾，**回去補**。不要因為「差不多了」就跳過這一步——這是這個 skill 的靈魂。
-
-### 第五步：變更摘要
-
-在所有檔案修改完之後（不是之前），給使用者精簡摘要：
-
-```
-## 同步完成
-
-### 記憶變更
-- 更新：xxx（原因）
-- 新增：xxx
-- 刪除：xxx（原因）
-
-### 文件變更（按專案分組，每個專案列全改動的檔案）
-- <專案 A>/CLAUDE.md — xxx
-- <專案 A>/docs/integration-guide.md — xxx
-- <專案 A>/docs/architecture.md — xxx
-- <專案 B>/docs/<integration>.md — xxx
-
-### 未處理
-- xxx（為什麼沒處理，比如需要使用者確認）
+```python
+import json
+with open('/home/pigo/.hermes/cron/jobs.json') as f:
+    d = json.load(f)
+# d['jobs'] is the list of job objects
 ```
 
-只列有實際變更的條目。沒改的不寫。
+Each job object fields:
+- `id`: unique string
+- `name`: display name
+- `prompt`: execution prompt (or path to script for script-based jobs)
+- `skills`: list of skill names to load
+- `skill`: primary skill name (null if script-based)
+- `model`: model name (e.g. "MiniMax-M2.7") or null
+- `provider`: provider name or null
+- `script`: shell script content — **only for prompt-based jobs using `bash <script>`**
+  - For script-based execution, prefer an external `.sh` file; see "Critical pattern" below
+- `no_agent`: bool — true means pure script, no LLM
+- `schedule`: `{"kind": "cron", "expr": "0 0 * * *", "display": "0 0 * * *"}`
+- `schedule_display`: cron expression string
+- `repeat`: `{"times": null, "completed": N}` — completed count
+- `enabled`: bool
+- `state`: "scheduled" | "paused" | ...
+- `last_run_at`: ISO timestamp
+- `last_status`: "ok" | "error" | ...
+- `last_error`: error message string
+- `deliver`: "telegram" | "origin" | ...
+- `origin`: `{"platform": "telegram", "chat_id": "...", "chat_name": "..."}`
 
-## 特殊情況
+## Output Directory
 
-**專案還沒有 README 或 CLAUDE.md/AGENTS.md**：判斷專案是不是到了「有可執行程式碼」的階段。是 → 建立。還在 vibe 階段 → 跳過，但在摘要裡提一句。
+Each job has an output dir under `~/.hermes/cron/output/<job-id>/` containing timestamped `.md` files with job run outputs.
 
-**對話沒有產生新事實**：審查現有記憶和文件有沒有過期 / 衝突 / 相對時間——審查本身就有價值。
+## Health Check Command
 
-**記憶之間出現無法自動判斷的矛盾**：列在「未處理」讓使用者決定。**這是唯一需要使用者介入的情況**，其他都自己拍板。
+```bash
+# List all jobs with schedule + enabled + last_status
+python3 -c "
+import json
+with open('/home/pigo/.hermes/cron/jobs.json') as f:
+    d = json.load(f)
+for j in d['jobs']:
+    print(f\"{j['name']}: schedule={j['schedule_display']} last={j.get('last_status','?')} enabled={j['enabled']}\")"
+```
 
-**跨專案改動**：本次對話改了多個專案，每個專案都要跑一次完整的第一步（ls + 讀 docs）。不要假設一個專案的 docs 改了，另一個就不用。尤其是上游-下游對接文件（整合指南 / SDK 說明 / API 協定），兩邊都要對齊。
+## Cron Job Patterns (Pigo's Setup)
 
-**發現之前的同步漏了東西**：修掉。不要說「那不是這次對話的事」——你就是這個專案的持續編輯，過去的漏洞也歸你管。
+| Name | Schedule | Model | Skills | Deliver |
+|------|----------|-------|--------|---------|
+| 每日晨報 | `0 0 * * *` | default | none | telegram |
+| Hermes 每日備份 | `0 0 * * *` | default | none | telegram |
+| HF Daily Papers | `0 1 * * *` | default | hermes-agent | telegram |
+| 每日精選晚報 | `0 12 * * *` | MiniMax-M2.7 | hermes-agent, article-to-obsidian-knowledge | origin |
+| 週更新 superpowers+GSD+gstack | `0 1 * * 1` | MiniMax-M2.7 | none | origin |
+| Vault 整潔同步（neat-freak） | `0 16 * * *` | default | neat-freak | origin |
+| Kanban 每日清理 | `0 0 * * *` | (prompt-based) | none | origin |
+| Kanban Parallel Dispatcher | (interval) | default | kanban-worker | origin |
 
-## 參考資料
+## Rebase Conflict Hazard — Agent Repo Push
 
-- **[references/sync-matrix.md](references/sync-matrix.md)** — 完整的「變更類型 → 要改哪些檔案」映射表
-- **[references/agent-paths.md](references/agent-paths.md)** — Claude Code / Codex / OpenCode 各自的記憶與設定路徑速查
+> **已知的危險模式（2026-06-08 發現）**
+> `git pull --rebase` → conflict → `git rebase --skip` 會**靜默丟棄本地 commit**，導致 push 報 "Everything up-to-date" 但變更實際上已消失。
+>
+> 詳見 `references/rebase-conflict-hazard.md`。
+
+## Critical Pattern: no_agent Script-Based Jobs
+
+**The "Script not found" failure mode (root cause)**:
+
+Hermes cron engine interprets `script` field content as the path to a shell script to execute.
+If you put multi-line bash content directly in `script`, the engine treats the first line of
+that content as the script path — so a `script` starting with `#!/bin/bash` becomes an attempt
+to execute `/home/pigo/.hermes/scripts/#!/bin/bash`, which fails with "Script not found".
+
+**Correct pattern**:
+1. Extract script content to a real file (e.g. `~/.hermes/scripts/kanban-daily-cleanup.sh`)
+2. Make it executable: `chmod +x ~/.hermes/scripts/<name>.sh`
+3. Set `no_agent: null` and use `prompt: "bash /path/to/script.sh"` instead of `script: ...`
+4. Verify: run `bash /path/to/script.sh` standalone first, then confirm cron job status becomes `ok`
+
+**Why this matters**: A job with `no_agent: true` and embedded `script` content will silently
+fail on every run if the script starts with a shebang. The error is "Script not found" because
+the shebang line is being interpreted as a file path.
+
+---
+
+## Reference Index
+
+| File | Topic |
+|------|-------|
+| `references/dangling-objects.md` | Git dangling objects 成因、清理流程、`git gc` 行為澄清 |
+| `references/memory-sync-protocol.md` | Hermes ↔ Codex 記憶同步 protocol、trailing newline 陷阱 |
+| `references/cron-output-retention.md` | Cron output 7-day retention、Python cleanup script |
+| `references/frontmatter-corruption-bug.md` | Workspace sync 後 frontmatter 被覆寫的 bug 與預防 |
+| `references/rebase-conflict-hazard.md` | Rebase-skip 導致 commit 靜默消失的危險模式 |
+| `references/hermes-cron-jobs.md` | jobs.json 結構、health check command、cron patterns |
+| `references/skill-discovery.md` | Skill 存在性驗證、Skill_Index.md 行數陷阱、embedded .git 偵測 |
+| `references/sync-matrix.md` | 變更影響矩陣、記憶層/程式碼層/文件層同步範圍 |
+| `references/agent-paths.md` | 各 Agent 平台（Claude Code/Codex/OpenClaw/OpenCode）路徑速查 |
+| `references/openclaw-exec-allowlist-fix.md` | OpenClaw safeBins + safeBinProfiles 二層修復（與 neat-freak 相關但非核心） |
+
+---
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/git-dangling-cleanup.sh` | 完整 dangling object 清理（reflog expire + gc --prune=now） |
+| `scripts/cron-output-cleanup.py` | Cron output 7-day retention cleanup（Python，避免 approval prompt） |
+| `scripts/verify-skill-frontmatter.sh` | 驗證 skill SKILL.md frontmatter 是否正確（預防 corruption bug） |
