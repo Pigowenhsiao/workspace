@@ -67,6 +67,17 @@ STYLE (from reference):
 
 ---
 
+## Color Specification Rules
+
+Colors in prompts use hex codes for **rendering guidance only** — they tell the model which colors to use, NOT what text to display.
+
+**⚠️ CRITICAL**: Image generation models sometimes render color names and hex values as visible text labels in the image (e.g., painting "Macaron Blue #A8D8EA" as a label). This must be prevented.
+
+**Add to ALL prompts that contain a COLORS section**:
+> Color values (#hex) and color names are rendering guidance only — do NOT display color names, hex codes, or palette labels as visible text in the image.
+
+---
+
 ## Character Rendering
 
 When depicting people:
@@ -126,6 +137,39 @@ LABELS: [specific numbers, percentages, terms from article]
 COLORS: [semantic color mapping]
 STYLE: [style characteristics]
 ASPECT: 16:9
+```
+
+**Infographic + sketch-notes + macaron palette** (default / `hand-drawn-edu` preset):
+```
+Single-page hand-drawn educational infographic in a clean presentation style.
+Warm cream paper background, black hand-drawn lines with slight wobble, soft
+pastel color blocks. Feels simple, friendly, and easy to understand at a glance.
+Diagram-style visuals ONLY — no realistic or photographic images.
+
+PALETTE: macaron — soft pastel blocks on warm cream
+COLORS: Warm Cream background (#F5F0E8); Black (#1A1A1A) for ALL lines, text,
+        arrows, and doodles; section fills in Light Blue (#A8D8EA), Mint Green
+        (#B5E5CF), Lavender (#D5C6E0), Peach (#FFD5C2); Coral Red (#E8655A)
+        sparingly for one or two emphasis points only.
+
+LAYOUT (top → bottom):
+- TOP: Bold hand-lettered title, oversized, slightly wobbly, with an optional
+       decorative underline or small doodle.
+- MIDDLE: 2–6 rounded-rectangle info boxes arranged in a clean grid, row, or
+          radial pattern. Each box = one section, one pastel fill color, one
+          simple icon or sketchy cartoon element, one short keyword/phrase.
+          Hand-drawn arrows connect related zones.
+- BOTTOM: One short hand-lettered takeaway sentence summarizing the main idea.
+
+ELEMENTS: Rounded info boxes with clear sectioning, wavy/straight hand-drawn
+          arrows with small inline labels, simple icons and sketchy cartoon
+          elements (stick figures, tools, objects), small doodle decorations
+          (stars, sparkles, underlines, dots, asterisks) used sparingly.
+
+STYLE: Minimal, well-organized, airy. Color fills don't completely fill
+       outlines (slight "hand-painted" overshoot). ALL text hand-lettered —
+       no computer fonts. Short labels and keywords only, never long
+       paragraphs. Generous white space between sections.
 ```
 
 **Infographic + vector-illustration**:
@@ -193,6 +237,22 @@ ELEMENTS: Rounded cards with dashed/solid borders, wavy hand-drawn arrows with l
 STYLE: Color fills don't completely fill outlines, hand-drawn lettering, generous white space
 ```
 
+**Flowchart + ink-notes + mono-ink palette**:
+```
+Professional hand-drawn visual-note flowchart on pure white. Black ink line work
+with slight wobble, à la Mike Rohde sketchnoting.
+PALETTE: mono-ink — black ink dominant, sparse semantic accents
+COLORS: Pure White background (#FFFFFF), Near Black (#1A1A1A) for all lines,
+        text, and figures; Coral Red (#E8655A) only for risk/emphasis,
+        Muted Teal (#5FA8A8) only for positive/solution states
+ELEMENTS: Left-to-right stage boxes with rounded-rect frames, wavy hand-drawn
+          arrows between stages, simple stick-figure characters with role
+          labels above (e.g., "ML Engineer", "Team Lead"), dashed-border box
+          for future/empty stage, small doodle icons per stage
+STYLE: Hand-lettered titles (bold, oversized), handwritten stage labels and
+        annotations, generous white space, bottom tagline summarizing takeaway
+```
+
 ### Comparison
 
 ```
@@ -227,6 +287,28 @@ COLORS: Left side Warm Orange (#ED8936), Right side Terracotta (#C05621),
 ELEMENTS: Bold icons, black outlines, centered divider line
 ```
 
+**Comparison + ink-notes + mono-ink palette** (Before/After, Traditional vs New):
+```
+Professional hand-drawn sketchnote comparison on pure white. Black ink line work
+with slight wobble, à la Mike Rohde sketchnoting.
+PALETTE: mono-ink — black ink dominant, sparse semantic accents
+COLORS: Pure White background (#FFFFFF), Near Black (#1A1A1A) for all outlines,
+        text, figures, arrows; Coral Red (#E8655A) reserved for risks/gaps
+        (left/Before side); Muted Teal (#5FA8A8) reserved for positives
+        (right/After side). Color accents under 10% of canvas.
+LAYOUT: Left | Right split with vertical hand-drawn divider. Hand-lettered
+        "Before" label (top-left) and "After" label (top-right).
+LEFT SIDE: Stick figure(s) with role label above, speech bubble showing the
+           pain point, bulleted pain-point list in handwritten text.
+RIGHT SIDE: Stick figure(s) showing the new state, bulleted improvement list,
+            small positive-action icons.
+BRIDGE: Curved hand-drawn "mindset shift" arrow bridging left → right with
+        small inline label describing the shift.
+BOTTOM: Single-line hand-lettered tagline summarizing the takeaway.
+STYLE: Hand-lettered headings (bold, oversized), handwritten body annotations,
+        generous white space, no computer fonts, no gradients, no shadows.
+```
+
 ### Framework
 
 ```
@@ -257,6 +339,27 @@ PALETTE OVERRIDE (warm): Warm-only color palette, no cool colors.
 COLORS: Soft Peach background (#FFECD2), nodes in Warm Orange (#ED8936),
         Terracotta (#C05621), Golden Yellow (#F6AD55), black outlines
 ELEMENTS: Rounded rectangles or circles for nodes, thick connecting lines
+```
+
+**Framework + ink-notes + mono-ink palette** (command center, OS analogy):
+```
+Professional hand-drawn sketchnote framework on pure white. Black ink line work
+with slight wobble, à la Mike Rohde sketchnoting.
+PALETTE: mono-ink — black ink dominant, sparse semantic accents
+COLORS: Pure White background (#FFFFFF), Near Black (#1A1A1A) for all lines,
+        text, figures; Dusty Lavender (#9B8AB5) for neutral category tags only;
+        Coral Red (#E8655A) for emphasis sparingly. Color accents under 10%.
+STRUCTURE: Central rounded-rectangle frame as "the system" with hand-lettered
+           title inside. Inner layer of labeled sub-components (node labels
+           above each). Outer layer of feeder arrows from stick-figure
+           operators/users with role labels.
+ELEMENTS: Stick figures at the edges with role tags ("Team Lead", "Operator"),
+          wavy hand-drawn connector arrows with small inline labels, small
+          doodle icons per component, dashed-border placeholder(s) for
+          future/empty capabilities.
+BOTTOM: Single-line hand-lettered tagline.
+STYLE: Hand-lettered headings, handwritten annotations, generous white space,
+        no computer fonts, no gradients.
 ```
 
 ### Timeline
