@@ -42,7 +42,7 @@ This folder is home. Treat it that way.
 - 進行規劃：「載入 gstack。執行 /autoplan，執行計畫」
 
 ## 新增外部閱讀與連結
-- Agent docs/Skill_Index.md（473 skills 索引，Agent repo 內）：~/Documents/Agent/docs/Skill_Index.md
+- Agent docs/Skill_Index.md（605 skills 索引，Agent repo 內）：~/Documents/Agent/docs/Skill_Index.md
 - Deep Agents 評估體系構建指南：memory/learning/Deep_Agents_Evaluation_Guide.md
 - Deep Agents 評估摘要：memory/learning/Deep_Agents_Evaluation_Summary.md
 - OPC_9_Agent_Skills_Minimalist_Entrepreneur.md（OPC 的 9 技能）
