@@ -1,0 +1,61 @@
+=== finance cron started 2026-07-24 21:02:15 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google) → TWD 2350.0
+  [2/31] 2317:TPE (google) → TWD 252.5
+  [3/31] 2303:TPE (google) → TWD 138.5
+  [4/31] 2454:TPE (google) → TWD 3750.0
+  [5/31] 2881:TPE (google) → TWD 127.5
+  [6/31] 2882:TPE (google) → TWD 97.0
+  [7/31] 2308:TPE (google) → TWD 1785.0
+  [8/31] 2597:TPE (google) → TWD 161.0
+  [9/31] 4104:TPE (google) → TWD 70.9
+  [10/31] 2409:TPE (google) → TWD 25.5
+  [11/31] 8131:TPE (google) → TWD 64.6
+  [12/31] 2891:TPE (google) → TWD 63.6
+  [13/31] 1303:TPE (google) → TWD 197.0
+  [14/31] 2886:TPE (google) → TWD 48.45
+  [15/31] 1723:TPE (google) → TWD 88.1
+  [16/31] 2301:TPE (google) → TWD 214.5
+  [17/31] 4533:TPE (google) → TWD 101.7
+  [18/31] 2002:TPE (google) → TWD 19.15
+  [19/31] 2201:TPE (google) → TWD 27.9
+  [20/31] AAPL:NASDAQ (stocksdk) → USD 333.02
+  [21/31] MSFT:NASDAQ (stocksdk) → USD 381.7
+  [22/31] GOOGL:NASDAQ (stocksdk) → USD 319.74
+  [23/31] AMZN:NASDAQ (stocksdk) → USD 232.11
+  [24/31] META:NASDAQ (stocksdk) → USD 595.19
+  [25/31] NVDA:NASDAQ (stocksdk) → USD 206.84
+  [26/31] TSLA:NASDAQ (stocksdk) → USD 313.03
+  [27/31] NFLX:NASDAQ (stocksdk) → USD 70.09
+  [28/31] ORCL:NYSE (stocksdk) → USD 114.99
+  [29/31] PLTR:NYSE (stocksdk) → USD 122.92
+  [30/31] TSM:NYSE (stocksdk) → USD 403.41
+  [31/31] LITE:NASDAQ (stocksdk) → USD 762.99
+  ✓ 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=100)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260724-210215-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260724-210215-review.json
+   OK=31 SUSPECT=0 ERROR=0
+   Criteria: 5/8 PASS, 3 FAIL, loop_write_allowed=False
+     ✅ C1: 覆蓋率 31/31 — total=31/31 (ok=31, suspect=0, error=0)
+     ✅ C2: 帶寬合規 (0 SUSPECT) — 0 ticker(s) out of band: []
+     ❌ C3: Baseline 可比 — 7 missing: ['LITE', '2330', 'NVDA', 'TSM', 'PLTR', 'ORCL', '2454']
+     ✅ C4: 產出檔案 — report_exists=True json_exists=True (this criterion is enforced by write_report.py, not here)
+     ❌ C5: 異常告警 — findings count=9, alert note exists=False
+     ❌ C6: 狀態更新 (LOOP-STATE) — 「當前市場線索」段含今天日期=False
+     ✅ C7: Baseline 完備 — new_tickers count=0 (heuristic; LOOP-STATE updated today=False)
+     ✅ C8: 錯誤率上限 (ERROR ≤ 2) — error_count=0 threshold=2
+  ⚠️ Reviewer exited non-zero (continuing, will surface in verdict)
+[3/4] Writing summary to vault 00-Inbox/...
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-07-24_finance-cron-summary.md (80 lines)
+[4/4] Committing to vault...
+[main 1f1c8615] finance-cron: 2026-07-24 stock quotes (31 tickers, stock-sdk)
+ 1 file changed, 80 insertions(+)
+ create mode 100644 00-Inbox/2026-07-24_finance-cron-summary.md
+目前分支 main 是最新的。
+To github.com:Pigowenhsiao/Pigo_Obsidian.git
+   b5bca38f..1f1c8615  main -> main
+  ✓ Pushed to vault
+=== finance cron completed ===

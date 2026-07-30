@@ -1,0 +1,20 @@
+=== finance cron started 2026-07-29 21:02:10 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google) → TWD 2200.0
+  [2/31] 2317:TPE (google) → TWD 237.0
+  [3/31] 2303:TPE (google) → TWD 113.5
+  [4/31] 2454:TPE (google) → TWD 3315.0
+  [5/31] 2881:TPE (google) → TWD 123.0
+  [6/31] 2882:TPE (google) → TWD 94.1
+  [7/31] 2308:TPE (google) → TWD 1495.0
+  [8/31] 2597:TPE (google) → TWD 163.0
+  [9/31] 4104:TPE (google) → TWD 71.3
+  [10/31] 2409:TPE (google) → TWD 23.65
+  [11/31] 8131:TPE (google) → TWD 53.6
+  [12/31] 2891:TPE (google) → TWD 62.0
+  [13/31] 1303:TPE (google) → TWD 157.0
+  [14/31] 2886:TPE (google) → TWD 49.9
+  [15/31] 1723:TPE (google) → TWD 82.3
+  [16/31] 2301:TPE (google) → TWD 194.0
+  [17/31] 4533:TPE (google) → TWD 93.7

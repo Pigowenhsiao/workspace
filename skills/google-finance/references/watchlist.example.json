@@ -1,0 +1,14 @@
+[
+  {"ticker": "AAPL", "exchange": "NASDAQ"},
+  {"ticker": "MSFT", "exchange": "NASDAQ"},
+  {"ticker": "GOOGL", "exchange": "NASDAQ"},
+  {"ticker": "TSLA", "exchange": "NASDAQ"},
+  {"ticker": "NVDA", "exchange": "NASDAQ"},
+  {"ticker": "META", "exchange": "NASDAQ"},
+  {"ticker": "AMZN", "exchange": "NASDAQ"},
+  {"ticker": "0700", "exchange": "HKG"},
+  {"ticker": "9988", "exchange": "HKG"},
+  {"ticker": "2330", "exchange": "TPE"},
+  {"ticker": "2317", "exchange": "TPE"},
+  {"ticker": "2454", "exchange": "TPE"}
+]
