@@ -1,0 +1,108 @@
+=== finance cron started 2026-09-11 21:03:04 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2410.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 248.0 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 140.5 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 4585.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 148.5 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 110.5 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1620.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 169.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 72.6 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 30.2 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 60.3 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 67.1 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 244.0 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 51.7 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 81.7 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 277.0 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 107.7 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 18.9 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 30.0 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 332.27 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 495.63 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 338.5 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 256.78 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 648.03 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 218.29 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 365.44 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 77.4 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 150.28 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 167.23 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 433.24 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 927.03 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  OK: 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260911-210304-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260911-210304-review.json
+   OK=31 SUSPECT=34 ERROR=0
+   Criteria: 5/8 PASS, 3 FAIL, loop_write_allowed=False
+     ✅ C1: 覆蓋率 31/31 — total=31/31 (ok=31, suspect=34, error=0)
+     ❌ C2: 帶寬合規 (0 SUSPECT) — 1 ticker(s) out of band: ['1303']
+     ✅ C3: Baseline 可比 — all 7 tickers have baseline
+     ✅ C4: 產出檔案 — report_exists=True json_exists=True (this criterion is enforced by write_report.py, not here)
+     ❌ C5: 異常告警 — findings count=45, alert note exists=False
+     ❌ C6: 狀態更新 (LOOP-STATE) — 「當前市場線索」段含今天日期=False
+     ✅ C7: Baseline 完備 — new_tickers count=0 (heuristic; LOOP-STATE updated today=False)
+     ✅ C8: 錯誤率上限 (ERROR ≤ 2) — error_count=0 threshold=2
+  Review verdict: FAIL (score=0)
+  OK=31 SUSPECT=34 ERROR=0
+[3/4] Writing summary to vault 00-Inbox/...
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 146: 未預期的字組「(」附近有語法錯誤
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 146: `        lines.append(f"{t}: {c} {p} ({ch:+.2f}%)")'
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-11_finance-cron-summary.md (39 lines)
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-11_finance-cron-summary.md
+[4/4] Committing to vault...
+[main d4a4e0f52] finance-cron: 2026-09-11 stock quotes (31/31 tickers)
+ 1 file changed, 39 insertions(+)
+ create mode 100644 00-Inbox/2026-09-11_finance-cron-summary.md
+To github.com:Pigowenhsiao/Pigo_Obsidian.git
+ ! [rejected]            main -> main (fetch first)
+error: 推送一些引用到 'github.com:Pigowenhsiao/Pigo_Obsidian.git' 失敗
+提示：Updates were rejected because the remote contains work that you do not
+提示：have locally. This is usually caused by another repository pushing to
+提示：the same ref. If you want to integrate the remote changes, use
+提示：'git pull' before pushing again.
+提示：See the 'Note about fast-forwards' in 'git push --help' for details.
+  Push failed, commit stays local
+
+=== finance cron completed ===
+finance-cron: 31/31 ticker OK, score=0/100

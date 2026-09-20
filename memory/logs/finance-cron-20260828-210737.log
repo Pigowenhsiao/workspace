@@ -1,0 +1,96 @@
+=== finance cron started 2026-08-28 21:07:37 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2420.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 253.0 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 118.5 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 3985.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 144.0 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 105.5 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1830.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 172.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 71.0 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 25.85 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 62.7 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 64.4 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 227.5 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 48.2 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 86.3 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 317.5 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 106.95 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 19.05 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 28.4 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 319.7 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 513.53 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 346.59 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 266.43 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 578.02 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 217.55 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 348.75 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 81.72 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 150.85 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 186.29 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 417.52 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 895 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  OK: 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260828-210737-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260828-210737-review.json
+   OK=0 SUSPECT=0 ERROR=0
+  Review verdict: FAIL (score=0)
+  OK=0 SUSPECT=0 ERROR=0
+[3/4] Writing summary to vault 00-Inbox/...
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/test.md (67 lines)
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-08-28_finance-cron-summary.md
+[4/4] Committing to vault...
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	00-Inbox/test.md
+
+nothing added to commit but untracked files present (use "git add" to track)
+error: src refspec master does not match any
+error: failed to push some refs to 'github.com:Pigowenhsiao/Pigo_Obsidian.git'
+  Push failed, commit stays local
+
+=== finance cron completed ===
+finance-cron: 0/31 ticker OK, score=0/100

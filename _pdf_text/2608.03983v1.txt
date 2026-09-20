@@ -1,0 +1,625 @@
+                                        Can Large Language Models Recover Semantic Optimization Opportunities That
+                                                                    Compilers Miss?
+                                                                       Hailong Jiang1∗ , Feng Yu1 , Emran Hossain1 , Jianfeng Zhu2 ,
+                                                                              Mengfei Ren3 , Qiang Guan2 , Chunwei Xia4
+                                                       1
+                                                           School of Computer Science, Information, and Engineering Technology, Youngstown State University
+                                                                               2
+                                                                                 Department of Computer Science, Kent State University
+                                                                                 3
+                                                                                   Department of Computer Science, Baylor University
+                                                                                   4
+                                                                                     School of Computer Science, University of Leeds
+                                                                                         Corresponding author: hjiang@ysu.edu
+
+                                                                       Abstract                                 Recent LLM-for-compilation work has focused on IR rea-
+                                                                                                             soning, low-level kernel generation, and iterative refinement
+                                          Optimizing compilers miss profitable transformations when
+                                          their enabling semantics are absent from the analyzed pro-         with compilation and performance feedback (Jiang et al.
+                                          gram representation. We ask whether large language mod-            2025; Chen et al. 2025; Grubisic et al. 2024). These works
+                                          els (LLMs) can recover such semantics from heteroge-               show that LLMs can reason over compiler artifacts and re-
+                                          neous C/C++ context and realize them as validated, contract-       fine optimization candidates using compilation and perfor-
+arXiv:2608.03983v1 [cs.PL] 4 Aug 2026
+
+
+
+
+                                          preserving artifacts. We introduce SeGaBench, an executable        mance feedback. This motivates our hypothesis that LLMs
+                                          benchmark containing 100 synthetic and 20 source-backed            may recover such missing optimization-enabling semantics
+                                          cases spanning low-level assumptions, data-structure invari-       from long program context and express them as high-level
+                                          ants, and high-level semantic lifting. Each case includes hid-     semantic artifacts.
+                                          den enabling semantics, an oracle artifact, correctness and se-
+                                                                                                              Research Questions. For LLMs to serve as semantic
+                                          mantic validators, and a reproducible performance protocol.
+                                          We evaluate five LLMs using five independent responses per         bridges for compiler optimization, they must succeed in
+                                          case. The strongest model produces correct artifacts in 94.8%      three steps: identify the semantic fact or better program
+                                          of responses, achieves at least 1.05× speedup in 83.3%, and        equivalence that compilers cannot establish, realize it as a
+                                          obtains a performance success on 93.3% of cases. Never-            compiler-usable artifact, and translate that artifact into per-
+                                          theless, correct artifacts often close only part of the oracle     formance improvement. We formulate these steps as three
+                                          gap. These results show that LLMs can complement compiler          research questions. RQ1 (Semantic Identification) asks
+                                          analysis as speculative semantic proposers, provided that their
+                                                                                                             whether LLMs can identify the semantic fact and its evi-
+                                          artifacts are validated and evaluated.
+                                                                                                             dence; RQ2 (Artifact Realization) asks whether LLMs can
+                                                                                                             realize the fact as a valid artifact; RQ3 (Performance Re-
+                                                                   Introduction                              alization) asks whether valid artifacts deliver measurable
+                                         Motivation. C/C++ compilers optimize programs using the             speedups and how much of the oracle opportunity they re-
+                                        semantic information, analyses, and transformations avail-           cover. Together, these three questions ask:
+                                        able in the compilation pipeline (Burow 2018; Vafeiadis et al.
+                                        2015; Lossing et al. 2015). Even aggressive compiler con-
+                                        figurations such as -O3 may leave profitable transformations
+                                                                                                               “
+                                                                                                               Can LLMs recover semantic optimization opportunities
+                                                                                                               missed by a strong C/C++ compiler baseline, and realize
+                                        unexploited when their enabling semantics cannot be estab-             their enabling semantics as validated artifacts that deliver
+                                        lished from the analyzed representation and scope (Barany              measurable speedups?
+                                        2018; D’Silva, Payer, and Song 2015). Representative gaps             Approach. To answer these RQs, we introduce SeGaBench
+                                        include (i) missing context information. For example, by an-
+                                                                                                             (semantic gap benchmark), an executable benchmark for
+                                        alyzing how data is used across multiple functions, an LLM
+                                                                                                             evaluating semantic opportunity realization. Each case in-
+                                        may determine that two memory regions do not overlap and
+                                                                                                             cludes the original C/C++ program, relevant context, hidden
+                                        expose this information to the compiler, enabling vector-
+                                                                                                             target semantics and a reference implementation for eval-
+                                        ization (Sheth 2026; Anand, Garg, and Kaufmann 2025);
+                                                                                                             uation, correctness checks, and a fixed performance-testing
+                                        (ii) data-structure invariants such as sortedness or diagonal
+                                                                                                             procedure. The oracle artifact serves as a validated reference:
+                                        structure; and (iii) program equivalences such as loops im-
+                                                                                                             it passes all validators and achieves measurable speedup over
+                                        plementing scans or aggregations (Gao et al. 2023a; Blelloch
+                                                                                                             the strongest compiled baseline.
+                                        1990; Steuwer, Remmelg, and Dubach 2017). Such evidence
+                                        may be scattered across callers, tests, documentation, pro-             SeGaBench contains two suites: a Synthetic Suite with
+                                        files, and configuration, requiring reasoning beyond an iso-         100 carefully designed cases covering 50 common optimiza-
+                                        lated function (Paraskevopoulou 2020; Tang et al. 2026).             tion patterns, and a Real-world Suite with 20 cases collected
+                                                                                                             from six widely used HPC projects. Together, they cover
+                                           ∗
+                                               Corresponding author.                                         three semantic types: low-level assumptions, data-structure
+invariants, and high-level semantic lifting.                      mark contract. Third, the transformed program achieves a
+ Evaluation Protocol. To evaluate LLMs, we use a blind,           statistically significant speedup over the baseline:
+single-turn setup in which the model gives its answer without               Speedup(A⋆ ) =
+                                                                                                  T (P, B)
+                                                                                                               ≥ padmit ,
+receiving any feedback from the evaluator. For each case, the                                  T (P ⊕ A⋆ , B)
+model sees the original program and selected context, while       under the benchmark admission protocol.
+the target semantics, reference solution, validation checks,         Throughout this paper, a compiler misses an opportunity
+and performance results are kept hidden. The model can            when the strongest evaluated compilation of the original pro-
+either decline to answer or identify a useful semantic fact       gram leaves this admitted opportunity unexploited.
+or equivalent program behavior, explain the supporting evi-
+dence, and produce a source-level change. After the response       Semantic Artifacts. A semantic artifact is a concrete
+is fixed, the evaluator turns the proposed change into a patch,   source-level change that makes an optimization-enabling se-
+compiles the modified program, checks its correctness, and        mantic fact or program equivalence explicit. Applying an ar-
+measures the performance against the strongest compiled           tifact A to a program P yields P ⊕ A. Artifacts may include
+baseline. The model receives no feedback from the compiler,       qualifiers, assumptions, alignment annotations, guarded spe-
+validators, reference solution, or profiler.                      cializations, contracts, library substitutions, or rewrites. For
+ Results. Across five LLMs and 3,000 responses, artifact          example, non-aliasing may be expressed as restrict or a
+                                                                  no-overlap guard, while an aggregation equivalence may be
+realization is strongly model-dependent. The strongest model      realized as an algorithmic rewrite.
+produces correct, contract-preserving artifacts in 94.8% of
+                                                                     Each benchmark case contains evaluator-only target se-
+responses, achieves at least 1.05× speedup in 83.3%, and,
+                                                                  mantics S ⋆ and an oracle artifact A⋆ , both hidden from
+with five independent responses per case, finds a speedup
+                                                                  the model. The oracle artifact is validated to preserve the
+on 93.3% of the benchmark. Yet correctness alone does not
+                                                                  benchmark contract and improve over the strongest baseline,
+realize the full oracle opportunity: many correct artifacts
+                                                                  witnessing a realizable opportunity rather than a global opti-
+close only part of the oracle gap, and performance success
+drops from 86.6% on synthetic cases to 67.0% on real-world        mum. The model produces a candidate artifact A,   b which may
+cases. These results highlight both the promise of LLM-           differ from A⋆ but must realize a supported semantic claim
+guided semantic optimization and the need for validation          and pass correctness and performance evaluation.
+and measurement.                                                   LLM Task. For each case, the LLM receives the original
+ Contributions. This paper makes three contributions:             program P and an available context view C, while S ⋆ and A⋆
+■ We formalize semantic optimization opportunities missed         remain hidden. The model may abstain or return a proposal
+   by compiler baselines and formulate their recovery as an
+                                                                                           Yb = (S,
+                                                                                                  b E,
+                                                                                                     b A),
+   evidence-grounded LLM task. We organize their enabling
+                                                                                                        b
+   semantics into three types and 50 recurring archetypes.        where Sb is the proposed enabling semantics; E b identifies
+■ We introduce SeGaBench, an executable benchmark com-            supporting evidence and scope; A is the corresponding arti-
+                                                                                                 b
+   prising 100 synthetic and 20 source-backed HPC cases.          fact.
+   Each case provides hidden target semantics, an oracle ar-
+   tifact, functional and semantic validators, and fixed build          Taxonomy of Semantic Optimization
+   and performance protocols.
+                                                                                  Opportunity
+■ We design an evaluation protocol that separately measures
+   semantic recovery, artifact correctness, and performance       SeGaBench organizes semantic optimization opportunities
+   realization across models, suites, and semantic types.         into three types: low-level assumptions, data-structure invari-
+                                                                  ants, and high-level semantic lifting. Within these types, we
+                     Task Definition                              derive 50 archetypes by grouping recurring compiler limi-
+                                                                  tations and performance transformations according to their
+ Semantic Optimization Opportunity. Let P be a C/C++              enabling semantics, required evidence, and realizable arti-
+program with a defined input domain and behavioral con-           fact. Each archetype therefore, represents a distinct semantic
+tract D, and let B denote the strongest evaluated compiler        reason that an optimization remains unexploited and a corre-
+baseline for P . An enabling semantics S is a program prop-       sponding way to realize it. These archetypes guide the con-
+erty or equivalent computation that enables a more efficient      struction of the synthetic suite, while the same three types
+implementation while producing the same observable output         categorize the source-backed real-world cases. Table 1 sum-
+for every valid input, as illustrated in Figure 1.                marizes the taxonomy.
+   We say that (S ⋆ , A⋆ ) establishes a semantic optimization     Low-Level Assumptions. Low-level assumptions refine a
+opportunity for P when three conditions hold. First, S ⋆ is
+valid for D, or its use is protected by a runtime guard with a    general C/C++ interface with a more precise execution do-
+correct fallback implementation. Second, the oracle artifact      main (Avans et al. 2025; Radtke et al. 2024). They describe
+A⋆ realizes S ⋆ while preserving the program contract:            memory accesses, scalar values, or iteration spaces, includ-
+                                                                  ing non-aliasing pointers, aligned buffers, bounded values,
+            ∀x ∈ D,       (P ⊕ A⋆ )(x) ≃ P (x),                   fixed strides, and fixed loop trip counts (Lattner 2005).
+where ≃ denotes observational equivalence under the bench-        Supporting evidence commonly appears in callers, alloca-
+tors, validation logic, or workload configuration. A property     piles, preserves the program contract, passes all validators,
+guaranteed by the program contract can be realized as a           and exposes the intended optimization. The strong baseline
+scoped qualifier or assumption; a dynamically established         is the fastest original program compiled with -O3, LTO,
+property requires a guard, a specialized path, and a correct      or PGO (LLVM Project 2025). The oracle-realized program
+fallback. These artifacts can enable vectorization, unrolling,    must achieve at least 1.05× speedup, with the lower bound
+address simplification, and check elimination (Lattner and        of its 95% confidence interval above 1.0, in two independent
+Adve 2004; Zheng et al. 2025).                                    measurement sessions. Any guard or validation cost executed
+ Data-Structure Invariants. Data-structure invariants de-         within the workload is included.
+                                                                   Synthetic Suite. The synthetic suite contains 100 purpose-
+scribe semantic relationships among elements that give a
+concrete representation a stronger abstract meaning (Liskov       built cases organized into 50 semantic archetypes, with two
+1987). Examples include sorted or unique sequences, permu-        distinct program instances per archetype. Each case iso-
+tations, diagonal matrices, canonical sparse layouts, injective   lates one enabling property or equivalence while fixing its
+index maps, and disjoint intervals (Di Felice, Agnifili, and      program contract, context sources, oracle artifact, seman-
+Clementini 1989). Such relations typically span the com-          tic validator, and executable workload. The paired construc-
+plete, data-dependent structure and are not expressed by or-      tion supports controlled analysis across semantic categories,
+dinary C/C++ element types or storage layouts (Kawaguchi,         archetypes, and context views.
+Rondon, and Jhala 2009). A trusted constructor or complete         Real-World Suite. The real-world suite contains 20 source-
+invariant validator can establish the stronger representation,    backed cases drawn from six established HPC projects:
+after which a specialized algorithm operates on it; a generic     HPCG, LAMMPS, LULESH, miniFE, RAJAPerf, and XS-
+implementation handles inputs for which the invariant does        Bench (Heroux, Dongarra, and Luszczek 2013; Thompson
+not hold (Gao et al. 2023b).                                      et al. 2022; Karlin, Keasler, and Neely 2013; Lin et al. 2015;
+ High-Level Semantic Lifting. High-level semantic lifting         Pearce et al. 2024; Tramm et al. 2014). Each case is derived
+recovers an equivalence between a low-level implementation        from a source-locked application hotspot and retains its rel-
+and a higher-level operation, algorithm, or fused computation     evant program context, build boundary, and workload. The
+(Paraskevopoulou et al. 2020). Representative examples in-        cases represent 20 distinct archetypes and pass source and
+clude recognizing loop nests as group-by aggregation, prefix      provenance verification, blinded human semantic review, or-
+scan, sliding-window aggregation, stable compaction, sym-         acle isolation, functional and semantic validation, compiler-
+metric pairwise interaction, or a producer–consumer pipeline      evidence checks, and the common admission protocol.
+(Blelloch 1990; Steuwer, Remmelg, and Dubach 2017; Lat-              The synthetic suite is distributed as 40 LLA, 30 DSI, and
+tner et al. 2020). These equivalences span loops, calls, and      30 HSL cases, while the real-world suite adds 20 source-
+intermediate data structures, and their realization often re-     backed cases, distributed as 8 LLA, 6 DSI, and 6 HSL cases.
+quires whole-computation restructuring (Bondhugula et al.
+2008). Typical artifacts include equivalent source rewrites,                              Evaluation
+fused implementations, and specialized traversals. Semantic       We evaluate SeGaBench along the three RQs: semantic
+and differential validation check equivalence with the origi-     identification, artifact realization, and performance realiza-
+nal program, including its ordering, boundary, and numerical      tion. This section describes the blinded protocol and the
+behavior (Necula 2000).                                           metrics used for each stage.
+                                                                   Blinded Evaluation Protocol. For each case i, SeGaBench
+                  Benchmark Design                                creates an anonymized request containing the original pro-
+We turn the task in Section II into SeGaBench. It tests           gram Pi and a selected context view Civ . The target seman-
+whether LLMs can recover optimization-enabling semantics          tics Si⋆ , oracle artifact A⋆i , validators, and performance data
+missed by strong C/C++ compiler baselines and realize them        are hidden from the model. The model may abstain or re-
+as validated, contract-preserving artifacts. The benchmark        turn one proposal consisting of a semantic claim, supporting
+includes a synthetic suite for controlled analysis and a real-    evidence, and either a transformed original.cpp or an
+world suite of source-backed application cases.                   explicit no_artifact response.
+                                                                     Each response is frozen before evaluation. The importer
+ Case Representation and Admission. As shown in Fig-
+                                                                  checks schema conformance and converts any returned
+ure 1, each case is represented as                                source into an original-file-only patch. The evaluator applies
+               Bi = (Pi , Ci , Si⋆ , A⋆i , Vi , Mi ),             the patch in an isolated workspace, compiles it, runs func-
+                                                                  tional and property-specific semantic validators, and profiles
+where Pi is the original C/C++ program; Ci is its context,
+                                                                  every correctness-passing candidate. No compiler, validator,
+such as callers, tests, documentation, profiles, or compiler
+                                                                  oracle, or profiler feedback is returned to the model.
+reports; Si⋆ is the hidden enabling property or program
+equivalence; A⋆i is the hidden oracle artifact; Vi contains        Models and Run Configurations. We evaluate five LLM
+functional and property-specific validators; and Mi fixes the     configurations: GPT-5.4 mini (gpt-5.4-mini-2026-03-17)
+build, workload, and timing protocol. Runtime guards and          (OpenAI 2026a), GPT-5.6 Sol (gpt-5.6-sol)(OpenAI
+fallback paths, when needed, are part of the artifact.            2026b), DeepSeek-V4 Pro (deepseek-ai/DeepSeek-V4-
+   A case is admitted only if the oracle artifact applies, com-   Pro)(DeepSeek-AI 2026), Llama 3.3 70B Instruct Turbo
+            Table 1: Taxonomy of semantic optimization opportunities. (A “miss” is an opportunity left unexploited by the strongest compiler baseline.)
+
+Type                         Opportunity                                          Why baseline misses it                                         Artifact / optimization
+Low-level                    Memory, value, and iteration facts:                  The interface permits more            Assumptions or guarded
+assumptions (LLA)            non-aliasing, alignment, fixed                       executions than the caller, allocator,specialization; enables vectorization,
+                             strides/bounds, bounded indices.                     or configuration actually allows.     unrolling, address simplification, and
+                                                                                                                        check elimination.
+Data-structure               Global data relations: sortedness,                   Types and layouts expose storage, but Invariant contract or validator with
+invariants (DSI)             uniqueness, diagonal structure,                      not relations across elements.        specialization; enables simpler access
+                             canonical sparsity, injective maps,                                                        and specialized algorithms.
+                             disjoint intervals.
+High-level semantic          Program equivalences: scans,                         Recognition spans loops, calls, and                            Equivalent rewrite, fusion, or
+lifting (HSL)                aggregation, sliding windows,                        intermediates; realization requires                            specialized traversal; reduces passes,
+                             compaction, pairwise interaction,                    restructuring the computation.                                 intermediates, or asymptotic work.
+                             producer–consumer fusion.
+
+
+       CASE CONTENTS                                                                  EXECUTABLE VARIANTS                                                             ADMISSION
+                                                                                      BASELINE
+        P      Original program                 S* Enabling semantics
+                                                     Assumption, invariant,
+                                                                                                 </>    Original P             Strong compilation          Tᵇ               Δ = Tᵇ / T°
+        C/C++ source and build boundary                                                                 unchanged                                        fastest
+                                                               or equivalence                             source                 -O3 · LTO · PGO         original         Δ ≥ 1.05
+                                                                realized as           ORACLE                                                                              95% CI lower
+                                                                                                                                                                          bound > 1
+        C      Program context
+                  Callers, tests, profiles,
+                                                A*   Oracle artifact
+                                                        Assumption or guard;                              P ⊕ A*               Build and validate          T°
+                                                                                                                                                                          two independent
+                                                                                                       oracle-enabled          functional · semantic      oracle          sessions
+                     and documentation                specialization or rewrite                            source               compiler evidence        runtime             admit case
+                                                                                                          Any runtime guard is included in T°.
+
+
+
+
+                                              Figure 1: Structure and admission flow of a SeGaBench case.
+
+
+(meta-llama/Llama-3.3-70B-Instruct-Turbo)(Meta AI 2024),                                      End-to-End Success. We evaluate each proposal as a three-
+and Ternary Bonsai 27B (Prism-ML/Ternary-Bonsai-27B)                                         stage pipeline: semantic identification, artifact realization,
+(Prism ML 2026). All models are evaluated using the same                                     and performance realization. A proposal is an end-to-end
+prompt, response schema, maximum output length, and                                          (E2E) success only if it identifies the target semantics with
+frozen run plans. For each model, we draw five independent                                   supporting evidence, realizes it as a valid artifact, and
+full-context responses for each of the 120 cases at tempera-                                 achieves the fixed performance criterion over the strongest
+ture 0.7, yielding 600 requests per model and 3,000 requests                                 compiler baseline.
+overall. Each request is stateless. We use a maximum out-
+put length of 16,384 tokens. Responses are preserved and                                      RQ1: Semantic Identification. Two reviewers, blinded to
+evaluated as returned, without repair, retry, or iterative opti-                             model identity and candidate performance, judge whether
+mization feedback.                                                                           a proposal states Si⋆ or an equivalent claim and whether
+   All compilation, validation, and performance measure-                                     its cited evidence supports the stated scope. Disagreements
+ments are conducted on a Mac mini with a 10-core Apple                                       are resolved through adjudication to obtain the final RQ1
+M4 processor (four performance and six efficiency cores)                                     labels. Schema conformance and citation bounds are checked
+and 16 GB of memory, running macOS 26.5.2. We use Ap-                                        mechanically.
+ple Clang 17.0.0 targeting ARM64. Benchmark cases and                                           Let sr indicate that request r passes this review. Over the
+variants are evaluated serially. We do not apply explicit CPU-                               set of all requests R, the primary RQ1 metric is
+frequency locking or core-affinity controls.
+                                                                                                                                 1 X
+Baselines and Measurement. For case i, the baseline run-                                                     RecoveryRate =              sr .
+                                                                                                                                |R|
+                                                                                                                                                                    r∈R
+time Tib is the minimum runtime of the original program
+compiled with -O3, LTO, and PGO. The oracle-enabled run-                                      RQ2: Artifact Realization. Reviewers first check that the
+time Tio represents the admitted semantic opportunity, and
+                                                                                             artifact realizes the same claim assessed in RQ1. The evalu-
+  c
+Tir is the runtime of the candidate produced by request r. All
+                                                                                             ator then checks that the patch applies, compiles, and passes
+variants use the same compiler, workload, source boundary,
+                                                                                             both functional and property-specific semantic validation.
+and measurement configuration.
+                                                                                             Let ar indicate that these conditions hold.
+   Oracle admission uses two independent measurement ses-
+sions and a confidence-interval criterion, as described in Sec-                                  We report the unconditional correct-artifact rate
+tion . Candidate results use the point estimate from the fixed
+                                                                                                                               P
+                                                                                                                                       sr ar
+candidate measurement protocol unless otherwise stated.                                                     ArtifactRateall = r∈R            ,
+                                                                                                                                   |R|
+and the rate conditioned on successful semantic recovery,            Table 2 shows a wide capability gap. GPT-5.6 Sol is
+                                  P
+                                         sr ar                    strongest at all three stages, with 95.0% recovery, 94.8%
+             ArtifactRatecond = Pr∈R           .                  correct artifacts, and 83.3% E2E performance success.
+                                      r∈R sr                      DeepSeek-V4-Pro and GPT-5.4-mini reach 63.8% and 41.7%
+The first measures E2E artifact production, while the second      E2E@1.05, whereas Llama-3.3-70B-Turbo and Ternary-
+isolates artifact construction from semantic recovery.            Bonsai-27B reach only 5.8% and 5.0%. The benchmark
+ RQ3: Performance Realization. RQ3 evaluates whether              therefore distinguishes not only semantic reasoning but also
+                                                                  the ability to turn recovered semantics into executable arti-
+semantically valid and correctness-preserving artifacts trans-    facts.
+late into runtime improvements. We first define
+                                                                     Repeated sampling improves case coverage for every
+                  C = {r ∈ R : sr ar = 1},                        model. From k = 1 to k = 5, E2E coverage rises from
+the set of requests that pass both RQ1 and RQ2.                   39.2% to 76.7% for GPT-5.4-mini, from 82.5% to 93.3%
+   Let mr = 1 when candidate timing completes and the             for GPT-5.6 Sol, and from 67.5% to 91.7% for DeepSeek.
+quantities required for performance classification are avail-     At k = 5, DeepSeek produces at least one RQ1- and RQ2-
+able. We define                                                   passing artifact for 119 of 120 cases, but GPT-5.6 Sol retains
+                                                                  slightly higher performance coverage (112 versus 110 cases).
+                 Cperf = {r ∈ C : mr = 1}.
+                                                                   RQ1: Semantic Opportunity Identification Blinded re-
+For each r ∈ Cperf , we compute
+                                                                  viewers judge whether a response identifies the target en-
+                                     Tib                          abling semantics, or an equivalent claim, and grounds it in
+                     Speedupir =      c
+                                     Tir                          evidence supporting its scope. GPT-5.6 recovers 570/600 op-
+and                                                               portunities (95.0%), followed by GPT-5.4-mini at 516/600
+                                       Tib − Tir
+                                              c                   (86.0%) and DeepSeek at 504/600 (84.0%). Llama recovers
+                 GapClosedir =                   .                126/600 (21.0%) and Ternary-Bonsai 89/600 (14.8%). Their
+                                       Tib − Tio                  low rates primarily reflect missing reviewable claims: Llama
+Because the oracle is a validated reference rather than a         abstains in 474 responses, while Ternary-Bonsai has 511
+global optimum, GapClosedir > 1 is permitted.                     non-recoveries, including 71 schema-invalid responses. Se-
+   Using p = 1.05, we partition Cperf into:                       mantic identification is thus reliable for the strongest models
+■ Oracle-level realization: GapClosedir ≥ 1;                      but is not a general property of all evaluated LLMs.
+■ Partial realization: Speedupir ≥ p & GapClosedir <
+                                                                   RQ2: Artifact Realization GPT-5.6 realizes 569/570
+   1;
+                                                                  recovered opportunities as correct artifacts, giving
+■ No meaningful realization: Speedupir < p.
+                                                                  ArtifactRatecond = 99.8%. DeepSeek realizes 488/504
+   These outcome rates use |Cperf | as their denominator          (96.8%), GPT-5.4-mini 329/516 (63.8%), Ternary-Bonsai
+and sum to one. We report |Cperf |/|C| as performance-            46/89 (51.7%), and Llama 60/126 (47.6%). Consequently,
+measurement coverage. Candidates without a valid perfor-          the correct-artifact rate ranges from 7.7% to 94.8%.
+mance classification remain failures in request-level E2E@p.
+                                                                     Execution failures further separate the models. All 570
+ Aggregation and Sampling. We report RQ1, RQ2, and                GPT-5.6 artifacts compile and only one fails validation.
+E2E results overall and by benchmark suite and semantic           Ternary-Bonsai has 20 compilation, six functional, and two
+type. RQ1, RQ2, and E2E rates use all requests, whereas the       semantic-validation failures; Llama has 47 compilation, 18
+three RQ3 outcome shares use the performance-classifiable         functional, and one semantic-validation failure. Structured
+correct-artifact set Cperf .                                      output compliance alone therefore does not imply artifact
+   For repeated sampling, Success@k counts a case as suc-         correctness.
+cessful if at least one of its first k responses passes RQ1 and    RQ3: Performance Realization The RQ3 correctness sets
+RQ2 and achieves Speedup ≥ p. We report k = 1, . . . , 5 and      C contain 329 GPT-5.4-mini, 569 GPT-5.6, 488 DeepSeek,
+use Success@5 as the summary case-level metric. Absten-           46 Ternary-Bonsai, and 60 Llama responses. Of these, re-
+tion, schema compliance, artifact generation, compilation,        spectively, 76.0%, 87.9%, 78.5%, 65.2%, and 58.3% achieve
+functional validation, and semantic validation are reported       at least 1.05×. Thus, even the two weaker models occasion-
+as diagnostic outcomes.                                           ally produce useful artifacts, but their low RQ1 and RQ2
+                                                                  coverage reduces request-level performance success to 5–
+                 Experimental Results                             6%.
+Each of the five models produces five independent responses          Figure 2 shows the fraction of the oracle opportunity real-
+for each of the 120 cases, yielding 600 requests per model and    ized. GPT-5.6 has the smallest no-meaningful share (11.7%).
+3,000 in total. Recovery and ArtifactRateall use all requests     This share increases to 21.4% for DeepSeek, 22.8% for
+as the denominator, including abstentions and malformed re-       GPT-5.4-mini, 34.8% for Ternary-Bonsai, and 40.7% for
+sponses; ArtifactRatecond is conditioned on RQ1 recovery.         Llama. Median speedups among measured correct artifacts
+RQ3 is evaluated on C = {r : sr ar = 1}. E2E@1.05 addi-           are 2.10×, 2.02×, 1.77×, 1.63×, and 1.11× for GPT-5.6,
+tionally requires at least 1.05× speedup, while Success@k         DeepSeek, GPT-5.4-mini, Ternary-Bonsai, and Llama, re-
+counts a case when any of its first k responses succeeds E2E.     spectively. Conditional speedup must therefore be interpreted
+                                               Table 2: Overall results over 600 requests per model.
+
+              Model                       RecoveryRate          ArtifactRateall         ArtifactRatecond               E2E@1.05               Success@5
+              GPT-5.4-mini                           86.0%                 54.8%                        63.8%                 41.7%                      76.7%
+              GPT-5.6 Sol                            95.0%                 94.8%                        99.8%                 83.3%                      93.3%
+              DeepSeek-V4-Pro                        84.0%                 81.3%                        96.8%                 63.8%                      91.7%
+              Ternary-Bonsai-27B                     14.8%                  7.7%                        51.7%                  5.0%                      20.8%
+              Llama-3.3-70B-Turbo                    21.0%                 10.0%                        47.6%                  5.8%                      12.5%
+
+
+                                GPT-5.4-mini      GPT-5.6       DeepSeek-V4-Pro         Ternary-Bonsai-27B             Llama-3.3-70B
+                          (a) Per-request funnel                  (b) Case coverage                                (c) Oracle gap
+              100%                                                                                            42                    47              12   GPT-5.6
+              75%                                                                                          41                  38              21        DeepSeek
+       Rate
+
+
+
+
+              50%                                                                                         35                  42               23        GPT-5.4m
+
+              25%                                                                                         35             30               35             Bonsai-27B
+                                                                                                         32             27               41            Llama-70B
+               0%
+                     Recovery      Artifact      ≥ 1.05×    1      2      3         4       5     0%                    50%                         100%
+                                                                 Samples per case (𝑘)           Oracle-level            Partial               No meaningful
+
+
+Figure 2: Five-model results: (a) per-request RQ1, RQ2, and E2E@1.05 rates; (b) case coverage versus samples per case; and
+(c) RQ3 outcomes among performance-classifiable correct artifacts Cperf .
+
+
+together with E2E coverage.
+ Synthetic versus real-world behavior. For the three
+                                                                                   “
+                                                                                   Answer to the central research question:
+                                                                                   Within the admitted opportunities in SeGaBench, capa-
+strongest models, request-level E2E performance decreases                          ble LLMs can recover and realize optimizations missed by
+on the real-world suite. Ternary-Bonsai and Llama show                             compiler baselines, but the capability is strongly model-
+higher request-level rates on real-world cases because                             dependent. GPT-5.6 Sol achieves 95.0% semantic recov-
+they return artifacts more frequently. Nevertheless, median                        ery, 94.8% correct artifacts, and 83.3% E2E@1.05. Per-
+speedup among measured correct artifacts decreases from                            formance is lower on source-backed cases for the strongest
+synthetic to real-world cases for all five models, from                            models, and reliable use still requires validation and mea-
+1.95–7.29× to 1.04–1.29×. Suite comparison must there-                             surement.
+fore separate artifact coverage from the speedup of correct
+artifacts.                                                                                        Discussion and Limitations
+ Speedup across Semantic Types. Figure 3 compares the                              Implications. Our results support a division of labor in
+runtime speedups of correct, measured artifacts across the                        which an LLM searches heterogeneous program context for
+three semantic types and models.                                                  enabling semantics, validators establish whether the pro-
+   Among the three strongest models, low-level assumptions                        posed claim and artifact preserve the benchmark contract,
+produce the largest median speedups: 2.03× for GPT-5.4-                           and the compiler performs downstream optimization and
+mini, 3.10× for GPT-5.6, and 2.51× for DeepSeek-V4-Pro.                           code generation. This approach retains existing compiler in-
+Ternary-Bonsai instead peaks on data-structure invariants at                      frastructure while extending the semantic information avail-
+2.72×, although this estimate contains only 12 measured                           able to it. However, the large differences across models show
+artifacts. Llama remains close to baseline parity across all                      that semantic opportunity realization is not yet a uniform
+three types, with medians of 1.19×, 0.99×, and 1.07×. Thus,                       LLM capability. Repeated sampling improves case cover-
+performance realization depends jointly on semantic type and                      age, but it also increases the need for reliable validation and
+model capability.                                                                 candidate selection. The lower speedups on real-world cases
+   GPT-5.6 Sol achieves the highest median speedup on low-                        further indicate a transfer gap between isolated opportunities
+level assumptions and high-level semantic lifting. DeepSeek-                      and application-level performance.
+V4-Pro has the highest median on data-structure invariants,
+although GPT-5.6 Sol has the higher geometric mean, in-                            Limitations. SeGaBench currently covers C/C++, three
+dicating a more right-skewed speedup distribution. Overall,                       semantic categories, and source-backed cases from six HPC
+low-level semantic information produces the largest absolute                      projects. Its real-world cases are selected for reproducibility
+runtime benefits, whereas the performance of higher-level                         and measurable oracle speedup and may not represent the
+opportunities depends more strongly on the model and indi-                        full distribution of optimization opportunities in production
+vidual benchmark case.                                                            software. Performance is measured in one hardware and com-
+       Speedup over strongest original baseline
+                                                               GPT-5.4-mini   GPT-5.6   DeepSeek-V4-Pro     Ternary-Bonsai-27B       Llama-3.3-70B
+
+
+                                                  16×
+
+                                                  8×
+
+                                                  4×
+
+                                                  2×
+
+                                                  1×
+                                                             Low-level                     Data-structure                        High-level semantic
+                                                            assumptions                     invariants                                 lifting
+
+
+Figure 3: Speedup of measured correct artifacts by semantic type and model. Boxes show IQRs, center lines medians, and
+whiskers the 10th–90th percentiles; the dashed line marks baseline parity.
+
+
+piler environment, so absolute speedups and model rankings                                       asks the model to recover an optimization enabling semantic
+may change across platforms. Oracle artifacts are validated                                      property or program equivalence and realize it as a semantic
+witnesses rather than global performance upper bounds, and                                       artifact. The existing compiler then remains responsible for
+correctness guarantees apply only within each case’s de-                                         downstream optimization and code generation.
+fined contract and workload boundary. Finally, RQ1 relies on                                      Invariant discovery and verified transformation. Daikon
+blinded human judgments of semantic equivalence and evi-
+dence sufficiency. Future work should extend the benchmark                                       dynamically infers likely program invariants from execu-
+to additional domains, languages, compilers, and hardware                                        tion traces (Ernst et al. 2001). Superoptimizers search or
+platforms, and investigate machine-checkable contracts and                                       synthesize equivalent program rewrites that improve a tar-
+automated candidate selection.                                                                   get cost metric (Sasnauskas et al. 2017; Liu, Mada, and
+                                                                                                 Regehr 2023), while translation validation systems such
+   Candidate success uses point estimates, whereas oracle ad-
+                                                                                                 as Alive2 verify whether LLVM transformations preserve
+mission additionally requires two independent sessions and
+                                                                                                 program semantics (Lopes et al. 2021). These techniques
+a confidence-interval criterion; candidates near the 1.05×
+                                                                                                 respectively discover trace-supported properties, search a
+threshold may therefore be sensitive to measurement noise.
+                                                                                                 predefined transformation space, or validate a supplied
+                                                                                                 rewrite. SeGaBench connects these concerns by evaluat-
+                                                        Related Work                             ing evidence-grounded semantic recovery, executable artifact
+ Learning-guided compiler optimization. Prior work ap-                                           construction, contract validation, and realized performance
+                                                                                                 within a common benchmark.
+plies machine learning to decisions within existing compiler
+pipelines. MLGO integrates learned optimization policies
+into LLVM for decisions such as inlining, while Compiler-                                                                   Conclusion
+Gym provides an environment for learning-based exploration                                       This paper asks whether LLMs can realize semantic opti-
+of compiler optimization sequences (Trofin et al. 2021; Cum-                                     mization opportunities missed by strong C/C++ compilers.
+mins et al. 2022). Recent language-model-based approaches                                        We introduce SeGaBench, comprising 100 synthetic and
+predict optimization passes or optimized LLVM IR directly                                        20 source-backed cases with hidden semantics, oracle arti-
+(Grubisic et al. 2024; Cummins et al. 2025). HintPilot instead                                   facts, validators, and fixed performance protocols. Across
+synthesizes compiler hints to steer existing compiler opti-                                      five LLMs, the strongest produces correct artifacts in 94.8%
+mizations (Jiang et al. 2026). These approaches operate over                                     of responses, achieves E2E@1.05 in 83.3%, and succeeds
+compiler-visible representations and available optimization                                      on 93.3% of cases with five samples. However, many arti-
+mechanisms, either by improving optimization decisions or                                        facts close only part of the oracle gap, and performance is
+directly generating optimized code. Our work instead studies                                     lower on source-backed cases for the strongest models. The
+whether LLMs can recover enabling semantics that are not                                         large differences among models further show that semantic
+available to the original compilation in a usable form.                                          opportunity realization is not yet a uniform LLM capability.
+ LLMs for performance-oriented code generation.           Ker-                                   Overall, the results support a complementary workflow in
+                                                                                                 which LLMs propose semantic artifacts, validators establish
+nelBench evaluates LLM-generated GPU kernels using
+                                                                                                 correctness, and compilers perform downstream optimiza-
+functional correctness and speedup over PyTorch baselines,
+                                                                                                 tion. Reliable use still requires contract-aware fallbacks and
+while CUDA-LLM iteratively improves CUDA kernels
+                                                                                                 platform-specific performance measurement.
+using compilation, correctness, and performance feed-
+back (Ouyang et al. 2025; Chen et al. 2025). These and
+related approaches similarly treat the LLM as a generator                                                                   References
+or tuner of a replacement implementation. In contrast,                                           Anand, V.; Garg, D.; and Kaufmann, A. 2025. Iridescent: A
+SeGaBench begins with an existing C/C++ program and                                              framework enabling online system implementation special-
+ization. arXiv preprint arXiv:2508.16690.                          Grubisic, D.; Cummins, C.; Seeker, V.; and Leather, H. 2024.
+Avans, C. N.; Correa, A. A.; Ghosh, S.; Schimek, M.;               Compiler generated feedback for large language models.
+Schuchart, J.; Skjellum, A.; Suggs, E. D.; and Uhl, T. N.          arXiv preprint arXiv:2403.14714.
+2025. Concepts for designing modern C++ interfaces for             Heroux, M. A.; Dongarra, J.; and Luszczek, P. 2013. HPCG
+MPI. In European MPI Users’ Group Meeting, 165–183.                benchmark technical specification. Technical report, San-
+Springer.                                                          dia National Laboratories (SNL-NM), Albuquerque, NM
+Barany, G. 2018. Finding missed compiler optimizations by          (United States).
+differential testing. In Proceedings of the 27th international     Jiang, H.; Yao, P.; Li, K.; Lin, T.; Wang, C.; and Ren, K.
+conference on compiler construction, 82–92.                        2026. HintPilot: LLM-based Compiler Hint Synthesis for
+Blelloch, G. E. 1990. Prefix Sums and Their Applications.          Code Optimization. In Findings of the Association for Com-
+Technical Report CMU-CS-90-190, School of Computer Sci-            putational Linguistics: ACL 2026, 24970–24986.
+ence, Carnegie Mellon University.                                  Jiang, H.; Zhu, J.; Wan, Y.; Fang, B.; Zhang, H.; Jin, R.; and
+                                                                   Guan, Q. 2025. Can Large Language Models Understand
+Bondhugula, U.; Hartono, A.; Ramanujam, J.; and Sadayap-
+                                                                   Intermediate Representations in Compilers? arXiv preprint
+pan, P. 2008. Pluto: A practical and fully automatic polyhe-
+dral program optimization system. In Proceedings of the
+                                                                   arXiv:2502.06854.
+ACM SIGPLAN 2008 Conference on Programming Lan-                    Karlin, I.; Keasler, J.; and Neely, J. R. 2013. Lulesh 2.0
+guage Design and Implementation (PLDI 08), Tucson, AZ              updates and changes. Technical report, Lawrence Liver-
+(June 2008). Citeseer, volume 146.                                 more National Laboratory (LLNL), Livermore, CA (United
+                                                                   States).
+Burow, N. H. 2018. Taking Back Control: Closing the Gap
+Between C/C++ and Machine Semantics. Ph.D. thesis, Pur-            Kawaguchi, M.; Rondon, P.; and Jhala, R. 2009. Type-based
+due University.                                                    data structure verification. In Proceedings of the 30th ACM
+                                                                   SIGPLAN Conference on Programming Language Design
+Chen, W.; Zhu, J.; Fan, Q.; Ma, Y.; and Zou, A. 2025. CUDA-        and Implementation, 304–315.
+LLM: LLMs Can Write Efficient CUDA Kernels. arXiv
+preprint arXiv:2506.09092.                                         Lattner, C. 2005. Macroscopic data structure analysis and
+                                                                   optimization. University of Illinois at Urbana-Champaign.
+Cummins, C.; Seeker, V.; Grubisic, D.; Rozière, B.; Gehring,
+                                                                   Lattner, C.; and Adve, V. 2004. LLVM: a compilation frame-
+J.; Synnaeve, G.; and Leather, H. 2025. LLM Compiler:
+                                                                   work for lifelong program analysis & transformation. In In-
+Foundation Language Models for Compiler Optimization.
+In Proceedings of the 34th ACM SIGPLAN International
+                                                                   ternational Symposium on Code Generation and Optimiza-
+                                                                   tion, 2004. CGO 2004., 75–86.
+Conference on Compiler Construction, 141–153.
+                                                                   Lattner, C.; Amini, M.; Bondhugula, U.; Cohen, A.; Davis,
+Cummins, C.; Wasti, B.; Guo, J.; Cui, B.; Ansel, J.; Gomez,        A.; Pienaar, J.; Riddle, R.; Shpeisman, T.; Vasilache, N.; and
+S.; Jain, S.; Liu, J.; Teytaud, O.; Steiner, B.; et al. 2022.      Zinenko, O. 2020. MLIR: A compiler infrastructure for the
+Compilergym: Robust, performant compiler optimization en-          end of Moore’s law. arXiv preprint arXiv:2002.11054.
+vironments for ai research. In 2022 IEEE/ACM International
+Symposium on Code Generation and Optimization (CGO),               Lin, P. T.; Heroux, M. A.; Barrett, R. F.; and Williams, A. B.
+92–105. IEEE.                                                      2015. Assessing a mini-application as a performance proxy
+                                                                   for a finite element method engineering application. Concur-
+DeepSeek-AI. 2026. DeepSeek-V4 Pro Model Card. https:              rency and Computation: Practice and Experience, 27(17):
+//huggingface.co/deepseek-ai/DeepSeek-V4-Pro. Hugging              5374–5389.
+Face Model Card. Accessed July 2026.
+                                                                   Liskov, B. 1987. Keynote address-data abstraction and hier-
+Di Felice, P.; Agnifili, A.; and Clementini, E. 1989. Data         archy. In Addendum to the proceedings on Object-oriented
+structures for compact sparse matrices representation. Ad-         programming systems, languages and applications (Adden-
+vances in Engineering Software (1978), 11(2): 75–83.               dum), 17–34.
+D’Silva, V.; Payer, M.; and Song, D. 2015. The correctness-        Liu, Z.; Mada, S.; and Regehr, J. 2023. Minotaur: A
+security gap in compiler optimization. In 2015 IEEE Security       SIMD-oriented synthesizing superoptimizer. arXiv preprint
+and Privacy Workshops, 73–87. IEEE.                                arXiv:2306.00229.
+Ernst, M. D.; Cockrell, J.; Griswold, W. G.; and Notkin, D.        LLVM Project. 2025. Clang Users Manual. LLVM Project.
+2001. Dynamically discovering likely program invariants to         Accessed July 27, 2026.
+support program evolution. IEEE transactions on software           Lopes, N. P.; Lee, J.; Hur, C.-K.; Liu, Z.; and Regehr, J.
+engineering, 27(2): 99–123.                                        2021. Alive2: bounded translation validation for LLVM.
+Gao, J.; Ji, W.; Chang, F.; Han, S.; Wei, B.; Liu, Z.; and Wang,   In Proceedings of the 42nd ACM SIGPLAN International
+Y. 2023a. A systematic survey of general sparse matrix-            Conference on Programming Language Design and Imple-
+matrix multiplication. ACM Computing Surveys, 55(12):              mentation, 65–79.
+1–36.                                                              Lossing, N.; Guillou, P.; Amini, M.; and Irigoin, F. 2015.
+Gao, J.; Ji, W.; Chang, F.; Han, S.; Wei, B.; Liu, Z.; and Wang,   From data to effects dependence graphs: source-to-source
+Y. 2023b. A Systematic Survey of General Sparse Matrix-            transformations for C. In The 18th international workshop
+Matrix Multiplication. ACM Computing Surveys, 55(12).              on compilers for parallel computing (CPC’15).
+Meta AI. 2024. Llama 3.3 70B Instruct Model Card. https://      Thompson, A. P.; Aktulga, H. M.; Berger, R.; Bolintineanu,
+huggingface.co/meta-llama/Llama-3.3-70B-Instruct. Hug-          D. S.; Brown, W. M.; Crozier, P. S.; In’t Veld, P. J.;
+ging Face Model Card. Accessed July 2026.                       Kohlmeyer, A.; Moore, S. G.; Nguyen, T. D.; et al. 2022.
+Necula, G. C. 2000. Translation validation for an optimizing    LAMMPS-a flexible simulation tool for particle-based ma-
+compiler. In Proceedings of the ACM SIGPLAN 2000 confer-        terials modeling at the atomic, meso, and continuum scales.
+ence on Programming language design and implementation,         Computer physics communications, 271: 108171.
+83–94.                                                          Tramm, J. R.; Siegel, A. R.; Islam, T.; and Schulz, M. 2014.
+OpenAI. 2026a. GPT-5.4 mini. https://developers.openai.         XSBench-the development and verification of a performance
+com/api/docs/models/gpt-5.4-mini. OpenAI API Documen-           abstraction for Monte Carlo reactor analysis. The Role of
+tation. Accessed July 2026.                                     Reactor Physics toward a Sustainable Future (PHYSOR).
+OpenAI. 2026b. GPT-5.6 Sol. https://developers.openai.          Trofin, M.; Qian, Y.; Brevdo, E.; Lin, Z.; Choromanski, K.;
+com/api/docs/models/gpt-5.6-sol. OpenAI API Documen-            and Li, D. 2021. Mlgo: a machine learning guided compiler
+tation. Accessed July 2026.                                     optimizations framework. arXiv preprint arXiv:2101.04808.
+Ouyang, A.; Guo, S.; Arora, S.; Zhang, A. L.; Hu, W.; Ré,       Vafeiadis, V.; Balabonski, T.; Chakraborty, S.; Morisset, R.;
+C.; and Mirhoseini, A. 2025. KernelBench: Can LLMs Write        and Zappa Nardelli, F. 2015. Common compiler optimisa-
+Efficient GPU Kernels? In Proceedings of the 42nd Inter-        tions are invalid in the C11 memory model and what we
+national Conference on Machine Learning, volume 267 of          can do about it. In Proceedings of the 42Nd Annual ACM
+Proceedings of Machine Learning Research, 47356–47415.          SIGPLAN-SIGACT Symposium on Principles of Program-
+PMLR.                                                           ming Languages, 209–220.
+Paraskevopoulou, P.; et al. 2020. Semantic Program Align-       Zheng, Z.; Wu, K.; Cheng, L.; Li, L.; Rocha, R. C.; Liu, T.;
+ment for Equivalence Checking. In Proceedings of the ACM        Wei, W.; Zeng, J.; Zhang, X.; and Gao, Y. 2025. Vectrans:
+SIGPLAN Conference on Programming Language Design               Enhancing compiler auto-vectorization through llm-assisted
+and Implementation.                                             code transformations. arXiv preprint arXiv:2503.19449.
+Paraskevopoulou, Z. 2020. Verified Optimizations for Func-
+tional Languages. Princeton University.
+Pearce, O.; Burmark, J.; Hornung, R.; Bogale, B.; Lums-
+den, I.; McKinsey, M.; Yokelson, D.; Boehme, D.; Brink, S.;
+Taufer, M.; and Scogland, T. 2024. RAJA Performance Suite:
+Performance Portability Analysis with Caliper and Thicket.
+In Proceedings of the 2024 IEEE/ACM International Work-
+shop on Performance, Portability and Productivity in HPC
+(P3HPC). IEEE/ACM. Held in conjunction with the In-
+ternational Conference for High Performance Computing,
+Networking, Storage and Analysis (SC-W 2024).
+Prism ML. 2026. Ternary Bonsai 27B. Hugging Face Model
+Card. Accessed July 2026.
+Radtke, P. K.; Barrera-Hinojosa, C. G.; Ivkovic, M.; and
+Weinzierl, T. 2024. An extension of C++ with memory-
+centric specifications for HPC to reduce memory foot-
+prints and streamline MPI development. arXiv preprint
+arXiv:2406.06095.
+Sasnauskas, R.; Chen, Y.; Collingbourne, P.; Ketema, J.; Lup,
+G.; Taneja, J.; and Regehr, J. 2017. Souper: A synthesizing
+superoptimizer. arXiv preprint arXiv:1711.04422.
+Sheth, S. 2026. Preserving Structural Alias Information
+Across the MLIR-to-LLVM Lowering Boundary. Master’s
+thesis, California Polytechnic State University, San Luis
+Obispo.
+Steuwer, M.; Remmelg, T.; and Dubach, C. 2017. Lift: a
+functional data-parallel IR for high-performance GPU code
+generation. In 2017 IEEE/ACM International Symposium on
+Code Generation and Optimization (CGO), 74–85. IEEE.
+Tang, A. S.; Priebe, C.; Mahapatra, R.; Qin, L.; and Es-
+maeilzadeh, H. 2026. Reasoning compiler: LLM-guided op-
+timizations for efficient model serving. Advances in Neural
+Information Processing Systems, 38: 106904–106930.
+

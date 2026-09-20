@@ -16,8 +16,16 @@ license: MIT
 - RSS：`https://www.reddit.com/r/{subreddit}/new.rss`
 - 備用 1：TechCrunch (https://techcrunch.com)
 - 備用 2：The Verge (https://www.theverge.com)
+  - RSS：`https://www.theverge.com/rss/index.xml`（Atom feed）
+  - ⚠️ 週末有時不更新（最近一次 06-15 凌晨見證），fallback 條件：最近 6h 內 0 筆新文 → 自動向下取 feed 內最新
 - 備用 3：Ars Technica (https://arstechnica.com)
+  - RSS：`https://feeds.arstechnica.com/arstechnica/index`（FeedBurner，每小時更新，最後一次驗證 2026-08-15 06:53 UTC HTTP 200）
+  - 觸發：The Verge 6h 內 0 筆 或 RSS 抓取失敗 → 第一順位切換
 - 備用 4：Hacker News (https://news.ycombinator.com)
+  - RSS：`https://news.ycombinator.com/rss`
+
+**科技 fallback 順序建議**：Reddit → TechCrunch → The Verge → **Ars Technica** → HN
+（Ars Technica 提升為 3rd 順位，補強 The Verge 週末斷料空窗；HN 留為最後一道）
 
 ### ⚔️ 軍事新聞（主要：NBC News）
 - 主要：NBC News Military (https://www.nbcnews.com/military)
@@ -55,8 +63,30 @@ license: MIT
 # Reddit RSS
 curl -L -A "Mozilla/5.0" --max-time 15 "https://www.reddit.com/r/technology/new.rss"
 
+# The Verge RSS
+curl -L -A "Mozilla/5.0" --max-time 15 "https://www.theverge.com/rss/index.xml"
+
+# Ars Technica RSS（FeedBurner，必帶 User-Agent）
+curl -L -A "Mozilla/5.0" --max-time 15 "https://feeds.arstechnica.com/arstechnica/index"
+
+# Hacker News RSS
+curl -L -A "Mozilla/5.0" --max-time 15 "https://news.ycombinator.com/rss"
+
 # CNBC RSS
 curl -L -A "Mozilla/5.0" --max-time 15 "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+```
+
+### 科技 fallback 自動切換 SOP
+
+```
+1. 抓 Reddit RSS（主要）
+2. 成功且 ≥ 10 筆 → 用 Reddit
+3. 失敗 / 不足 → 抓 TechCrunch RSS
+4. 失敗 / 不足 → 抓 The Verge RSS（Atom）
+   └─ 條件：最近 6h 內 0 筆新文 → 視為「週末斷料」，跳過 The Verge
+5. 抓 Ars Technica RSS（FeedBurner） ← 加入 2026-08-15
+6. 抓 Hacker News RSS
+7. 全部失敗 → Tavily 搜尋
 ```
 
 ## 可信度規則

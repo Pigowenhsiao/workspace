@@ -1,0 +1,265 @@
+                                         —­
+                                        --          上海人工智能实验室
+                                        -:=-.==.. � Shanghai Artificial Intelligence Laboratory
+                                                                                                                                       AgentDoG Team
+
+                                                                        SafeEvolve: Harness-Policy Co-Evolution from
+                                                                           Agent Experience for Safety Alignment
+                                                         Qinghua Mao1,2,* , Wanying Qu1,3,* , Dadi Guo1,4 , Leitao Yuan1,5 , Qingyu Liu1 ,
+                                                           Yu Li1,3 , Guanxu Chen1,2 , Yanwei Fu3 , Xi Lin2,† , Xia Hu1 , Dongrui Liu1,†
+                                                    1 Shanghai AI Laboratory 2 SJTU 3 Fudan University 4 HKUST 5 Zhejiang University
+
+                                                                        mmmm2018@sjtu.edu.cn wyqu24@m.fudan.edu.cn
+                                                                              github.com/MaoPopovich/SafeEvolve
+
+
+                                                                                                              Abstract
+arXiv:2609.02786v1 [cs.AI] 2 Sep 2026
+
+
+
+
+                                                     The performance of LLM-based agents is jointly shaped by the base model and the harness
+                                                     used when interacting with the environment. This exposes them to safety risks in both
+                                                     harmful final responses and multi-step execution trajectories. Existing safety alignment
+                                                     mechanisms often rely on either external harness updates or policy optimization, yet ap-
+                                                     plying either paradigm in isolation fails to bridge runtime control with intrinsic safety.
+                                                     We propose SafeEvolve, an experience-driven self-evolving framework for agent safety
+                                                     alignment. SafeEvolve leverages safety experience from completed on-policy trajectories
+                                                     to drive a continual loop of harness-policy co-evolution. On the harness side, SafeEvolve
+                                                     converts trajectory-level safety evidence into bounded, component-level updates across
+                                                     safety prompt and hierarchical skills, yielding auditable and reversible harness artifacts. On
+                                                     the policy side, SafeEvolve follows a two-stage SFT-RL paradigm, where harness-use SFT
+                                                     bootstraps the policy to actively leverage evolved harness artifacts, and harness-augmented
+                                                     RL further shapes autonomous safety behaviors during multi-step exploration via verifier-
+                                                     decomposed rewards. Through harness-policy co-evolution, SafeEvolve converts safety
+                                                     experience into an evolved runtime harness and improved policy behavior. Experiments
+                                                     on agentic safety benchmarks show that SafeEvolve achieves a stronger safety-utility trade-
+                                                     off than existing baselines. For Qwen3.5-4B, SafeEvolve achieves a 3× ASR reduction on
+                                                     AgentDojo while improving benign utility from 59.79% to 61.86%.
+
+
+                                        1     Introduction
+
+                                        Large language model (LLM) agents are increasingly deployed as interactive systems that plan, invoke
+                                        tools, update memory, and act over long horizons (Yao et al., 2023; Jimenez et al., 2024; Xi et al., 2025; Dong
+                                        et al., 2026). An agent typically operates through a harness, where the collection of model-external, editable
+                                        components mediates its interaction with the environment, such as instructions, skills, and memory. As
+                                        agents act through this harness, safety failures can occur during multi-step execution, for example through
+                                        unsafe tool calls or plans that follow injected instructions (Zhang et al., 2025a; Debenedetti et al., 2024;
+                                        Andriushchenko et al., 2025; Li et al., 2026c).
+                                        To mitigate such behavioral risks, existing safety alignment mechanisms mainly intervene along two
+                                        directions, as illustrated in Fig. 1. One line of work provides safety regulations via external harness
+                                        artifacts, such as instructions, skills, and runtime guardrails (Chen et al., 2025a;b; Liu et al., 2026c;a; Qu et al.,
+                                        2026). However, increasingly sophisticated artifacts may not be reliably followed or executed by a weak
+                                        frozen policy (Lin et al., 2026a; Zhang et al., 2026a; Agrawal et al., 2026). Furthermore, such external artifacts
+                                        could decouple from actions and decay during multi-step execution. Another line of work updates policy
+                                        parameters to absorb safety knowledge (Ouyang et al., 2022; Bai et al., 2022; Rafailov et al., 2023; Sha et al.,
+                                        2025; Zhang et al., 2025b). However, the policy is optimized under a fixed harness (Ding et al., 2026; Chen
+                                        et al., 2026a; Luo et al., 2026; Chen et al., 2026b), where a static training substrate cannot provide adaptive
+                                        guidance for emerging failure modes. Meanwhile, safety capabilities encoded in parameters are also hard to
+                                        transfer across models. As the agent interacts with environments, relying on either paradigm in isolation
+                                        fails to synergize runtime control with intrinsic safety for persistent safety behavior. Consequently, a key
+
+                                            * Equal contribution.                   † Corresponding author.
+    Harness-Only Evolution                       Policy-Only Evolution              Harness-Policy Co-Evolution
+                                                   Fixed
+                                                   Harness                                                              Safe        task
+                                                                                               failure    recovery    feedback    success
+
+                                                                                                         Execution Trajectories
+
+
+
+
+                                                                                                                      Distill experience
+                                           Poor cross-model        Emerging risks
+                                               transfer               missed        Externalized                           Internalized
+                                                                                    Safe Harness                            Safe Policy
+
+
+
+                                                                                                         Co-Evolve
+
+
+        Harness exceeds model capability
+
+
+Figure 1: Conceptual motivation of SafeEvolve. Harness-only evolution can exceed policy capacity and
+yield fragile control, while policy-only evolution transfers poorly and misses emerging failures. SafeEvolve
+couples harness refinement with policy updates in a co-evolutionary loop.
+
+
+challenge lies in how to tightly couple harness refinement and policy updates, so that the external harness and internal
+policy can mutually evolve toward continual safety self-improvement.
+To address this challenge, agent-environment interaction experience serves as the shared foundation con-
+necting harness refinement and policy updates. While executed trajectories capture rich risk patterns, their
+raw, unstructured nature prevents direct acquisition of generalizable safety capabilities. We bridge this gap
+by proposing SafeEvolve, an experience-driven self-evolving framework that establishes a co-evolutionary
+flywheel between the external harness and internal policy. On the harness side, harness evolution compiles
+trajectory-level evidence into structured, versioned updates for safety prompt and hierarchical skills with
+explicit risk attribution, ensuring safety updates remain auditable and reversible. On the policy side, we
+propose a two-stage SFT-RL paradigm to translate external harness guidance into intrinsic safety behaviors
+during multi-step execution. Specifically, harness-use SFT first bootstraps policy compliance to master
+using these evolved harness artifacts, while harness-augmented RL further internalizes autonomous safety
+decision-making through exploration under a joint safety-utility reward. As the optimized policy interacts
+with environments, it yields new safety evidence for future evolution. As illustrated in the right panel of
+Fig. 1, this co-evolution scheme enables persistent safety self-improvement in complex multi-step tasks.
+Experiments on agentic safety benchmarks show that SafeEvolve improves robustness against diverse safety
+risks such as environment injection and unsafe tool use while preserving benign task performance. For
+Qwen3.5-4B, SafeEvolve reduces ASR on AgentDojo from 2.37% to 0.79% while improving clean utility from
+59.79% to 61.86%. On AgentHarm, it reduces the harm score from 56.45 to 12.27 while boosting the refusal
+rate from 28.98% to 83.83%. These results confirm that co-evolving harness with policy strengthens agent
+safety without sacrificing capability. Our contributions are summarized as follows:
+
+      • We propose SafeEvolve, an experience-driven self-evolving framework for agent safety alignment.
+        SafeEvolve transforms completed on-policy trajectories into safety capabilities through a continuous
+        loop coupling harness refinement with policy optimization.
+
+
+      • SafeEvolve enables continual safety improvement through two interleaved processes. Harness
+        refinement converts trajectory-level safety evidence into bounded, versioned artifact updates, while
+        policy optimization adopts a two-stage SFT-RL paradigm to apply the evolved harness during
+        multi-step execution.
+
+
+      • Experiments show that SafeEvolve achieves a stronger safety-utility tradeoff against risks such as
+        environment injection and malicious query. For Qwen3.5-4B, it achieves a 3× ASR reduction on
+        AgentDojo with slightly higher benign utility.
+
+
+                                                              2
+2     Related Work
+2.1   Agentic Safety Alignment
+
+Traditional LLM safety alignment primarily focuses on response-level behavior, such as refusing harmful
+requests while preserving helpfulness (Ouyang et al., 2022; Bai et al., 2022; Rafailov et al., 2023). Recent
+agentic safety benchmarks show that tool-use agents face additional trajectory-level risks, including indirect
+prompt injection, harmful tool use, and privacy leakage that may not appear in the final response (Zhang
+et al., 2025a; Debenedetti et al., 2024; Li et al., 2026c; Andriushchenko et al., 2025; Xie et al., 2025); diagnostic
+frameworks likewise evaluate safety over the execution process (Liu et al., 2026c;b). Model-level agent
+safety alignment methods address these risks by optimizing policies with safety-oriented training, trajectory
+preference optimization, or intermediate-step correction (Zhang et al., 2025b; Yin et al., 2026; Jiang et al., 2026;
+Fu et al., 2026; Li et al., 2026b). These methods improve trajectory-level safety, but they mainly update the
+policy under a fixed or implicit runtime context. In contrast, SafeEvolve studies how completed on-policy
+trajectories can drive a continuous loop that couples harness refinement with policy optimization, so that
+safety experience can be exploited for co-evolution between harness artifact and policy behavior.
+
+2.2   Experience-Driven Agent Evolution
+
+Recent work increasingly views agents as systems that can continuously improve through accumulated ex-
+perience. One line of research focuses on evolving the agent harness, showing that prompts, memories, tools,
+middleware, or other external components can be continuously refined to improve future performance (Lin
+et al., 2026a; Chen et al., 2026b;a; Qu et al., 2026). Another line of research studies how reusable experience
+can be abstracted into external knowledge, such as skills, and progressively distilled back into agent policies
+through reinforcement learning or self-distillation (Xia et al., 2026; He et al., 2026; Wang et al., 2026; Lu
+et al., 2026). Together, these two directions establish an experience-driven agent evolution paradigm, where
+reusable experience is accumulated, externalized as evolving agent harnesses, and progressively internalized
+into stronger agent policies. Our work shares the same philosophy of experience-driven agent evolution, but
+focuses on safety rather than capability. We accumulate reusable safety experience, externalize it through
+safety harness updates, and internalize it into agent policies through experience-driven harness and policy
+evolution, establishing a continual safety alignment paradigm.
+
+3     Method
+SafeEvolve is a continual evolution loop that turns completed trajectories into auditable harness updates
+and improved policy behavior. Observability-driven harness evolution updates safety-relevant components
+from rollout evidence, while harness-augmented policy optimization follows a two-stage SFT-RL paradigm
+to internalize evolved harness into persistent safety-utility behaviors.
+
+3.1   Problem Formulation
+
+Multi-step agentic tool-use. We consider multi-step agentic tasks in which an LLM agent interacts with
+an external environment through natural-language actions and tool calls. Each episode starts from a user
+instruction x sampled from a task distribution D . At turn t, the agent observes the interaction history
+ht , receives a harness-rendered execution context, emits an action at that may be either a response token
+sequence or a structured tool call, and obtains an environment observation ot+1 . The episode terminates
+after a stop action or a maximum horizon T, yielding a trajectory:
+                                         τ = ( x, o1 , a1 , o2 , a2 , . . . , o T , a T ),                        (1)
+where ot includes user messages, tool outputs, webpages, memory states, or other environment feedback.
+Our goal is to learn a policy–harness pair for agentic safety tasks that maximizes expected trajectory reward:
+                                      max Ex∼D , τ ∼πθ (·| x,H) [ R(τ | z( x ))] ,                                (2)
+                                       θ,H
+
+where the task-typed reward R(τ | z( x )) is defined in Section 3.3. This objective describes the desired system-
+level behavior; SafeEvolve does not solve it as a single joint optimization problem. Instead, it separates
+harness updates from policy updates, as described in the following sections. The optimized harness and
+policy should preserve benign task utility while preventing safety failures in multi-turn agentic execution.
+
+
+                                                                3
+                      Agent-Environment                            Stage 1. Safety Harness Evolution                                     Stage 2. Harness-Augmented
+                         Interaction                                                                                                              Policy Optimization
+                                                              Interaction Trajectory & Evidence
+
+                                                                                                                                       Task Construction & Data Curation
+                                Risk
+         User Task
+                                                                                       Analyze                                                Multi-step         Rejection
+                                                                                                                                               Rollout            Sampling
+                                                                      Risk Discovery                 Failure Attribution
+                                                                       what failed?                    why and where?
+
+
+
+
+                        Safety Harness                                                                                                      Harness-Use SFT Cold Start
+                                                  Rollout                                                                  Evolved       Learn how to utilize evolved harness
+                             safety rules
+         Policy                                                  Distill              Reusable Safety Experience
+                                                 Trajectory                                                                Harness
+         Model
+                             safety skills                                                        Ignore Injection
+                                                                                                                                            Harness-Augmented RL
+                                                                                                   Harm Refusal
+                                                                                                  Task Completion
+                                                                                                                                          𝑅𝑒𝑤𝑎𝑟𝑑 = 𝑓 𝑠𝑎𝑓𝑒𝑡𝑦, 𝑢𝑡𝑖𝑙𝑖𝑡𝑦
+          Action          Observation
+                                                                                                                                     Benign Task · Harmful Query · Env Injection
+        [Tool Call]     [Env Feedback]                        Composer                Bounded Edit         Validation
+
+
+                  Environment
+           Tool Response · Files · Webpages                                                                                                   Evolved Policy
+                                                                               Evolved Harness
+                                                                      Next-Round Rollout
+
+
+Figure 2: An overview of SafeEvolve framework. SafeEvolve exploits trajectories from agent-environment
+interaction to drive a continuous loop coupling harness evolution and policy optimization. Rollout trajecto-
+ries expose safety evidence for bounded harness updates, while the evolved harness supports two-stage
+SFT-RL policy optimization toward persistent safety-utility behaviors.
+
+Threat model. We consider two adversarial channels in tool-using agents (Sha et al., 2025). In a malicious-
+query task, the user instruction itself expresses harmful intent. Requests involving privacy leakage or
+unauthorized manipulation may induce the agent to generate harmful content or execute unsafe tool
+calls. In an environment-injection task, the user goal is benign, but external observations contain adversarial
+instructions. An injected instruction in a webpage, file, or tool output may redirect the agent from the
+original user goal toward data leakage or unauthorized actions. The adversary may control either the user
+request or parts of the environment observations, but not the model parameters or registered tool APIs.
+
+Safety harness. SafeEvolve augments the policy with an explicit safety harness. Inspired by recent harness-
+centric views (Liu et al., 2026a), we view a harness as a policy-constrained execution system that specifies
+how the model receives instructions, invokes tools, uses skills, and produces an auditable trajectory. In
+SafeEvolve, this execution layer also retrieves, audits, and evolves safety prompt and reusable safety skills.
+We formalize this harness as:
+                                              H := (I , T , S , Π, Φ, Γ),                         H( x; D0 ) → (τH , y),                                                        (3)
+where I denotes instructions, T denotes available tools, S denotes retrieved skills, Π denotes permission and
+action policies, Φ denotes instruction-priority and information-flow constraints, and Γ denotes the rendering
+and execution controller. Given instruction x and initial environment state D0 , executing the harness
+produces a trajectory τH and final output y. In this paper, tools and environment interfaces remain fixed,
+while safety improvement targets harness components governing instruction handling, action verification,
+and experience reuse. We denote the safety-relevant evolvable components as:
+                                               Csafe (H) = {c1 , . . . , cKs },                          ck ∈ Comp(H),                                                          (4)
+where Comp(H) is the set of harness components exposed to the agent execution loop. In our implementa-
+tion, the evolvable components mainly consist of safety prompt and retrieved safety skills. Harness evolution
+operates on this component set so that each accepted update can be attributed to a bounded safety-relevant
+component change.
+
+3.2   Observability-Driven Harness Evolution
+
+Harness evolution converts rollout-observed safety failures into bounded edits of external harness compo-
+nents. SafeEvolve exposes the harness as editable components, giving the proposer a clean action space
+
+
+                                                                                          4
+

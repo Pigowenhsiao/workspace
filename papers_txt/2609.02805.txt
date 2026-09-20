@@ -1,0 +1,222 @@
+                                                                    This work has been accepted by IEEE Wireless Communications Magazine
+
+
+
+                                         Large Language Models (LLMs) for Telecom Root
+                                          Cause Analysis (RCA): A Structured Reasoning
+                                           Framework for Evidence-Grounded Diagnosis
+                                                  Hao Zhou, Mandar Kulkarni, Hao Chen, Yan Xin, and Charlie (Jianzhong) Zhang, Fellow, IEEE
+
+                                           Abstract—Root cause analysis (RCA) is a critical task in                Traditionally, telecom RCA has relied on rule-based expert
+                                        telecom network operations, but diagnosing performance degra-           systems and, more recently, ML techniques [2]. In particu-
+                                        dations in modern 5G and emerging 6G networks remains                   lar, early RCA solutions rely on predefined alarm patterns
+                                        challenging due to complex cross-layer dependencies. While
+                                        large language models (LLMs) offer promising capabilities for           or KPI thresholds to trigger corresponding troubleshooting
+arXiv:2609.02805v1 [cs.AI] 2 Sep 2026
+
+
+
+
+                                        reasoning and knowledge integration, directly applying vanilla          procedures. To improve scalability, data-driven ML models
+                                        LLMs to telecom RCA often leads to hallucination, unstable              have been introduced to detect and classify potential faults.
+                                        reasoning, and poor alignment with structured network evidence.         These approaches can process large volumes of telemetry
+                                        This work first reviews the evolution of telecom RCA from               data, but they primarily perform statistical pattern recognition
+                                        rule-based and machine learning (ML) approaches to emerging
+                                        LLM-enabled techniques, and provides an overview of recent              rather than explicit diagnostic reasoning. As a result, ML-
+                                        paradigms, including structured reasoning, retrieval-augmented          based RCA systems often struggle to adapt to unseen failure
+                                        knowledge grounding, agentic orchestration, and verifiable rea-         modes without extensive retraining [3].
+                                        soning. Building upon these insights, we propose a structured              Recently, large language models (LLMs) have been suc-
+                                        reasoning framework for LLM-enabled telecom RCA that aligns             cessfully applied to many fields, and they also offer promising
+                                        diagnostic reasoning with telecom-specific evidence and domain
+                                        knowledge. The proposed approach first organizes heterogeneous          opportunities for telecom, e.g., knowledge understanding [4],
+                                        network telemetry into canonical contexts, and then enforces            power control [5], traffic prediction [6], network manage-
+                                        decision-path reasoning during diagnosis, and finally generates         ment [7], etc. LLMs have several critical advantages over
+                                        evidence-grounded explanations for reliable fault identification.       traditional rule-based and ML approaches for telecom RCA.
+                                        Experimental results on two 5G RCA datasets, TeleLogs and Tele-         Firstly, LLMs possess strong reasoning capabilities that enable
+                                        comTS, demonstrate that the proposed framework consistently
+                                        improves diagnostic accuracy and decision consistency compared          multi-step diagnostic analysis. Unlike rule engines that follow
+                                        with baseline techniques. These cross-dataset results highlight the     predefined logic and ML models that primarily learn statistical
+                                        importance of structured reasoning design for practical LLM-            correlations, LLMs can perform step-by-step reasoning across
+                                        based RCA systems in next-generation telecom networks.                  multiple system indicators to infer potential root causes. Sec-
+                                           Index Terms—Large language models (LLMs), root cause                 ondly, LLMs can integrate knowledge across heterogeneous
+                                        analysis (RCA), telecom networks, structured reasoning.
+                                                                                                                domains, e.g., radio access, transport, and core networks. Such
+                                                                                                                cross-domain reasoning is difficult for traditional methods
+                                                               I. I NTRODUCTION                                 that typically operate on isolated feature sets. Thirdly, LLMs
+                                           With the deployment of 5G-Advanced and the emerging                  can generate human-readable explanations of their diagnostic
+                                        6G networks, telecom systems are evolving into highly com-              process. This capability improves the interpretability of RCA
+                                        plex and large-scale infrastructures. These networks integrate          outcomes and helps network engineers understand how spe-
+                                        heterogeneous components across radio, transport, and core              cific evidence leads to a particular RCA diagnosis.
+                                        layers, making reliable operation increasingly challenging.                However, despite these advantages, directly applying vanilla
+                                        As a result, network failures and service degradations may              LLMs to telecom RCA remains challenging. Firstly, the
+                                        lead to significant operational consequences. For example, the          reasoning process of LLMs can be unstable. Specifically,
+                                        Rogers outage in Canada (2022), the AT&T outage in the                  telecom RCA often requires systematic verification of mul-
+                                        United States (2024), and the Optus outage in Australia (2023)          tiple diagnostic factors, such as mobility behavior, resource
+                                        disrupted connectivity for over 100 million devices, blocked            scheduling, and coverage geometry. Vanilla LLMs may pro-
+                                        more than 25,000 emergency calls, and caused nationwide                 duce inconsistent reasoning paths when interpreting similar
+                                        disruptions to payment systems, transportation networks, and            sets of network measurements [8]. Secondly, telecom RCA
+                                        healthcare services, with more than $100 million loss [1].              involves heterogeneous and structured evidence from multiple
+                                                                                                                system layers. Without explicit mechanisms to align structured
+                                           Hao Zhou is with Samsung Research America, Toronto, Ontario, ON      telemetry with diagnostic reasoning, LLMs may rely on su-
+                                        M5E0C5. (email: haozhou029@gmail.com); Mandar Kulkarni and Yan Xin      perficial correlations rather than causal relationships between
+                                        are with Samsung Research America, Berkeley Heights, NJ 07922 USA       network events and performance degradations [9]. Thirdly,
+                                        (email: {m.kulkarni2, yan.xin}@samsung.com); Hao Chen and Charlie
+                                        (Jianzhong) Zhang are with Samsung Research America, Plano, Texas, TX   LLMs are prone to hallucination. For instance, in telecom
+                                        75023, USA. (email: {hao.chen1, jianzhong.z}@samsung.com);              RCA scenarios, incorrect conclusions may arise when the
+                                Fig. 1. Comparison of rule-based, ML, and LLM-enabled RCA approaches.
+
+
+
+model speculates about potential causes without grounding                The contributions of this work are two-fold. First, we
+its reasoning in concrete indicators such as KPIs, topology           provide a systematic overview of the evolution of RCA in
+relationships, or configuration parameters [10].                      telecom networks and analyze the emerging role of LLMs
+   To address these challenges, this work proposes a struc-           in next-generation RCA systems. In particular, we discuss
+tured evidence- and knowledge-aligned fine-tuning framework           how LLM-enabled paradigms can enhance RCA capabilities
+(SEKA-FT) for evidence-grounded telecom RCA. Rather than              through structured reasoning, retrieval-augmented generation
+treating RCA as an input-to-label prediction task, we formulate       (RAG), agentic orchestration, and reinforcement learning with
+it as a structured reasoning problem, where heterogeneous             verifiable rewards (RLVR). Second, we develop SEKA-FT as
+network evidence must be progressively examined before a              a telecom-RCA-specific fine-tuning framework that integrates
+final root-cause decision is made. Under this formulation, the        heterogeneous evidence, intermediate diagnostic checks, root-
+diagnostic process is explicitly guided by an evidence-to-path-       cause decisions, and evidence-grounded explanations into a
+to-decision structure. First, heterogeneous troubleshooting in-       unified evidence-to-path-to-decision supervision structure. The
+puts are reorganized into canonical context blocks so that            technical contribution lies in jointly encoding these elements
+user-plane KPIs, mobility statistics, neighbor-cell relations,        according to the diagnostic dependencies of telecom RCA,
+and engineering parameters can be interpreted consistently.           such that the model learns not only the final label but also a
+Second, decision-path reasoning is introduced to decompose            structured reasoning path consistent with telecom evidence and
+RCA into staged diagnostic checks, enabling the model to rule         domain constraints. Extensive case studies on two 5G RCA
+out unsupported hypotheses before producing the final answer.         datasets, TeleLogs and TelecomTS, demonstrate consistent
+Third, evidence-grounded explanations are incorporated into           improvements over ICL, non-LLM, and SFT-based baselines.
+the supervision target so that the generated diagnoses remain         These results show that the proposed framework is not limited
+traceable to concrete telecom indicators and domain knowl-            to a single dataset template, but remains effective across
+edge. Therefore, SEKA-FT jointly aligns structured evidence,          distinct 5G RCA and observability settings with different
+intermediate diagnostic paths, final RCA labels, and traceable        evidence representations and diagnostic characteristics.
+explanations within a unified fine-tuning process. Through this
+                                                                           II. RCA: F ROM RULE - BASED AND ML TO LLM S
+design, telecom RCA is transformed from prediction-based
+troubleshooting into decision-path controlled reasoning. This            As shown in Fig. 1, the evolution of RCA can be viewed as
+enables the model to make RCA decisions based not only                a shift from deterministic rule matching, to statistical label pre-
+on final label supervision, but also on structured diagnostic         diction, and further toward evidence-grounded reasoning. First,
+evidence and intermediate reasoning consistency. SEKA-FT              rule-based expert systems provide transparent and determinis-
+improves both the accuracy of root-cause identification and           tic behavior, but they rely on predefined alarm patterns, KPI
+the trustworthiness of generated diagnosis.                           thresholds, and manually maintained troubleshooting logic. As
+
+
+
+                                                                  2
+network scenarios become more diverse, such static rules are          an external, authoritative knowledge base before generating a
+difficult to scale and update.                                        response [12]. For telecom RCA, a RAG system can retrieve
+   Data-driven ML methods improve scalability by learning             relevant materials such as 3GPP specifications, vendor manu-
+statistical patterns from historical telemetry. They can detect       als, historical incident reports, or verified troubleshooting rules
+anomalies, classify faults, and rank possible root causes from        based on the current telemetry or alarm context. The retrieved
+large volumes of KPIs, alarms, and logs. However, most ML-            evidence can then constrain the LLM’s diagnosis and reduce
+based RCA methods still operate as input-to-label mapping             hallucination. For instance, when throughput degradation is
+systems. They usually output a probability distribution or a          observed in a serving cell, the system may trace related trans-
+predicted class, but do not explicitly describe how different         port, core-network, or neighboring-cell dependencies that are
+pieces of evidence support candidate root causes. Their per-          not directly visible from local KPIs. This shows that reliable
+formance also depends strongly on training-data coverage and          LLM-based RCA requires not only language reasoning, but
+distribution stability.                                               also external grounding in domain knowledge and network
+   LLMs introduce a new opportunity for telecom RCA be-               structure.
+cause they can combine structured telemetry, textual descrip-
+tions, engineering knowledge, and operational instructions            C. Agentic Orchestration: Environment-interactive Planning
+within a unified reasoning interface. Compared with conven-
+                                                                         An agentic LLM system differs from a standard chatbot
+tional classifiers, LLMs can generate human-readable diagnos-
+                                                                      in its ability to use tools and execute multi-step plans au-
+tic traces and support multi-step analysis across heterogeneous
+                                                                      tonomously to achieve a goal. While a direct LLM interface
+evidence sources. However, the presence of language-level
+                                                                      is limited to the information provided in the prompt, an
+reasoning ability does not automatically make LLMs reliable
+                                                                      LLM agent can interact with external systems through API
+RCA engines. Without structured evidence alignment, an LLM
+                                                                      calls [13]. In telecom RCA, an agentic framework can treat the
+may produce plausible but unsupported explanations, follow
+                                                                      LLM as a coordinator that verifies diagnostic hypotheses using
+unstable reasoning paths, or rely on superficial correlations
+                                                                      specialized tools. For example, the agent may trigger an ns-3
+between input fragments and root-cause labels.
+                                                                      simulation to estimate the impact of a configuration change,
+   Therefore, the key challenge is not merely to apply an
+                                                                      or query a self-organizing network module for antenna-tilt
+LLM to telecom RCA, but to control how the model connects
+                                                                      or power-control recommendations. Furthermore, the agentic
+heterogeneous evidence to diagnostic decisions. This motivates
+                                                                      paradigm can naturally extend to a multi-agent system, where
+the structured reasoning design adopted in this work: RCA
+                                                                      the complex RCA workflow is decomposed into specialized
+should be formulated as an evidence-grounded reasoning pro-
+                                                                      roles, forming a collaborative “expert team”. Different agents
+cess in which intermediate diagnostic checks, final labels, and
+                                                                      may focus on solution planning, log analysis, configuration
+explanations are jointly aligned.
+                                                                      validation, etc. Such orchestration is useful for multi-domain
+ III. LLM- ENABLED T ECHNIQUES FOR T ELECOM ROOT                      failures where no single evidence source is sufficient.
+                 C AUSE A NALYSIS
+                                                                      D. RLVR: Physically Verifiable Reasoning and Alignment
+  This section presents a progression path of LLM-enabled
+paradigms for telecom RCA.                                               Verifiable reasoning refers to a paradigm where the model’s
+                                                                      output is not just judged by its linguistic fluency, but by its
+A. Chain-of-Thought: Structuring Diagnostic Logic                     ability to satisfy checkable conditions or rewards. Standard
+   CoT is a prompting technique that encourages LLMs to               LLMs are typically aligned using human preference, which
+generate a series of intermediate reasoning steps before reach-       is subjective and may not reflect technical truth [14]. In the
+ing a final answer [11]. In telecom RCA, this is important            RLVR paradigm, a network environment such as a high-
+because one-shot inference often fails to capture cross-layer         fidelity simulator or digital twin can serve as a feedback
+dependencies. For example, when a gNodeB reports downlink             source. After the LLM proposes a diagnostic path and mit-
+throughput degradation, a vanilla LLM may directly attribute          igation action, the system evaluates whether target KPIs such
+the issue to congestion without checking control-plane events.        as throughput, packet loss, or handover failure rate improve.
+A structured CoT can instead guide the model through staged           Successful reasoning trajectories can be reinforced, while
+verification: first evaluating physical-layer indicators, then        ineffective ones can be penalized. This shifts the alignment
+checking MAC/RLC-layer evidence, and finally correlating the          objective from human preference alone to operational effec-
+observations with RRC or handover-related signalling logs.            tiveness under network constraints.
+This illustrates why RCA should be organized as an explicit              In summary, LLM-enabled RCA does not rely on a single
+diagnostic path rather than a direct label prediction process.        technique, but evolves through progressively stronger forms of
+                                                                      grounding and environmental coupling. CoT emphasizes diag-
+B. Retrieval-Augmented Generation: Knowledge Grounding                nostic path organization, RAG provides knowledge grounding,
+   Standard LLMs often produce plausible but technically              agentic orchestration enables tool-based hypothesis verifica-
+incorrect hallucinations. To this end, RAG is a framework             tion, and RLVR introduces outcome-based alignment. These
+that allows an LLM to retrieve relevant information from              insights motivate the proposed SEKA-FT framework, which
+
+
+
+                                                                  3
+Fig. 2. Summary of various LLM-enabled techniques for telecom RCA. The arrow at the bottom illustrates a progressive expansion of reasoning capability.
+From left to right, the LLM evolves from internally structured reasoning (CoT), to externally grounded knowledge integration (RAG), to active environmental
+interaction (Agentic orchestration), and ultimately to physically verifiable alignment through outcome-based feedback (RLVR). This progression reflects an
+increasing degree of external grounding and real-world coupling in telecom RCA.
+
+
+
+focuses on structured evidence alignment and decision-path                      if similar evidence is presented in different formats across
+control as a practical step toward reliable LLM-based RCA.                      samples, the model may learn unstable reasoning trajectories
+                                                                                even when the underlying diagnostic logic is the same. To
+       IV. SEKA-FT: S TRUCTURED E VIDENCE - AND                                 address this, we introduce canonical context structuring. Given
+      K NOWLEDGE -A LIGNED F INE -T UNING FOR RCA                               heterogeneous network inputs, this component normalizes the
+                      R EASONING                                                RCA context into consistent evidence blocks to:
+   The previous sections discussed the evolution of LLM-                           • Explicitly separate evidence blocks, including user-
+enabled RCA paradigms, ranging from structured reasoning                             plane performance indicators, control-plane signalling
+to verifiable RLVR. However, additional domain-specific chal-                        events, topology relationships, and configuration param-
+lenges may prevent real-world RCA applications. This section                         eters. As shown in Fig. 3, the input is organized into
+introduces SEKA-FT, a structured fine-tuning framework for                           blocks such as Bottleneck Snapshot (e.g., Downlink
+telecom RCA decision-path control. At its core, SEKA-FT for-                         throughput, Serving SS-SINR), UE Global State
+mulates telecom RCA fine-tuning around a unified evidence-                           (e.g., Maximum UE speed), and Trajectory-Level
+to-path-to-decision supervision structure, instantiated through                      Events (e.g., Total handover count).
+three tightly coupled components: canonical context structur-                      • Maintain consistent semantic slots across samples. For
+ing for stable RCA fine-tuning; CoT-enabled decision-path                            instance, serving-cell metrics, neighbour-cell relation-
+control for reliable RCA reasoning; evidence- and knowledge-                         ships, and mobility-related indicators are always pre-
+anchored explanation design for hallucination mitigation. The                        sented in comparable structural positions. This ensures
+details are introduced below.                                                        that evidence such as Scheduled RBs or Serving
+                                                                                     SS-RSRP is interpreted within a fixed diagnostic context
+A. Canonical Context Structuring for Stable RCA Fine-tuning                          rather than as isolated numeric tokens.
+   In practical telecom environments, RCA tasks involve                            • Reduce non-essential noise, such as redundant log frag-
+highly heterogeneous inputs such as troubleshooting tickets,                         ments or unrelated KPIs, while preserving diagnostically
+user-plane tables, OSS system logs, etc. Directly feeding these                      meaningful signals for root-cause inference.
+raw and loosely organized inputs into LLMs can introduce                           Canonical structuring therefore provides a stable input in-
+representational inconsistency and degrade fine-tuning stabil-                  terface between heterogeneous telecom telemetry and LLM-
+ity. Meanwhile, a well-resolved telecom RCA troubleshooting                     based diagnostic reasoning. In the illustrative case, the struc-
+report typically requires standardized outputs, e.g., a clear root              tured presentation of Mechanical Downtilt, Digital
+cause identification and structured reasoning steps. Therefore,                 Tilt, and radio measurements enables the model to asso-
+
+
+
+                                                                            4
+

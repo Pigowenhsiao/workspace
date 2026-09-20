@@ -1,0 +1,97 @@
+=== finance cron started 2026-08-31 21:01:12 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2405.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 250.0 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 129.0 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 3925.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 144.0 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 110.5 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1840.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 171.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 71.2 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 26.65 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 63.7 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 64.7 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 220.5 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 48.55 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 86.1 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 317.5 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 106.25 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 18.95 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 28.4 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 316.85 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 507.29 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 339.35 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 259.77 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 572.34 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 220.78 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 367.95 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 81.05 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 149.12 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 186.38 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 415.32 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 914.76 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  OK: 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260831-210112-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260831-210112-review.json
+   OK=0 SUSPECT=0 ERROR=0
+  Review verdict: FAIL (score=0)
+  OK=0 SUSPECT=0 ERROR=0
+[3/4] Writing summary to vault 00-Inbox/...
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 139: 未預期的字組「(」附近有語法錯誤
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 139: `        lines.append(f"{t}: {c} {p} ({ch:+.2f}%)")'
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/test.md (39 lines)
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-08-31_finance-cron-summary.md
+[4/4] Committing to vault...
+位於分支 main
+您的分支與上游分支 'origin/main' 一致。
+
+未追蹤的檔案:
+  （使用 "git add <檔案>..." 以包含要提交的內容）
+	00-Inbox/test.md
+
+提交為空，但是存在尚未追蹤的檔案（使用 "git add" 建立追蹤）
+Everything up-to-date
+  Pushed to vault
+
+=== finance cron completed ===
+finance-cron: 0/31 ticker OK, score=0/100

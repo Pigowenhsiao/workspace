@@ -1,0 +1,107 @@
+=== finance cron started 2026-09-04 21:02:08 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+fetch_json: /home/pigo/Documents/Agent/finance-reports/finance-20260904-210208.json
+vault_note: /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-04_finance-cron-summary.md
+
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2410.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 256.0 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 130.0 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 4415.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 150.5 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 115.0 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1825.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 169.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 70.8 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 26.8 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 61.4 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 68.4 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 225.5 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 49.55 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 86.0 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 308.0 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 107.9 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 19.1 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 31.1 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 319.97 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 499.7 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 338.46 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 258.51 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 616.77 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 230.36 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 354.08 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 78.25 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 158.78 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 174.33 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 428.91 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 881.26 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  Fetch wrote to /home/pigo/Documents/Agent/finance-reports/finance-20260904-210208.json
+  OK: 31/31 quotes OK
+
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260904-210208-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260904-210208-review.json
+   OK=31 SUSPECT=34 ERROR=0
+   Criteria: 5/8 PASS, 3 FAIL, loop_write_allowed=False
+     ✅ C1: 覆蓋率 31/31 — total=31/31 (ok=31, suspect=34, error=0)
+     ❌ C2: 帶寬合規 (0 SUSPECT) — 1 ticker(s) out of band: ['1303']
+     ✅ C3: Baseline 可比 — all 7 tickers have baseline
+     ✅ C4: 產出檔案 — report_exists=True json_exists=True (this criterion is enforced by write_report.py, not here)
+     ❌ C5: 異常告警 — findings count=45, alert note exists=False
+     ❌ C6: 狀態更新 (LOOP-STATE) — 「當前市場線索」段含今天日期=False
+     ✅ C7: Baseline 完備 — new_tickers count=0 (heuristic; LOOP-STATE updated today=False)
+     ✅ C8: 錯誤率上限 (ERROR ≤ 2) — error_count=0 threshold=2
+  Review verdict: FAIL (score=0)
+  OK=31 SUSPECT=34 ERROR=0
+
+[3/4] Writing summary to vault 00-Inbox/...
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-04_finance-cron-summary.md (71 lines)
+  Vault note: /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-04_finance-cron-summary.md
+
+[4/4] Committing to vault...
+[main e93b276a5] finance-cron: 2026-09-04 stock quotes (31/31 tickers, score=0)
+ 1 file changed, 71 insertions(+)
+ create mode 100644 00-Inbox/2026-09-04_finance-cron-summary.md
+To github.com:Pigowenhsiao/Pigo_Obsidian.git
+   5ce7b2a04..e93b276a5  main -> main
+  Pushed to vault
+
+=== finance cron completed ===
+finance-cron: 31/31 ticker OK, score=0/100

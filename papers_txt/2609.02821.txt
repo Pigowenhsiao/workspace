@@ -1,0 +1,206 @@
+                                            AI Contextual Measurement for Recovering Individual and
+                                                              Group-Level Effects:
+                                            Validation Against Survey Measures and an Occupational
+                                                                  Application
+                                                                   Wenxin Jiang∗, Xuyang Wang†, Yuxiao Wu‡
+arXiv:2609.02821v1 [cs.AI] 2 Sep 2026
+
+
+
+
+                                                                             Draft: September 3, 2026
+
+
+
+                                                                                        Abstract
+
+                                                Researchers increasingly use artificial intelligence to construct measures of social, organi-
+                                            zational, and occupational characteristics that are absent from conventional surveys. We pro-
+                                            pose AICOME, AI COntextual MEasurement, a framework for evaluating whether AI-derived
+                                            respondent-level measures can recover individual and group-level effects in contextual models.
+                                            The key idea is that an AI measure constructed at the respondent level can be used to de-
+                                            rive its group-level aggregate and its individual deviation, allowing researchers to estimate both
+                                            between-group and within-group associations rather than treating AI measurement as response
+                                            prediction alone.
+                                                We validate the framework using the 2022 China Family Panel Studies (CFPS), where occu-
+                                            pations provide the empirical grouping structure and several job-related survey variables provide
+                                            validation benchmarks. For computer use, foreign-language use, weekly hours, and management
+                                            responsibilities, we compare survey measures with AI-derived measures in response-level, model-
+                                            level, contextual, and boundary-condition validations. The results show that AI contextual
+                                            measurement can recover much of the contextual-model information contained in observed sur-
+                                            vey variables when rich respondent and job characteristics are available. Weekly hours provides
+                                            the strongest validation case, with AI-derived measures reproducing the large negative between-
+                                            and within-occupation associations with satisfaction observed in CFPS. The framework also
+                                            identifies clear boundary conditions: performance deteriorates when information is restricted to
+                                            occupation and basic demographics, and recovery is weaker when several related concepts are
+                                            treated as simultaneously unobserved. The findings suggest that AICOME is most useful for
+                                            recovering a limited number of theoretically important constructs from rich existing datasets,
+                                            not for replacing direct survey measurement or entire batteries of jointly missing items.
+                                        ∗
+                                          Northwestern University (wjiang@northwestern.edu)
+                                        †
+                                          Nanjing University, (141200073@smail.nju.edu.cn), corresponding author
+                                        ‡
+                                          Nanjing University (yxwu2013@nju.edu.cn)
+
+
+
+
+                                                                                            1
+1    Introduction
+Many social science questions involve variables that vary both between groups and within groups.
+Workers are nested within occupations, students within schools, employees within firms, patients
+within hospitals, and residents within neighborhoods. Researchers frequently want to know whether
+an association reflects differences among groups, differences among individuals within the same
+group, or both. This distinction is central to contextual analysis. If a characteristic is associated
+with an outcome, does the association arise because groups differ in their average characteristics,
+because individuals differ from others in the same group, or because both levels matter?
+    AI-based measurement offers new opportunities for studying constructs that are absent from
+conventional surveys. Large language models can score occupations, organizations, tasks, texts, or
+other entities on abstract dimensions such as autonomy, technological intensity, interpersonal ori-
+entation, or creativity. Many such measures are defined at the group or entity level. For example,
+an AI system may assign a single autonomy score to an occupation, firm, school, or neighbor-
+hood. Such scores can be useful for studying between-group differences, but they cannot determine
+whether individuals within the same group differ from one another or whether such within-group
+deviations matter for outcomes.
+    At the same time, recent work on AI-assisted survey prediction, LLM-based item imputation,
+and virtual survey respondents shows that language models can predict missing or unasked survey
+responses from respondent profiles, survey-question text, temporal information, or partial respon-
+dent attributes (Kim and Lee, 2023; Ji et al., 2024; Zhao et al., 2025). Our purpose is not to claim
+that respondent-level AI prediction is itself new. Instead, we ask whether AI-derived respondent-
+level measures can be used for a different inferential task: contextual measurement. The key
+question is whether an AI-derived variable can recover not only an observed survey measure, but
+also the individual-level and group-level associations that would be estimated if the survey measure
+were observed.
+    This paper proposes AICOME, AI COntextual MEasurement, as a framework for constructing,
+aggregating, and validating AI-derived measures for contextual analysis. Let g(i) denote the group
+to which individual i belongs. A respondent-level AI measure Zi can be decomposed into a group
+mean and an individual deviation from that group mean:
+                                                              
+                                     Zi = Z̄g(i) + Zi − Z̄g(i) .                                 (1)
+
+This decomposition turns AICOME into contextual measurement. It allows researchers to use
+both Zi and Z̄g(i) , or equivalently Z̄g(i) and Zi − Z̄g(i) , in models that distinguish individual-
+level and group-level associations. Standard group-level AI scores can measure differences across
+groups, but they cannot identify within-group heterogeneity because their within-group deviation
+is mechanically zero.
+    The framework is easiest to describe using an underlying-concept notation. Let k index an
+underlying concept of theoretical interest, such as computer use, technology use, management
+responsibility, or foreign-language use. Let Uki be the true level of concept k for individual i. Let
+Wki = W (Uki ; qk ) denote respondent i’s survey-based indicator of concept k, where qk represents
+
+
+                                                 2
+the survey-question wording, response scale, and measurement protocol. Let Zki = Z(Uki , Fki ; pk )
+denote respondent i’s AI-derived indicator of the same concept, where Fki is the respondent-specific
+feature vector supplied to the AI system and pk is the prompt protocol for concept k. The outcome
+is denoted by Y , and regression controls are denoted by X. This notation emphasizes that neither
+W nor Z is treated as the true concept. They are alternative indicators of the same underlying
+concept, potentially shaped by different measurement protocols, response scales, and respondent-
+specific feature information. The AI measure is therefore not designed merely to reproduce the
+observed survey response. For example, a survey item may be binary while the AI prompt elicits
+a richer ordered score. AICOME asks whether the contextual structure obtained from (Zi , Z̄g(i) )
+supports substantive conclusions similar to those obtained from (Wi , W̄g(i) ) when validation data
+are available.
+    We illustrate the framework using job satisfaction and occupational groups in the 2022 China
+Family Panel Studies (CFPS). In the empirical application, Y is job satisfaction and g(i) is oc-
+cupation. The setting is useful for two reasons. First, CFPS contains rich respondent and job
+information that can serve as features F for AI measurement. Second, CFPS contains several
+observed work-related variables that allow validation against conventional survey measures W .
+Occupations provide one illustration of the general grouping structure. The same framework is
+potentially applicable to other hierarchical settings, such as students within schools, employees
+within firms, patients within hospitals, and residents within neighborhoods.
+    The paper has three main contributions. First, we develop a validation framework for AI con-
+textual measurement that goes beyond response-level correlation. Existing validation studies focus
+primarily on response recovery, item-level accuracy, or distributional similarity. We treat these
+as useful but insufficient evidence for contextual applications. Our primary validation target is
+recovery of contextual inference: whether AI-derived measures recover explanatory power, preserve
+qualitative coefficient directions, reproduce individual-level and group-level conclusions, and gen-
+erate similar fitted values. Coefficient-vector correlations and RMSE are reported as descriptive
+diagnostics, not as strict requirements that the AI measure numerically mimic the survey measure.
+    Second, we show that respondent-level AI measures can recover contextual decompositions for
+several observed CFPS dimensions. This is the most direct evidence that the approach is useful for
+contextual analysis rather than merely item-level prediction. Weekly hours provides the clearest
+case: both AI prompting strategies reproduce the large negative between- and within-occupation
+associations observed in CFPS, while occupation-level measures miss the individual-level signal.
+    Third, we identify boundary conditions. Performance is strong when rich respondent informa-
+tion is available and a limited number of concepts are missing, but it deteriorates when information
+is sparse or when several related constructs are missing simultaneously. These findings clarify the
+intended use of the framework. AICOME is not a substitute for direct survey measurement and
+should not be interpreted as creating information absent from the observed data. It is most defen-
+sible when researchers possess rich existing respondent information and seek to recover a limited
+number of theoretically important but unmeasured concepts. The later application to autonomy,
+people-things, creative-routine, and technology illustrates this use case, but because those latent
+dimensions lack direct CFPS validation measures, those results are interpreted as an application of
+
+
+
+                                                 3
+the validated framework rather than as direct proof of latent truth.
+        Existing Literature
+                                                        Underlying Concept Uki
+       AI-Augmented Surveys
+                                                        Computer use, management,
+    Item Nonresponse Imputation
+                                                        weekly hours, language use
+        Virtual Respondents
+
+
+    Primary Validation Target Survey Indicator                                                    AI Indicator
+        Response Recovery      Wki = W (Uki ; qk )                                             Zki = Z(Uki , Fki ; pk )
+
+
+
+
+                                                                   Group Mean                                                   Individual Component
+                                                                      Z̄k,g(i)                                                     Zki or Zki − Z̄k,g(i)
+                                                                                             Contextual Model
+                                                                                   Estimate (βIndividual , βContextual or βGroup )
+
+
+
+                                                                                           Validation Framework
+                                                                                   Contextual inference, not response mimicry
+
+
+
+                                                     Response-Level                                                                     Contextual
+                                                       Agreement                                                                        Structure
+                                                            Model-Level                                                                      Boundary Conditions
+                                                        R2 and Fitted Values                                                                  Reduced-X and AI4
+
+
+                                                                                             Substantive Goal
+                                                                                    Recover meaningful contextual inferences
+
+
+
+Figure 1: Conceptual framework for AICOME, AI COntextual MEasurement. Much of the ex-
+isting literature focuses on recovering missing survey responses, imputing item nonresponse, or
+simulating respondent attributes. In contrast, AICOME views survey variables and AI-derived
+variables as alternative indicators of an underlying concept and evaluates whether respondent-
+specific AI measures support contextual analysis. AI-derived measures are decomposed into group
+means and individual components, allowing estimation of individual and group associations. Val-
+idation proceeds through response-level agreement, model-level validation, contextual validation,
+and boundary-condition analysis. The ultimate objective is not merely response recovery, but re-
+covery of substantively meaningful contextual inferences.
+
+    Figure 1 summarizes the central distinction between the present study and recent AI-assisted
+survey-prediction research. Existing work has primarily evaluated the ability of large language
+models to recover missing responses, respondent attributes, or population distributions. Our focus
+instead is whether respondent-level AI measures can support contextual analysis. Consequently,
+the principal validation target is not response recovery alone, but recovery of between- and within-
+occupation inferences.
+
+
+2      Related Literature and Positioning
+2.1      Contextual models and occupational measurement
+A central concern in the contextual-model literature is distinguishing between-group and within-
+group associations (Blalock, 1984; Enders and Tofighi, 2007).Researchers studying neighborhoods,
+schools, firms, and occupations often seek to determine whether outcomes are driven by group
+environments or by differences among individuals within the same group. Estimating such models
+
+
+
+                                                                               4
+

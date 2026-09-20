@@ -1,0 +1,1289 @@
+                                                       Should We Type or Talk to LLM Agents?
+                                            A Comprehensive Study of Voice and Keyboard Input Perturbations
+
+                                            Zizhao Hu1          Nathan Elijah Segura2 Mohammad Rostami3 Jesse Thomason1
+                                                             1
+                                                               University of Southern California 2 Santa Monica College
+                                                         3
+                                                           Information Sciences Institute, University of Southern California
+                                                                           {zizhaoh, jessetho}@usc.edu
+
+
+                                                              Abstract                              substitutions, word-boundary errors, and, increas-
+                                                                                                    ingly, a wholesale rewrite of what was said. These
+                                            Human input reaches language models by typ-             perturbations are systematic and benign (the by-
+                                            ing or speaking, and each channel leaves a              product of ordinary human input, not adversarial
+                                            distinct signature: orthographic noise for key-
+                                                                                                    attacks), yet they are exactly the inputs a model
+                                            boards; for voice, disfluency from conventional
+                                            transcription and restructuring from AI-backed
+                                                                                                    must tolerate in production.
+                                            dictation tools. How do they impact an LLM’s               Speaking is now a first-class path into a language
+arXiv:2608.03970v1 [cs.AI] 4 Aug 2026
+
+
+
+
+                                            performance? In this paper we present HIVE              model rather than a niche one. Coding agents such
+                                            (Human Input-Variation Engine), a suite of              as Claude Code and Codex accept dictated instruc-
+                                            voice transcription perturbations and QWERTY            tions. Phone assistants such as Google Assistant
+                                            keyboard perturbations. We use HIVE to eval-            and Siri route a spoken request to an LLM backend.
+                                            uate how robust models are to these perturba-           Dictation front-ends such as Typeless add a further
+                                            tions. We present seven findings. (i) Voice tran-
+                                                                                                    LLM-powered layer that cleans and reformats the
+                                            scription perturbations lower accuracy across
+                                            every instruction-tuned model we test, and it           user’s spoken request before it is sent. In each case
+                                            is the structure of the transcription rather than       the model receives a transcript, and in each case
+                                            its fillers that carries the cost. (ii) QWERTY          the speaker might not proofread the string that was
+                                            keyboard perturbations cost less, and a model           actually sent. Whatever the transcription pipeline
+                                            absorbs a lot of them before accuracy falls away.       leaves behind, or rewrites, is what the model has to
+                                            (iii) Both trace back to one cause, how many            answer.
+                                            of the question’s tokens survive the perturba-
+                                                                                                       Robustness to typographical noise has been stud-
+                                            tion: destroying a token is what hurts, while
+                                            adding new ones alongside it costs little. (iv)
+                                                                                                    ied at length (Belinkov and Bisk, 2018; Ebrahimi
+                                            The gap between the two channels appears only           et al., 2018; Pruthi et al., 2019; Gan et al., 2024),
+                                            where the answer must be constructed or de-             and so has robustness to verbal disfluency, through
+                                            duced; on multiple choice there is none. (v) The        disfluent-question corpora (Gupta et al., 2021) and,
+                                            harm does not solely come from test-set con-            more recently, benchmarks that inject fillers, hesi-
+                                            tamination. (vi) It cannot be trained away with         tations, false starts and self-corrections into spoken
+                                            lightweight adaptation. (vii) A thinking budget         queries (Liu et al., 2025; Lin et al., 2026). Two
+                                            recovers the keyboard channel almost entirely
+                                                                                                    gaps remain. First, some of these works are largely
+                                            but leaves the spoken registers untouched, and
+                                            compressed speech is worse with it.                     benchmarking. They establish that noisy input low-
+                                                                                                    ers scores, but leave how each modality does so
+                                        1   Introduction                                            vague, so they yield little guidance a person could
+                                                                                                    act on when deciding how to address an AI agent.
+                                        Nearly all text that reaches a deployed language            Second, the transcription layer between the two
+                                        model is produced by a human who is either typing           literatures is untouched. Voice interfaces now hand
+                                        or speaking, and neither channel delivers it clean. A       the model an LLM-rewritten version of what was
+                                        QWERTY keyboard introduces orthographic noise:              said rather than a verbatim one, and no study we
+                                        neighbor-key substitutions, transpositions, dropped         know of measures what that rewriting costs. We
+                                        or doubled characters, casing and punctuation slips.        instead treat the QWERTY keyboard and the AI-
+                                        Speech reaches the model through a transcription            based transcription model as the two most common
+                                        layer that leaves a different signature: preserved          sources of input a deployed system receives, and
+                                        disfluencies (“um”, “like”, false starts), homophone        focus on the perturbations native to each: the motor
+
+                                                                                                1
+errors a keyboard actually produces, and the dis-            arately in conversational speech (Godfrey et al.,
+fluency and rewriting a transcription layer actually         1992) and disfluent-question corpora (Gupta et al.,
+introduces.                                                  2021). Recent work measures how transcription er-
+   Our contributions are fourfold.                           rors propagate into a downstream task: they derail
+                                                             code understanding by dropping underscores and
+Contribution 1: we build a perturbation suite
+                                                             substituting phonetically similar words for code
+for real human input errors. HIVE, seventeen
+                                                             terms (Havare et al., 2026), degrade spoken ques-
+operators and two controls built from LLM style
+                                                             tion answering comparably across LLMs of very
+transfer and deterministic rules (§3, Table 1).
+                                                             different ability (Jung and Choi, 2026), and can
+Contribution 2: we measure how much in-                      be partly trained against with synthetic ASR noise
+put perturbation costs LLM task accuracy, per                (Binici et al., 2025). Throughout, the transcription
+channel. Findings 1, 2 and 3.                                layer is treated as noise to be corrected rather than
+                                                             as an input register in its own right, so these stud-
+Contribution 3: we explain where the dam-                    ies do not isolate different spoken registers, and
+age from input perturbation comes from. Find-                none compares speaking against the typing chan-
+ing 4.                                                       nel the same user could have chosen. Nor do they
+Contribution 4: we show what does and does                   study the case where the input is rewritten by an
+not mitigate the harm from input perturbation.               AI-based transcription model, so what an LLM re-
+Findings 5, 6 and 7.                                         ceives from a voice interface is not what the user
+                                                             said but a rewrite of it.
+2   Related Work
+                                                             3     HIVE
+LLM input perturbation robustness. A large
+literature perturbs input text and measures the re-          The HIVE engine. Every input change we test
+sulting drop, organised largely by the granularity of        comes from one instrument, the Human Input-
+the edit. Character-level work injects misspellings          Variation Engine (Figure 1). It models a user
+and typographical errors (Gao et al., 2018; Li et al.,       who either ad-libs a question straight from internal
+2019; Pruthi et al., 2019; Gan et al., 2024), build-         thought or passes along text they already have, and
+ing on earlier findings that adversarial and natural         delivers it through one of three channels: voice (11
+misspellings degrade neural models (Belinkov and             operators, §3.1), keyboard (6 operators, §3.2), and
+Bisk, 2018; Ebrahimi et al., 2018) and on behav-             copy-paste, the question verbatim, which is clean
+ioral test suites such as CheckList (Ribeiro et al.,         and the reference every delta is measured against.
+2020), which includes typo invariance tests. Word-           Two further operators are experimental controls
+level work substitutes synonyms or shuffles word             rather than input channels: reordering context and
+order (Garg and Ramakrishnan, 2020; Jin et al.,              question, and permuting answer options. Each
+2020; Moradi and Samwald, 2021). Sentence-level              operator is implemented either as a seeded rule-
+work paraphrases the input or inserts irrelevant con-        based transform or as few-shot LLM style transfer
+text (Shi et al., 2023; Lanham et al., 2023), and            (Qwen2.5-7B prompted with a register dataset); Ta-
+even minor punctuation noise moves LLM accu-                 ble 4 specifies all of them with a worked example.
+racy (Abedin et al., 2026). These edits are largely
+theoretical, chosen to probe a model rather than to          3.1   Voice transcription perturbations
+reproduce anything a user does. Our textual per-
+                                                             Eleven operators model what reaches a model when
+turbations instead bind to the QWERTY keyboard
+                                                             the user speaks. Two registers rewrite the stem as
+and the mistakes ordinary typing produces on it, so
+                                                             a person would say it, conversational or prepared-
+the damage we measure is the damage a deployed
+                                                             talk. Three rewrites model the LLM cleanup layer
+system actually receives.
+                                                             that dictation tools apply, either compressing the
+Voice and transcription robustness. Down-                    utterance or tightening its wording while preserv-
+stream tasks have been evaluated over ASR tran-              ing clause order. One filler-strip deletes hesita-
+scripts for some time, through spoken question an-           tions and changes nothing else. Five determinis-
+swering (Li et al., 2018) and voice-assistant under-         tic factors isolate single surface properties a tran-
+standing corpora (Bastianelli et al., 2020; FitzGer-         script carries: injected fillers, numbers as words,
+ald et al., 2022), with disfluency characterised sep-        dropped function words, lost casing and punctua-
+
+                                                         2
+Figure 1: The HIVE taxonomy at a glance. A user either ad-libs a question or passes existing information along,
+and it reaches the model through voice, a QWERTY keyboard, or copy-paste, which delivers the question verbatim
+and is the clean reference. Colour marks the channel, not how an operator is built: the voice operators are a mix
+of few-shot LLM style transfer and deterministic rules, and the keyboard operators are all deterministic. Every
+example shown is a real item from the released data. The right panel shows how a model replies under degraded
+input. Table 4 gives the full specification.
+
+
+tion, and homophone substitution. The registers              4   Experiments
+and rewrites are produced by LLM style transfer
+with a local Qwen2.5-7B-Instruct model, so no                Models, benchmarks, seeds. We evaluate five
+paired written/spoken data is needed and the opera-          instruction-tuned models (Llama-3.1-8B, Qwen2.5-
+tors apply to any benchmark with a text question.            7B, Mistral-7B-v0.3, Qwen3-8B, phi-4) at five
+The split matters: a register is what a person said, a       seeds on six benchmarks: GSM8K (Cobbe et al.,
+rewrite is what a dictation tool sent on their behalf,       2021), GSM-Symbolic (Mirzadeh et al., 2025) and
+and only the second is under a developer’s control.          GSM1k (Zhang et al., 2024) (free-form arithmetic),
+                                                             HumanEval (Chen et al., 2021) (Python synthe-
+3.2   QWERTY keyboard perturbations                          sis, pass@1 by unit test), and MMLU-Pro STEM
+                                                             (Wang et al., 2024) and TruthfulQA MC1 (Lin et al.,
+Six operators model what reaches a model when                2022) (multiple choice). We draw n=200 items per
+the user types, each the textual residue of a distinct       benchmark (n=164, the full set, for HumanEval),
+motor error rather than an arbitrary edit: a neigh-          fixed across conditions by shared item ids. Decod-
+bouring key struck instead of the intended one, two          ing is greedy, so a matched pair isolates the pertur-
+adjacent letters transposed, a letter duplicated, an         bation rather than sampling noise. Crossing this
+adjacent letter struck alongside the intended one,           with the seventeen operators and two controls gives
+a clipped space merging two words, and, as the               550k scored generations. Every item appears once
+control with no human behind it, a letter replaced           per condition and is scored against its own clean
+at random. Edits are applied over the Damerau–               counterpart in the same (model, seed) cell, so every
+Levenshtein basis at a fixed per-word distance on            change we report is a within-item comparison.
+a fixed share of eligible words, seeded by item id,
+with numeric tokens protected so the gold answer             Test-set     contamination      controls. GSM-
+stays valid. Appendix A.2 defines each operator              Symbolic and GSM1k are rebuilds of the GSM8K
+and Table 4 gives its knobs and a worked example.            task carrying the same operators, so any effect that
+
+                                                         3
+Operator                       GSM8K GSM-Sym          GSM1k         MMLU- TruthfulQA HumanEval         GM      GMj
+                                                                      Pro
+Baseline clean, accuracy % 71.8 ±24.2 67.9 ±25.9 65.1 ±22.5        32.6 ±10.5 58.6 ±6.9 69.9 ±17.3     59.0     —
+Controls (rows below: change vs. clean, points)
+context/question swap           −2.0 ±3.3 −1.5 ±2.3 −2.5 ±3.4        n/a         n/a          n/a      −3.0    −23.3
+option-permutation                n/a        n/a        n/a        +0.6 ±2.8   −0.4 ±3.5      n/a      +0.6    +0.6
+Voice transcription perturbations
+spoken-casual                   −5.7 ±3.3 −5.1 ±3.0 −5.1 ±3.9      −1.6 ±3.3   −4.1 ±3.1 −6.2 ±7.7     −7.4    −7.0
+spoken-formal                   −2.6 ±3.1 −5.4 ±3.1 −2.4 ±3.2      −1.7 ±2.1   −1.2 ±3.1 −1.5 ±3.9     −4.1    −3.7
+spoken-succinct                −26.3 ±8.2 −24.7 ±10.3 −22.6 ±9.1   −1.3 ±4.1   −2.6 ±3.9 −14.4 ±7.9    −24.1   −14.9
+spoken-clean                    −6.6 ±3.0 −6.1 ±3.2 −4.4 ±3.9      −1.2 ±3.2   −2.5 ±2.9 −6.3 ±6.2     −7.0    −5.5
+spoken-clean (Llama)            −6.4 ±3.5 −5.4 ±3.5 −4.0 ±3.5      −1.8 ±3.6   −2.2 ±2.7 −11.0 ±7.8    −8.1    −6.4
+spoken-filler-stripped          −6.2 ±3.1 −5.8 ±3.6 −4.1 ±3.6      −1.3 ±3.3   −5.0 ±3.9 −6.7 ±6.1     −7.6    −6.7
+clean+fillers                   −3.4 ±3.1 −2.0 ±3.1 −1.6 ±3.2      −1.9 ±2.5   −3.6 ±3.4 −3.0 ±7.8     −4.4    −4.3
+clean+numwords                  −0.5 ±2.7 −1.0 ±3.3 −0.3 ±3.5      −0.7 ±1.8   +0.3 ±1.4 −5.1 ±5.0     −2.0    −0.4
+clean−func-words                −0.7 ±1.8 −0.4 ±2.6 +0.3 ±2.4      +0.1 ±2.0   +0.3 ±2.2 −0.5 ±4.0     −0.2    −0.2
+clean−case/punct                −2.2 ±3.1 −1.3 ±2.5 −1.9 ±3.3      −0.1 ±2.9   −0.8 ±2.9 −4.5 ±3.9     −2.7    −2.7
+clean+homophone                 −1.0 ±2.3 −0.3 ±2.0 −0.0 ±1.9      +0.5 ±1.2   −0.4 ±1.5 −0.8 ±1.2     −0.4    −0.4
+QWERTY keyboard perturbations
+random-replace                  −5.1 ±4.2 −5.0 ±3.3 −2.2 ±2.2      −1.8 ±2.5   −4.8 ±3.1   −2.5 ±4.9   −5.9    −5.3
+keyboard-neighbor               −4.2 ±3.3 −4.1 ±2.7 −2.7 ±2.8      −1.4 ±2.6   −4.1 ±2.8   −1.5 ±4.0   −5.0    −4.6
+key-swap                        −1.9 ±3.2 −1.5 ±2.9 −1.1 ±2.4      −1.3 ±2.4   −2.8 ±3.1   −1.1 ±3.6   −2.8    −2.3
+repeated-key                    −0.6 ±2.5 +0.1 ±2.4 −0.0 ±3.6      −0.7 ±2.1   −1.3 ±2.2   −2.0 ±3.5   −1.4    −1.3
+connected-key                   −1.3 ±2.9 −0.2 ±3.1 +0.4 ±3.0      −1.4 ±2.2   −3.0 ±2.6   −1.3 ±4.8   −2.1    −1.9
+missed-space                    −1.0 ±3.0 −0.2 ±1.8 +0.3 ±2.5      −0.7 ±2.6   −1.3 ±2.3   +0.3 ±2.0   −0.9    −0.8
+
+Table 1: Full perturbation suite. Accuracy change vs. clean, in percentage points, mean ± s.d. over the 25 (model,
+seed) cells; the first row is the clean baseline in absolute accuracy (%). GM is the geometric mean of the per-
+benchmark accuracy ratios, so it is a relative change; GMj recomputes it on the items an LLM judge scores as still
+asking the same question. Within each modality block and column the most damaging operator is red and the least
+damaging blue. n/a: the operator does not apply to that benchmark.
+
+
+is really memorization recovery should shrink on                   The six spoken rows of Table 1 cost more than
+them (Finding 5). Operators, prompts and statistics             any other block: compressing the request into text-
+are specified in §A.1.                                          book form −24.1 (Table 1), tightening its word-
+                                                                ing while keeping clause order −8.1 and −7.0
+5     Main Results                                              for two different rewriters, stripping the fillers out
+The full suite is reported in Table 1, broken out               of the transcription −7.6, a conversational tran-
+model by model in Figure 3, and decomposed into                 scription −7.4, and a prepared-talk transcription
+the items each operator breaks and fixes in Figure 2.           −4.1, a mean of −9.7 (geometric mean of the per-
+The first row is the clean baseline and every row               benchmark accuracy ratios; 6.2 raw points). The
+below it a change against it on the same items,                 registers order themselves by how far they depart
+so a cell reads as percentage points lost. Every                from written form, and the prepared register is
+operator has a negative or negligible mean effect               about half as damaging as the conversational one,
+and none helps. The spread inside each block is                 so what matters is not that the input was spoken
+wide, −24.1 to −0.2 on the voice side and −5.9 to               but how it was spoken. Under GMj the block mean
+−0.9 on the keyboard side, so the findings below                holds at −7.4 and compression stays the most dam-
+read the blocks operator by operator. GMj changes               aging operator by a wide margin. Homophone
+little except for the compressing rewrite, the one              substitution is the exception that costs nothing at
+operator that also risks changing what was asked.               all (−0.4), though with at most three swaps per
+                                                                stem and number-words excluded this may reflect
+6     Findings                                                  the operator’s gentleness as much as any robustness
+                                                                to homophones.
+    Finding 1. Voice transcription perturbations
+                                                                Fillers are sufficient but not necessary for
+    cost accuracy across instruction-tuned models,
+                                                                the spoken penalty. Two deterministic controls
+    and their structure rather than their fillers car-
+                                                                bracket the disfluency hypothesis, and they are the
+    ries the cost
+                                                                two rows of Table 1 that differ from the conversa-
+
+                                                            4
+                                                                                                                         shaded band = run-to-run noise floor (7.5% churn, identical input)
+                                        10
+           and net accuracy change
+           % of items (broke / fixed)
+                                         5
+                                         0
+                                         5
+                                        10
+                                        15
+                                                                      items fixed       items broken       net accuracy change      control (identical input)
+                            l                       l                             l
+                         tro inct ma) ped sua lean lace bor llers ma wap nct wap -key rds -key ace one rds
+                    d con -succ n (Lla -strip n-ca en-c -rep neigh n+fi n-for ion s se/pu key-s cted umwo ated ed-sp moph nc-wo
+                see       en ea       ller spoke spok ndom oard- clea spoke quest n ca          ne    n  pe miss +ho         fu
+            o m- spok en-cl ken-fi                    r a yb                x t /   l e a    con lean+ re         e a n lean
+           d                 k                             e              te      c               c            cl       c
+       ran               spo sp
+                                o                         k
+                                                                      con
+
+Figure 2: Every input change we test, and what each one is made of. For each operator, the blue bar is the share
+of items it fixed, the red bar the share it broke, and the black diamond their difference, exactly the net accuracy
+change an aggregate table reports. Means over the 25 (model, seed) cells; whiskers are ±1 s.d. The leftmost
+bar is a zero-perturbation control: the same clean item scored twice, which flips 7.5% of answers purely from
+run-to-run nondeterminism, an artifact of batched left-padded decoding and non-deterministic reduction order rather
+than sampling. That churn is the shaded band, the floor every operator must clear.
+
+                                             Llama-3.1-8B               Qwen2.5-7B                      Mistral-7B                    Qwen3-8B                         phi-4 (14B)
+                                 0
+accuracy change
+vs clean (points)
+
+
+
+
+                                 5
+
+                            10
+
+                            15
+                                                      voice operators (mean)        keyboard operators (mean)
+                            20                                                                                                             -18.9
+                             GS K
+                               ym
+
+                             HE k
+                             MM l
+                                LU
+                                 A
+
+
+                                                               GS K
+                                                                 ym
+
+                                                               HE k
+                                                               MM l
+                                                                  LU
+                                                                   A
+
+
+                                                                                             GS K
+                                                                                               ym
+
+                                                                                             HE k
+                                                                                             MM l
+                                                                                                LU
+                                                                                                 A
+
+
+                                                                                                                          GS K
+                                                                                                                            ym
+
+                                                                                                                          HE k
+                                                                                                                          MM l
+                                                                                                                             LU
+                                                                                                                              A
+
+
+                                                                                                                                                           GS K
+                                                                                                                                                             ym
+
+                                                                                                                                                           HE k
+                                                                                                                                                           MM l
+                                                                                                                                                              LU
+                                                                                                                                                               A
+                               va
+
+
+
+
+                                                                 va
+
+
+
+
+                                                                                               va
+
+
+
+
+                                                                                                                            va
+
+
+
+
+                                                                                                                                                             va
+                              G1
+
+
+
+
+                                                                G1
+
+
+
+
+                                                                                              G1
+
+
+
+
+                                                                                                                           G1
+
+
+
+
+                                                                                                                                                            G1
+                              G8
+
+
+
+
+                                                                G8
+
+
+
+
+                                                                                              G8
+
+
+
+
+                                                                                                                           G8
+
+
+
+
+                                                                                                                                                            G8
+                              TQ
+
+
+
+
+                                                                TQ
+
+
+
+
+                                                                                              TQ
+
+
+
+
+                                                                                                                           TQ
+
+
+
+
+                                                                                                                                                            TQ
+Figure 3: Per-model granularity. Accuracy change vs. clean in percentage points, one panel per model; error bars
+are the s.d. across five seeds. Voice sits below keyboard in all 20 generation cells; the two interleave on MMLU-Pro
+and TruthfulQA.
+
+
+tional transcription in exactly one respect. Adding                                                         −3.0 against the spoken block’s −9.7 (Table 1).
+fillers to an otherwise clean written question (−4.4)                                                       The blocks overlap at the boundary: the single
+leaves accuracy 2.6±1.5 percentage points lower,                                                            worst typing error, replacing a letter at random at
+so fillers alone are enough to hurt. But deleting                                                           −5.9, is more damaging than the mildest transcrip-
+them from the spoken transcript (−7.6) recovers                                                             tion, the prepared-talk one at −4.1. Typing is not
+nothing at all: −4.80±1.35 against the untouched                                                            uniformly safer than speaking, though the typical
+transcription’s −4.59±1.24, a paired difference of                                                          typed input is.
+−0.22±1.08 over 25 (model, seed) cells (t=−1.00,
+                                                                                                            QWERTY-shaped errors cost less than arbi-
+n.s.), if anything slightly worse. If fillers carried the
+                                                                                                            trary ones. The comparison that holds edit type
+penalty, removing them would return the accuracy;
+                                                                                                            and density fixed and varies only whether the sub-
+it does not.
+                                                                                                            stituted character is a spatial neighbor finds a real
+       Finding 2. QWERTY keyboard perturbations                                                             advantage. Hitting a neighbouring key leaves ac-
+       cost less, and models absorb a lot of them be-                                                       curacy 3.07±1.31 percentage points lower against
+       fore breaking                                                                                        3.61±1.79 for an arbitrary letter, a paired differ-
+                                                                                                            ence of +0.55±1.15 over the 25 cells (t=2.37,
+  The keyboard block is milder than the spoken
+                                                                                                            p<0.05). One explanation is that QWERTY sepa-
+one throughout. It spans −5.9 (replacing a letter at
+                                                                                                            rates the letters that occur together most often, so a
+random) to −0.9 (dropping a space) and averages
+                                                                                                            neighbour substitution is confined to pairs the lan-
+
+                                                                                                       5
+                     0
+                     5
+accuracy change
+vs clean (points)
+
+                    10
+                    15
+                    20
+                    25       keyboard-neighbor   connected-key
+                             random-replace      repeated-key
+                    30       key-swap            missed-space                at 20% density
+                         6          12      20    33      50      100   1          2                                 3 0            10       20             30
+                               share of words with an error (%)         edits inside each word                                  characters changed (%)
+
+Figure 4: How much of a perturbation a model absorbs. Accuracy change vs. clean in percentage points, pooled
+over 2 models × 3 benchmarks; bands are ±1 s.e. over those cells. Red operators replace an original letter; blue
+ones leave every letter present. Left: how many words carry an error. Middle: how many edits land inside each
+word. Right: the share of characters the edit changed, with a fit per family. The families lie on different lines, so
+edit distance predicts damage within a family but not across them.
+
+
+guage rarely uses and less often forms a plausible                          voice penalty keyboard penalty   2
+alternative token. The margin is small, so this is a
+                                                                                                             0
+conjecture. The four cheapest typing errors (trans-
+                                                                                    (accuracy points)
+
+                                                                                                              2
+posing two adjacent letters −2.8, hitting an extra
+key alongside the intended one −2.1, duplicating                                                              4
+a letter −1.4, dropping a space −0.9) are also the                                                            6
+four that leave every original letter in place, which                                                         8
+                                                                                                                                                  generation
+Finding 4 takes up.                                                                                          10                                   multiple-choice
+                                                                                                                      speaking costs more         one model
+                                                                                                             12
+                                                                                                                  GSM8K G-Sym GSM1k HEval MMLU            TQA
+
+                                                                            Figure 5: The modality gap is a construction-task
+                                                                            effect. Voice minus keyboard penalty per benchmark
+                                                                            (bars: mean over models; dots: the 5 models). All 20
+                                                                            generation cells share the negative sign; on the multiple-
+                                                                            choice sets the spread crosses zero.
+
+
+                                                                                      Finding 3. The modality gap is a reasoning-
+                                                                                      task effect: it appears only where the answer
+                                                                                      must be constructed or deduced
+
+Models absorb a surprising amount of typing                                 Which modality you use only matters when
+error, then break suddenly. We re-ran each key-                             the model has to build the answer. The two
+board operator over a ladder of intensities, varying                        channels are not uniformly far apart. The gap be-
+how many words carry an error (6% to 100%) and                              tween them tracks what the task asks the model
+how many edits land inside each (1 to 3). The re-                           to do: on the three arithmetic sets and on code,
+sponse is not proportional (Figure 4). Accuracy                             where an answer has to be reasoned out and
+is flat out to roughly 12% of words and then falls                          written from scratch, speech is 6–7 percentage
+away, reaching −30.5 and −39.7 on GSM8K once                                points lower than typing, with the same sign in
+every word is hit. Concentration matters more than                          all 20 model×benchmark cells (Figure 5). On the
+spread: three edits inside 20% of the words is about                        two multiple-choice sets, where the answer is se-
+twice as damaging as one edit spread over 50%, be-                          lected from options already supplied, the gap is
+cause a word edited three times is unrecoverable                            −0.3±1.3 and −0.0±0.6, standard deviations sev-
+while three singly-edited words each remain read-                           eral times the means, so we report no difference
+able in context.                                                            there. Absolute damage follows the same ordering:
+
+                                                                        6
+averaged over every operator, MMLU-Pro loses                                         kens without asking whether the original ones were
+1.1±2.9 points where GSM8K loses 4.3±6.8 and                                         still there.
+HumanEval 5.3±13.6.
+                                                                                     Token survival is the dominant predictor, and it
+                             0
+net accuracy change (pts)
+
+
+
+                                                                                     holds at the character level too. Two operators
+                             5                                   clean+fillers       damage while keeping their tokens. Injecting fillers
+                                               spoken-casual
+                                                                                     keeps 94.7% of the clean tokens yet adds 46%
+                            10
+                                                                                     more and is still 2.6 percentage points lower, dilu-
+                            15               spoken-succinct                         tion rather than destruction; moving the question
+                            20                                  voice                to the front keeps 95.7% and adds only 4.0%, yet
+                                                                keyboard
+                                 r = +0.79                      control              is 1.8 points lower, damage that is positional rather
+                            25                                                       than lexical. The same rule holds on the raw string:
+                                 40       50 60 70 80 90 100
+                                      clean tokens surviving the edit (%)            pooled over operators, Damerau–Levenshtein dis-
+                                                                                     tance predicts poorly (r= − 0.63) because the two
+Figure 6: How much of the clean question’s tokeniza-                                 families lie on different lines, and at an identical
+tion survives a perturbation. Large dots are operators,                              15.7% of characters changed replacing a letter costs
+small dots the same keyboard operators at higher dose.                               23.8 points against 2.4 for transposing or duplicat-
+                                                                                     ing one.
+             Finding 4. The shared cause of input perturba-                            Finding 5. The harm caused by input perturba-
+             tion harm is how many of the question’s origi-                            tion does not solely come from test-set contam-
+             nal tokens survive                                                        ination
+
+Destroying the original tokens is what hurts.
+Adding new ones on top is close to free. An                                          The same harm pattern holds on a decon-
+edit can do two separate things to the tokenized                                     taminated rebuild of GSM8K. GSM-Symbolic
+question. It can destroy tokens that were there,                                     (Mirzadeh et al., 2025) regenerates GSM8K prob-
+replacing them with something the model has not                                      lems from symbolic templates, resampling the
+seen in that position, and it can add tokens that                                    names and numbers so the surface form is new
+were not there before, making the sequence longer                                    while the reasoning is preserved. If spoken phras-
+without touching the originals. Tokenizing every                                     ing mainly blocked retrieval of a solution the model
+clean/perturbed pair with the evaluated model’s                                      had already seen, the penalty should shrink once
+own tokenizer lets us measure the two indepen-                                       the strings are new. It does not. The voice penalty
+dently: what share of the clean question’s tokens                                    is −8.99 on GSM8K against −8.77 on GSM-
+still survive, and what share of the perturbed ques-                                 Symbolic, and the ordering of operators within
+tion is new. Only destruction predicts the dam-                                      the block is unchanged (Table 1, and per model in
+age. Dropping the compressing rewrite, the oper-                                     Figure 3). GSM1k (Zhang et al., 2024), an indepen-
+ator furthest from the rest, raises the correlation                                  dently authored set in the same style, gives −7.09,
+to +0.82 rather than lowering it, so the relation-                                   so roughly 79% of the effect persists on the furthest
+ship is not an artifact of one extreme. Survival                                     rebuild. The two controls are not equally strong:
+correlates with the net effect at r=+0.79 (n=18                                      template regeneration keeps the parent problem’s
+operators, p<0.001), while addition correlates at                                    structure, so clean accuracy on GSM-Symbolic
+only r=−0.28 (Figure 6). The extremes line up ex-                                    stays within 2 points of GSM8K for three of the
+actly. Compressing the request destroys the most,                                    five models, while the newly written GSM1k is 7.1
+leaving only 52.1% of the original tokens intact,                                    to 8.5 points lower for those same models. GSM-
+and is the most damaging operator in the suite at                                    Symbolic is therefore evidence that the harm is not
+15.3 percentage points lower. The two benign op-                                     tied to particular strings, and GSM1k the stronger
+erators leave 94 to 99% of the tokens intact and                                     evidence that it is not tied to the problems either.
+change accuracy by no measurable amount (homo-                                       We do not read the missing fifth as noise: some of it
+phone substitution 99.0% intact, −0.33; removing                                     may genuinely be memorization recovery, which is
+function words 94.2%, −0.15). This refines the                                       why we claim contamination is not the main source
+token-inflation probe of §A.3, which counted to-                                     of the harm rather than no source at all.
+
+                                                                                 7
+  Finding 6. The harm caused by input pertur-                 Reasoning repairs a garbled question, not a sim-
+  bation cannot be trained away with lightweight              plified one. Thinking absorbs the keyboard oper-
+  adaptation                                                  ators almost entirely (Figure 7): replacing a letter
+                                                              at random goes from 7.3 percentage points lower
+   Can a model be taught to absorb the penalty                to no measurable change and hitting a neighbour-
+rather than have its input cleaned? We ran self-              ing key from 6.8 to 1.8, while injecting fillers goes
+distillation: for each item the model answers the             from 2.3 to 1.2. The spoken registers barely move,
+clean question, we keep only the items it gets right,         a conversational transcription from 6.4 to 5.5 and
+and those answers become the target for the same              a prepared-talk one from 4.3 to 4.3, and compres-
+model shown the perturbed question. We distil a               sion gets worse, 27.0 points lower without thinking
+LoRA adapter on one seed’s variants, evaluate on              and 33.5 with it. The split follows Finding 4: the
+held-out seeds, and require that clean accuracy not           operators reasoning recovers are the ones that leave
+regress, since robustness bought by degrading the             the original tokens in place, and the ones it cannot
+clean path is not robustness. Three settings were             recover are the ones that destroy them. This is one
+swept (Table 2).                                              model on one benchmark at 164 items, so we read
+                                                              the ordering, not the values.
+Adapting to the errors costs base performance.
+The two regimes trade against each other and nei-
+ther wins. At high rank and learning rate the                    spoken-succinct                                      -6.5
+                                                                    spoken-casual                                     +0.9
+conversational-speech gap does close, but only be-                  spoken-formal                                     -0.0
+cause every condition is dragged down to it. Clean                    clean+fillers   voice                           +1.1
+                                                                  random-replace      keyboard                        +7.3
+falls from 60.9 to 58.0, which is the outcome the              keyboard-neighbor      thinking off                    +5.0
+                                                                     missed-space     thinking on                     +0.6
+clean-accuracy constraint was meant to exclude. At                                     30            20   10      0
+low rank, one epoch and a small learning rate, clean                                   accuracy change vs. clean (points)
+survives (60.9 → 60.3) but conversational speech
+is untouched (57.2 → 56.5). The sweep found                   Figure 7: Thinking recovers the keyboard channel,
+no setting between the two. Any adapter strong                not the spoken registers. Qwen3-8B on the same 164
+enough to move the perturbed condition moves the              GSM8K items, thinking off (open bars) and on (solid),
+                                                              each referenced to that pass’s own clean.
+clean one further. Adding a term that penalises
+attention to filler tokens, or one that aligns the per-
+turbed hidden state to the clean one, changes nei-            7    Conclusion
+ther regime.
+                                                              In this work we present HIVE, a suite of seven-
+Llama-3.1-8B              Clean    Spoken-    Spoken-
+(held-out)                          casual     formal         teen operators and two controls that reproduce the
+Base (no adaptation)      60.9       57.2       60.2          errors human input actually carries, and an anal-
+High rank                 58.0       58.3       58.3          ysis using it across five instruction-tuned models
+Low rank                  60.3       56.5       58.5          and six benchmarks. We find that speaking is the
+Low rank + hidden-align   60.2       56.5       58.2
+                                                              expensive channel, that what damage costs is how
+Table 2: Nothing we tried recovers the conversational-        much of the question’s original tokenization it de-
+speech penalty. Held-out accuracy (%).                        stroys, and that neither test-set contamination nor
+                                                              lightweight adaptation accounts for or repairs the
+                                                              harm. Several takeaways follow. If you type, a rea-
+  Finding 7. Thinking recovers the keyboard
+                                                              soning model absorbs your errors. If you dictate it
+  channel almost entirely and leaves the spoken
+                                                              does not, so the phrasing you speak is the phrasing
+  registers essentially untouched
+                                                              the model works from. And if you build dictation
+   Qwen3-8B is the one model we run both with                 tools, do not reformat or restructure what the user
+its thinking block enabled and disabled, which iso-           said: strip disfluency minimally and leave homo-
+lates the reasoning budget with the weights and               phones alone. That last one matters most, because
+perturbations held fixed. Both passes are scored              dictation front-ends are becoming a default way
+on the same 164 GSM8K items, each referenced to               to reach a model and their rewriting layer is the
+its own pass’s clean accuracy, since thinking lifts           largest harm we measure and the cheapest thing to
+clean from 78.7 to 88.4.                                      change.
+
+                                                          8
+Limitations                                                 References
+Scope. Every benchmark is English, every model              Marah Abdin, Jyoti Aneja, Harkirat Behl, Sébastien
+                                                             Bubeck, Ronen Eldan, Suriya Gunasekar, Michael
+is an open 7–14B instruction-tuned one, and every            Harrison, Russell J. Hewett, Mojan Javaheripi, Piero
+item is a single-turn question. Production voice             Kauffmann, James R. Lee, Yin Tat Lee, Yuanzhi Li,
+interfaces route to far stronger models, and our             Weishung Liu, Caio C. T. Mendes, Anh Nguyen,
+own Finding 7 shows that a thinking budget absorbs           Eric Price, Gustavo de Rosa, Olli Saarikivi, and
+                                                             8 others. 2024. Phi-4 technical report. Preprint,
+most of the suite, so the magnitudes here should             arXiv:2412.08905.
+not be read as estimates for a deployed frontier
+assistant. Nothing in the suite exercises a multi-          Zain Ul Abedin, Shahzeb Qamar, Lucie Flek, and Akbar
+                                                              Karimi. 2026. Arithmattack: Evaluating robustness
+turn or tool-using agent.
+                                                              of llms to noisy context in math problem solving.
+                                                              Preprint, arXiv:2501.08203.
+One keyboard layout. The typing arm models
+QWERTY only. Other layouts exist, and error                 Emanuele Bastianelli, Andrea Vanzo, Pawel Swieto-
+modes differ across devices: a phone thumb key-               janski, and Verena Rieser. 2020. Slurp: A spoken
+board, a tablet, and a physical keyboard do not fail          language understanding resource package. Preprint,
+                                                              arXiv:2011.13205.
+in the same way. We chose QWERTY because
+it is the layout most people type on, and because           Yonatan Belinkov and Yonatan Bisk. 2018. Synthetic
+blind typing on it is where human supervision of              and natural noise both break neural machine transla-
+                                                              tion. Preprint, arXiv:1711.02173.
+the input is weakest. A user who does not look at
+what was sent is the user whose raw errors reach            Kuluhan Binici, Abhinav Ramesh Kashyap, Viktor
+the model intact, so this is the setting that exposes         Schlegel, Andy T. Liu, Vijay Prakash Dwivedi,
+an assistant to the most uncorrected input, and the           Thanh-Tung Nguyen, Xiaoxue Gao, Nancy F. Chen,
+                                                              and Stefan Winkler. 2025. Medsage: Enhancing ro-
+one layout worth measuring first is therefore also            bustness of medical dialogue summarization to asr er-
+the one of greatest practical consequence.                    rors with llm-generated synthetic dialogues. Preprint,
+                                                              arXiv:2408.14418.
+Synthetic speech, not audio. Our spoken reg-
+isters are produced by an LLM verbalizer, not by            Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan,
+                                                             Henrique Ponde de Oliveira Pinto, Jared Kaplan,
+a real speaker through a real recogniser, so they            Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+carry disfluency and restructuring but not acoustic          Brockman, Alex Ray, Raul Puri, Gretchen Krueger,
+confusions or a true ASR error distribution. An              Michael Petrov, Heidy Khlaaf, Girish Sastry, Pamela
+acoustic branch, a TTS→ASR round-trip, is im-                Mishkin, Brooke Chan, Scott Gray, and 39 others.
+                                                             2021. Evaluating large language models trained on
+plemented in our harness but is not in the reported          code. Preprint, arXiv:2107.03374.
+runs, and not only for cost. Synthetic speech is
+too clean: a machine voice articulates perfectly, so        Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+                                                              Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+a recogniser transcribes it almost exactly and the
+                                                              Plappert, Jerry Tworek, Jacob Hilton, Reiichiro
+resulting text differs barely at all from what went           Nakano, Christopher Hesse, and John Schulman.
+in. A round-trip through synthetic audio there-               2021. Training verifiers to solve math word prob-
+fore does not reproduce the errors a human speaker            lems. Preprint, arXiv:2110.14168.
+produces, and would mostly measure the fidelity             Javid Ebrahimi, Anyi Rao, Daniel Lowd, and Dejing
+of the TTS system. Getting the acoustic branch                 Dou. 2018. Hotflip: White-box adversarial examples
+right needs recorded human speech, not a synthetic             for text classification. Preprint, arXiv:1712.06751.
+proxy. We accept this trade deliberately. Because
+                                                            Jack FitzGerald, Christopher Hench, Charith Peris,
+the operators are text-to-text, they apply to any ex-          Scott Mackie, Kay Rottmann, Ana Sanchez, Aaron
+isting benchmark that has a written question, with             Nash, Liam Urbach, Vishesh Kakarala, Richa
+no audio to record, no speakers to recruit and no              Singh, Swetha Ranganath, Laurie Crist, Misha
+per-dataset pipeline to build, which is what makes             Britan, Wouter Leeuwis, Gokhan Tur, and Prem
+                                                               Natarajan. 2022. Massive: A 1m-example mul-
+a suite of this size affordable and what lets the              tilingual natural language understanding dataset
+same operators be reused to run the same analysis             with 51 typologically-diverse languages. Preprint,
+on other benchmarks. An audio-grounded study                   arXiv:2204.08582.
+would measure a narrower slice of the problem at            Esther Gan, Yiran Zhao, Liying Cheng, Yancan Mao,
+far greater cost, and the two are complementary               Anirudh Goyal, Kenji Kawaguchi, Min-Yen Kan,
+rather than substitutes.                                      and Michael Shieh. 2024. Reasoning robustness of
+
+
+                                                        9
+  llms to adversarial typographical errors. Preprint,            Chia-Hsuan Li, Szu-Lin Wu, Chi-Liang Liu, and Hung-
+  arXiv:2411.05345.                                                yi Lee. 2018. Spoken squad: A study of mitigating
+                                                                   the impact of speech recognition errors on listening
+Ji Gao, Jack Lanchantin, Mary Lou Soffa, and Yanjun                comprehension. CoRR, abs/1804.00320.
+   Qi. 2018. Black-box generation of adversarial text se-
+   quences to evade deep learning classifiers. Preprint,         Jinfeng Li, Shouling Ji, Tianyu Du, Bo Li, and Ting
+   arXiv:1801.04354.                                                Wang. 2019. Textbugger: Generating adversarial text
+                                                                    against real-world applications. In Proceedings 2019
+Siddhant Garg and Goutham Ramakrishnan. 2020. Bae:                  Network and Distributed System Security Symposium.
+   Bert-based adversarial examples for text classifica-             Internet Society.
+   tion. In Proceedings of the 2020 Conference on
+  Empirical Methods in Natural Language Processing               Guan-Ting Lin, Chen Chen, Zhehuai Chen, and Hung
+  (EMNLP), pages 6174–6181. Association for Com-                   yi Lee. 2026. Full-duplex-bench-v3: Benchmarking
+   putational Linguistics.                                         tool use for full-duplex voice agents under real-world
+                                                                   disfluency. Preprint, arXiv:2604.04847.
+J.J. Godfrey, E.C. Holliman, and J. McDaniel. 1992.
+   Switchboard: telephone speech corpus for research             Stephanie Lin, Jacob Hilton, and Owain Evans. 2022.
+   and development. In Proceedings of ICASSP-92:                   Truthfulqa: Measuring how models mimic human
+   1992 IEEE International Conference on Acoustics,                 falsehoods. Preprint, arXiv:2109.07958.
+   Speech, and Signal Processing, volume 1, pages 517–
+   520.                                                          Hongcheng Liu, Yixuan Hou, Heyang Liu, Yuhao Wang,
+                                                                   Yanfeng Wang, and Yu Wang. 2025. Vocalbench-df:
+Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri,                A benchmark for evaluating speech llm robustness to
+  and 1 others. 2024. The llama 3 herd of models.                  disfluency. Preprint, arXiv:2510.15406.
+  Preprint, arXiv:2407.21783.
+                                                                 Iman Mirzadeh, Keivan Alizadeh, Hooman Shahrokhi,
+                                                                   Oncel Tuzel, Samy Bengio, and Mehrdad Farajtabar.
+Aditya Gupta, Jiacheng Xu, Shyam Upadhyay, Diyi
+                                                                   2025. Gsm-symbolic: Understanding the limitations
+  Yang, and Manaal Faruqui. 2021. Disfl-qa: A bench-
+                                                                   of mathematical reasoning in large language models.
+  mark dataset for understanding disfluencies in ques-
+                                                                   Preprint, arXiv:2410.05229.
+  tion answering. Preprint, arXiv:2106.04016.
+                                                                 Milad Moradi and Matthias Samwald. 2021. Evaluating
+Jayant Havare, Ashish Mittal, Srikanth Tamilselvam,                the robustness of neural language models to input
+  and Ganesh Ramakrishnan. 2026. Lost in transcrip-                perturbations. Preprint, arXiv:2108.12237.
+  tion: How speech-to-text errors derail code under-
+  standing. Preprint, arXiv:2601.15339.                          Danish Pruthi, Bhuwan Dhingra, and Zachary C. Lipton.
+                                                                   2019. Combating adversarial misspellings with ro-
+Albert Q. Jiang, Alexandre Sablayrolles, Arthur Men-               bust word recognition. Preprint, arXiv:1905.11268.
+  sch, Chris Bamford, Devendra Singh Chaplot, Diego
+  de las Casas, Florian Bressand, Gianna Lengyel, Guil-          Marco Tulio Ribeiro, Tongshuang Wu, Carlos Guestrin,
+  laume Lample, Lucile Saulnier, Lélio Renard Lavaud,             and Sameer Singh. 2020. Beyond accuracy: Be-
+  Marie-Anne Lachaux, Pierre Stock, Teven Le Scao,                havioral testing of NLP models with CheckList. In
+  Thibaut Lavril, Thomas Wang, Timothée Lacroix,                  Proceedings of the 58th Annual Meeting of the Asso-
+  and William El Sayed. 2023. Mistral 7b. Preprint,               ciation for Computational Linguistics, pages 4902–
+  arXiv:2310.06825.                                               4912, Online. Association for Computational Lin-
+                                                                  guistics.
+Di Jin, Zhijing Jin, Joey Tianyi Zhou, and Peter
+  Szolovits. 2020. Is bert really robust? a strong base-         Freda Shi, Xinyun Chen, Kanishka Misra, Nathan
+  line for natural language attack on text classification          Scales, David Dohan, Ed Chi, Nathanael Schärli,
+  and entailment. Preprint, arXiv:1907.11932.                      and Denny Zhou. 2023. Large language models can
+                                                                   be easily distracted by irrelevant context. Preprint,
+Donghyuk Jung and Youngwon Choi. 2026. Analyzing                   arXiv:2302.00093.
+  error propagation in korean spoken qa with asr-llm
+  cascades. Preprint, arXiv:2605.17443.                          Yubo Wang, Xueguang Ma, Ge Zhang, Yuansheng Ni,
+                                                                   Abhranil Chandra, Shiguang Guo, Weiming Ren,
+Tamera Lanham, Anna Chen, Ansh Radhakrishnan,                      Aaran Arulraj, Xuan He, Ziyan Jiang, Tianle Li, Max
+  Benoit Steiner, Carson Denison, Danny Hernandez,                 Ku, Kai Wang, Alex Zhuang, Rongqi Fan, Xiang Yue,
+  Dustin Li, Esin Durmus, Evan Hubinger, Jackson                   and Wenhu Chen. 2024. Mmlu-pro: A more robust
+  Kernion, Kamilė Lukošiūtė, Karina Nguyen, Newton              and challenging multi-task language understanding
+  Cheng, Nicholas Joseph, Nicholas Schiefer, Oliver                benchmark. Preprint, arXiv:2406.01574.
+  Rausch, Robin Larson, Sam McCandlish, Sandi-
+  pan Kundu, and 11 others. 2023. Measuring faith-               An Yang, Anfeng Li, Baosong Yang, and 1 oth-
+  fulness in chain-of-thought reasoning. Preprint,                 ers. 2025a. Qwen3 technical report. Preprint,
+  arXiv:2307.13702.                                                arXiv:2505.09388.
+
+
+                                                            10
+An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui,
+  Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu,
+  Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jian-
+  hong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang,
+  Jingren Zhou, Junyang Lin, Kai Dang, and 23 oth-
+  ers. 2025b. Qwen2.5 technical report. Preprint,
+  arXiv:2412.15115.
+Hugh Zhang, Jeff Da, Dean Lee, Vaughn Robinson,
+  Catherine Wu, Will Song, Tiffany Zhao, Pranav
+  Raja, Charlotte Zhuang, Dylan Slack, Qin Lyu, Sean
+  Hendryx, Russell Kaplan, Michele Lunati, and Sum-
+  mer Yue. 2024. A careful examination of large lan-
+  guage model performance on grade school arithmetic.
+  Preprint, arXiv:2405.00332.
+
+
+
+
+                                                        11
+A     Methodology, experiments and                             Both are produced by LLM style transfer: a local
+      discussion                                               Qwen2.5-7B-Instruct model rewrites the written
+                                                               stem under a prompt carrying the target register,
+The main text is organised around the findings.
+                                                               a filler lexicon and two few-shot written→spoken
+This appendix carries the specification and anal-
+                                                               exemplars, listed verbatim in Appendix C. Spoken-
+ysis they rest on: how the operators, tasks, models
+                                                               succinct (row 5) compresses the transcript into con-
+and statistics are defined, how the runs were pro-
+                                                               cise textbook form, which also reorders it. Spoken-
+duced, and the discussion of what the results mean
+                                                               clean (rows 6–7) tightens the wording while pre-
+beyond the findings themselves.
+                                                               serving the original clause order and question posi-
+A.1    Methodology                                             tion, isolating verbosity from reordering; it is run
+                                                               under two different rewriters so the effect is not one
+Let x ∈ Σ∗ be a clean benchmark item and
+                                                               model’s habit. Spoken-filler-stripped (row 8) is a
+g(f (x)) ∈ {0, 1} its correctness, where f is the
+                                                               delete-only pass over the spoken transcript that re-
+model-plus-decoding map and g the benchmark’s
+                                                               moves filler tokens and tidies the resulting punctua-
+scorer. HIVE’s core object is the perturbation op-
+                                                               tion, leaving every content word, number and rela-
+erator τm,c , which maps x to a perturbed item x̃,
+                                                               tionship exactly as spoken. We use a deterministic
+indexed by a modality m ∈ {kbd, voice} and a
+                                                               strip rather than an LLM editor on purpose, since an
+condition c (e.g. spoken-casual or spoken-formal
+                                                               editor would conflate the intervention with its own
+for voice; a selection policy for keyboard). Be-
+                                                               paraphrase errors. Rows 9–13 are the deterministic
+cause each operator maps any clean text to its
+                                                               factors, each isolating one surface property of a
+variation, the same suite applies unchanged to
+                                                               transcript with no LLM involved: clean+fillers in-
+any benchmark with a written question. For item               jects hesitations into the otherwise untouched writ-
+i we form the matched pair          Yi,m,0 , Yi,m,c =
+                                                              ten question, clean+numwords writes every quan-
+ g(f (xi )), g(f (τm,c (xi ))) , the clean and per-
+                                                               tity as words, clean−func-words drops articles
+turbed correctness of the same item, and study the
+                                                               and prepositions, clean−case/punct lowercases
+paired difference; averaging  P over items givesthe           and strips punctuation, and clean+homophone sub-
+accuracy delta ∆m,c = N1 i Yi,m,c − Yi,m,0 .
+                                                               stitutes acoustically confusable words.
+   Most operators are intent-preserving: a reader
+recovers the original intent, whether from a non-              QWERTY keyboard operators (Table 4, rows
+word typo or a spoken disfluency, or, where the sur-           16–21). All six edit the stem over the Damerau–
+face token changes, from context (a real-word typo             Levenshtein basis at an exact per-word edit distance
+or a homophone). A small meaning-changing con-                 d over n target words, deterministically and with
+trol genuinely changes what is asked (a multiple-              reconstructible edit scripts, seeded by item id. Nu-
+choice option permutation that relabels the gold)              meric tokens are protected spans throughout, which
+and serves as an over-robustness check. The                    is what keeps the gold answer valid under a non-
+same object (Yi,m,0 , Yi,m,c ) is well defined for both        word typo. Random-replace (row 16) substitutes
+modalities, which is what lets one statistical appa-           an arbitrary character and is the control with no
+ratus (§A.6) serve both. The keyboard modality                 human behind it. Keyboard-neighbor (row 17)
+shares the identical definitions.                              substitutes a QWERTY-adjacent character, mod-
+                                                               elling blind touch typing where the finger lands
+A.2    Operator specification                                  one key off. Key-swap (row 18) transposes a con-
+Each operator of §3.1 and §3.2 is defined below,               secutive pair, modelling two fingers firing out of
+numbered as in Table 4, which also gives its control           order. Repeated-key (row 19) duplicates a charac-
+knobs, its drift rate and a worked example on a                ter, modelling a key held too long. Connected-key
+single running stem.                                           (row 20) inserts an adjacent character alongside the
+                                                               intended one rather than instead of it, modelling a
+Voice transcription operators (Table 4, rows 3–
+                                                               thumb whose contact patch is wider than one key.
+13). Spoken-casual (row 3) targets a conversa-
+                                                               Missed-space (row 21) deletes a space between
+tional, podcast-like register at a high filler rate
+                                                               two words, modelling a clipped space bar.
+(φ ≈ 5%), carrying fillers, false starts and self-
+corrections. Spoken-formal (row 4) targets a                   What is held fixed. Only the natural-language
+prepared-talk register at φ ≈ 1.5%, measured com-              stem is perturbed. Multiple-choice option letters
+plete sentences with only occasional hesitations.              and answer-format instructions are re-attached ver-
+
+                                                          12
+batim, and for HumanEval only the docstring prose              formal −29.4).
+is perturbed while the signature and doctests are                 Of these, H3 is the most striking: the filler-
+preserved, so scoring stays well defined. Filler rates         attention surge is localized: the model spends a
+and exemplars are calibrated against two reference             disproportionate share of its attention budget on
+corpora, PodcastFillers for the conversational reg-            tokens (“um”, “like”, “you know”) that carry no
+ister and TED-LIUM for the prepared-talk one;                  task content. The controls of §A.8 pin down its
+where those were not reachable at run time the                 causal status precisely. Injecting fillers into clean
+operator falls back to literature-derived defaults,            does drop accuracy (they are causally sufficient),
+which we report as such.                                       yet deleting them from spoken-casual does not re-
+                                                               cover it (they are not necessary): the penalty is
+How the registers differ. Measured over the re-                overdetermined, with the fillers one sufficient trig-
+leased stems of all six benchmarks, three features             ger among the register-wide changes. So H3 is
+separate them. Length: spoken-casual inflates the              a genuine part of the causal picture, not a mere
+stem by ≈66% (41.4→68.7 words), the filler-strip               epiphenomenon, but because it is only one of sev-
+(54.8) and spoken-clean (47.0) undo only part of               eral sufficient triggers, a training term that only
+it, and spoken-succinct over-compresses to 38%                 reallocates filler attention cannot close the gap on
+below clean (25.8). Fillers: spoken-casual car-                its own, which is consistent with its failure to help
+ries ≈8 filler tokens per stem, the filler-strip and           (Finding 6). The remaining triggers are diffuse and
+spoken-succinct remove essentially all of them,                register-wide (token inflation, restructuring) and,
+and clean+fillers injects a comparable ≈9 into un-             as §A.8 shows, no single one of them (length, quan-
+touched text, which is what makes the two direc-               tity surface form, or token-level surprisal) accounts
+tions of the filler experiment comparable. Seg-                for the penalty by itself.
+mentation: clean is multi-sentence (2.4 periods,
+2.2 commas) while spoken-casual is a comma-                    A.4   Tasks and scoring
+chained run-on (0.8, 18.3); the filler-strip removes           The voice arm uses four benchmarks spanning rea-
+the fillers but inherits the run-on (0.9, 8.5), whereas        soning, coding, and knowledge: GSM8K grade-
+spoken-formal (2.4) and spoken-clean (1.5) largely             school math (numeric-match of the final answer),
+restore sentence structure.                                    HumanEval Python synthesis (pass@1 by sand-
+                                                               boxed unit-test execution), MMLU-Pro restricted
+A.3   Why does speaking cost accuracy?
+                                                               to its STEM split (10-way multiple choice, letter-
+Why does the same input, merely spoken, cost ac-               match), and TruthfulQA MC1 (single-best multi-
+curacy, and why does spoken-formal cost less?                  ple choice, letter-match). We draw n=200 items
+We probe the model’s internals on matched                      per benchmark (n=164, the full set, for Hu-
+clean/spoken-casual/spoken-formal triples (n=80                manEval), fixed across conditions by shared item
+items, Llama-3.1-8B-Instruct with eager attention)             ids so that clean, spoken-casual, and spoken-formal
+and find that the behavioral ordering clean ≥                  evaluations form aligned matched pairs. GPQA-
+spoken-formal ≥ spoken reappears in every statis-              Diamond is part of the suite but is omitted from
+tic we measure. Relative to clean, a spoken-casual             the reported runs pending gated-dataset access; the
+input (i) inflates the prompt from 170 to 210                  loader skips it automatically. Crucially, only the
+tokens (+23%; spoken-formal only +6%), frag-                   verbalizable question stem is perturbed: the answer-
+menting the context the model conditions on; (ii)              format instructions and the multiple-choice option
+diffuses attention, raising mean attention entropy             letters are held fixed, so that scoring remains well
+1.920 → 1.985 (spoken-formal 1.947); (iii) con-                defined under perturbation.
+centrates attention on fillers: the share of at-
+tention mass landing on filler tokens rises from               A.5   Models and decoding
+0.0029 to 0.0174, a ≈5.9× jump, whereas spoken-                We ran six instruction-tuned models spanning
+formal barely moves (0.0037); (iv) drifts the hid-             7–32B and three families. Qwen3-32B is ex-
+den state away from the clean representation ≈3×               cluded from every reported number: it is the
+more than spoken-formal does (final-layer cosine               only model we had to run in NF4 rather than
+drift 0.064 vs. 0.023); and (v) depresses the gold             bfloat16, so its cells are not comparable to the
+answer, lowering the gold-token log-probability                rest and we do not mix them in. Of the re-
+on multiple-choice items (−29.0 → −30.2; spoken-               maining five are reported (§3): Llama-3.1-8B-
+
+                                                          13
+Instruct (Grattafiori et al., 2024), Qwen2.5-7B-            one model on one seed’s variants across all bench-
+Instruct (Yang et al., 2025b), Mistral-7B-Instruct-         marks; (3) analyze aggregates the per-cell rows
+v0.3 (Jiang et al., 2023), Qwen3-8B (Yang et al.,           into the across-seed statistics of §A.6. Jobs ran on
+2025a), and Phi-4 (14B) (Abdin et al., 2024).               a SLURM cluster (NVIDIA A6000/A100), capped
+Generation uses the Hugging Face Transformers               at four concurrent GPUs; the 4-bit Qwen3-32B
+generate path with each model’s chat template,              cells dominate wall-clock ( ∼4 h each). Verbaliza-
+left-padded batched decoding, and greedy decoding           tion and evaluation are decoupled so that adding
+so that the matched pair isolates the perturbation          a model or a seed never re-runs the verbalizer.
+rather than sampling noise; max_new_tokens is set           Code, prompts, and the analysis are released. The
+per benchmark (256–512). Models run in bfloat16             keyboard-arm matrix uses the same harness with
+on a single GPU, except Qwen3-32B which uses 4-             τkbd (§3.2) substituted for τvoice and is evaluated
+bit (bitsandbytes NF4) weight quantization with             separately.
+automatic device mapping to fit a 48 GB card. For
+the Qwen3 models we disable the default “think-             A.8   Results
+ing” mode (enable_thinking=False); left on, its             Table 1 reports the section’s answer to the paper’s
+<think> block consumes the entire token budget              question: each input property, singled out by one
+and leaves no parseable answer (Qwen3 otherwise             operator contrast, with its measured effect on ac-
+scored near zero on HumanEval).                             curacy. Three properties damage performance: the
+                                                            spoken-casual register bundle, its disfluency and
+A.6   Statistical analysis
+                                                            residual-structure components, and reordering the
+We run each (model, benchmark, condition) cell at           question. Four widely-feared surface properties are
+five seeds. A seed controls both the item sample            essentially benign: writing numbers as words, drop-
+and the (stochastic) verbalization, so seeds capture        ping articles and prepositions, losing capitaliza-
+the two dominant sources of run-to-run variance;            tion and punctuation, and prepared (spoken-formal)
+the clean and perturbed evaluations within a seed           speech. No post-hoc repair recovers the damaged
+remain matched by item id. Our headline error bar           cases. Every damaging effect persists on the decon-
+is the across-seed interval: for each cell we take          taminated control sets (GSM-Symbolic, GSM1k),
+the five per-seed accuracies and report their mean          so none is an artifact of test-set contamination. The
+with a Student-t 95% confidence interval, and for           rest of this section presents the evidence behind
+each perturbed condition the paired (per-seed) delta        each row.
+versus clean with its own across-seed t-CI. This is            We report results for the voice arm. Every bench-
+the quantity plotted in Figure 2 (top) and tabulated        mark item is presented in three matched conditions
+in Table 1. At the item level within a seed we ad-          that differ only in the question stem:
+ditionally compute McNemar’s mid-p test on the
+discordant (degrade/recover) pairs and a BCa boot-             • Clean: the original written question, exactly
+strap CI on the paired delta; a Holm–Bonferroni                  as the benchmark ships it.
+correction controls the family-wise error across the
+condition×benchmark×model grid. All statistics                 • Spoken-casual: a conversational verbaliza-
+are implemented in a dependency-light module and                 tion in a podcast register: frequent fillers
+are shared by both modality arms.                                (“um”, “like”, “you know”), false starts, and
+                                                                 self-corrections, at a filler rate φ ≈ 5% cali-
+A.7   Experiments
+                                                                 brated against the PodcastFillers corpus.
+Two matrices are reported. The original voice-arm
+matrix is 6 models×4 benchmarks×3 conditions×                  • Spoken-formal: a prepared-talk verbalization
+5 seeds (360 cells at n=200 items, n=164 for Hu-                 in a lecture register: measured and articulate,
+manEval); the full-suite matrix of §5 is 5 models ×              in complete sentences with only occasional
+6 benchmarks × 19 conditions × 5 seeds, 550k                     brief hesitations, at φ ≈ 1.5% calibrated
+scored generations. The pipeline has three stages,               against TED-LIUM.
+each a scheduled job: (1) verbalize produces, once
+per seed, the spoken-casual and spoken-formal                  Both Spoken-casual and Spoken-formal are
+stems for every item, cached to disk so that all            transcripts of how a person would say the ques-
+models see identical inputs; (2) evaluate scores            tion aloud; they differ in disfluency density and
+
+                                                       14
+register, not in whether speech is involved. Ver-              spoken-casual register’s restructuring) still doing
+balization is performed by a local Qwen2.5-7B-                 the damage. Consistent with an overdetermined
+Instruct rewriter, and correctness is graded by each           penalty, no single surface factor accounts for it,
+benchmark’s native scorer. Table 1 reports pass@1              and no normalization of the transcript fully recov-
+(HumanEval) or accuracy (otherwise) for the five               ers it (Table 1, last two columns): spoken-succinct,
+reported instruction-tuned models (7–14B) over six             an LLM compression of the spoken transcript into
+benchmarks, each averaged over five seeds (n=200               textbook form that also reorders the question, is
+items per cell; HumanEval n=164; GPQA omitted                  the worst condition of all, below the raw transcript
+pending gated dataset access). Confidence intervals            for every model, showing that reordering is itself a
+are Student-t across seeds.                                    harmful perturbation; spoken-clean, the same com-
+   Across all five models, Spoken-casual verbal-               pression constrained to preserve the original clause
+ization produces a reproducible accuracy drop:                 order and question position, recovers only partially
+21 of the 30 (model, benchmark) spoken-casual                  (≈25−50% of the gap, and essentially none of it on
+deltas have across-seed 95% confidence intervals               GSM8K, the reasoning task). Rewriting quantities
+excluding zero and are negative, against one pos-              as words is a null manipulation (“52”→“fifty-two”
+itive. The ordering Clean ≥ Spoken-formal ≥                    leaves accuracy unchanged), and the input’s token-
+Spoken-casual is monotonic in nearly every cell,               level surprisal does not predict per-item correctness.
+with spoken-formal penalties running about half                Across the seven conditions a consistent ordering
+the size of spoken-casual. The effect is largest on            emerges: clean > spoken-formal ≳ spoken-clean
+code generation for the reasoning-tuned Qwen3-8B               > {spoken-filler-stripped, clean+fillers, spoken-
+(HumanEval spoken-casual −20.3 points), and is                 casual} > spoken-succinct: accuracy tracks how
+present but smaller on GSM8K and TruthfulQA;                   much of the original written form survives, and
+MMLU-Pro is comparatively robust. Because five                 no surface intervention restores it. The penalty is
+seeds tighten the across-seed intervals, we read this          real (§A.8) but not reducible to one clean surface
+as a confirmed penalty rather than a directional hint:         statistic.
+degradation tracks disfluency density and register,
+not the mere fact that the input was spoken.                   Where does the accuracy go? An instance-level
+                                                               error analysis. To see the failure directly, we
+Do the fillers cause it? Forward and backward                  re-ran Llama-3.1-8B on GSM8K (seed 0) storing
+controls. Two deterministic controls isolate the               full completions and hand-classified every discor-
+fillers (Table 1). The backward control, spoken-               dant item: clean answered correctly, spoken-casual
+filler-stripped, deletes the fillers from the spo-             answered incorrectly, judge-equivalent (n=20; Ta-
+ken transcript (a delete-only strip that cannot para-          ble 3). The striking result is what does not happen:
+phrase or corrupt content). The forward control,               there are zero arithmetic slips and zero answer-
+clean+fillers, injects fillers into the clean question,        format failures: the intermediate calculations are
+changing nothing else. Neither involves an LLM                 correct in both conditions. Instead, the model
+editor, so neither can introduce drift. The two con-           builds the wrong problem. The dominant mode
+trols give a clear but non-obvious answer. The for-            (11/20) is premise mis-scoping:
+ward control shows fillers are causally sufficient:             Premise mis-scoping (GSM8K, Llama-3.1-8B, seed 0). The same fact, scoped
+                                                                two ways.
+injecting them into clean drops accuracy toward                 Clean: “A DVD can be played 1,000 times before it breaks.” Read as a stan-
+                                                                dalone per-DVD rule, the model computes (1000−356)+(1000−135) =
+the spoken-casual level for most models (Llama                  1509 (correct).
+                                                                Spoken-casual: the same fact arrives inside a comma-chain and binds to the
+to 54.9 vs. spoken-casual 54.7; Qwen2.5, Mistral,               pair of DVDs; the model computes 1000 − (356+135) = 509, identical
+and the Qwen3 models partially), though the effect              arithmetic competence, different problem.
+
+is model-dependent (Phi-4 barely moves). Yet the               Similarly “she gave an equal amount to her four
+backward control shows fillers are not necessary:              kids” loses its referent (books) in the run-on and is
+removing them from spoken-casual (spoken-filler-               read as dollars. The second mode (5/20) is final-
+stripped) does not recover: spoken-filler-stripped             question loss: all intermediate quantities match
+sits at the spoken-casual level for every model.               the clean run, but the trailing question at the end
+These reconcile as overdetermination: the penalty              of a long “and. . . and. . . ” chain is answered with
+has several independently-sufficient triggers, so in-          the wrong final quantity. This connects the mech-
+jecting fillers alone is enough to cause it, while             anism to the surface statistics with one important
+removing fillers alone leaves the other triggers (the          refinement: scoping information is carried by the
+
+                                                          15
+ Failure mode                             Count   Share        and ask the question explicitly at the end: the com-
+ Premise mis-scoping / dropped premise       11    55%         position of the input carries scoping information the
+ Final-question loss                          5    25%
+ Reasoning derailment                         1     5%         model needs, and reordering it (even into a “cleaner”
+ Residual meaning flip (pipeline noise)       3    15%         compressed form) is itself damaging. What not to
+ Arithmetic slip                              0     0%         worry about: saying numbers as words, dropping
+ Answer-format failure                        0     0%
+                                                               articles and prepositions, lost capitalization and
+Table 3: Hand-classified failure modes for the n=20            punctuation, and careful prepared speech are all es-
+discordant GSM8K items (clean correct, spoken-casual           sentially free. What to avoid: rambling, filler-laden
+incorrect, judge-equivalent; Llama-3.1-8B, seed 0). The        dictation: and, importantly, do not rely on down-
+spoken-casual penalty is a comprehension failure: the          stream transcript cleanup to fix it: no repair we test
+model constructs the wrong problem from the unseg-             (filler stripping, structure-preserving cleanup, or
+mented transcript, not a computation failure.
+                                                               LLM editing) recovers the damage, so the fix must
+                                                               happen at composition time or in the model, not in
+                                                               between.
+sentence-level composition of the text, not by the
+punctuation marks themselves: deterministically
+                                                               Why code, and a cross-modal conjecture. That
+deleting all casing and punctuation from cleanly-
+                                                               the penalty is largest on code generation, and
+worded text is nearly harmless (−1.0±1.4, Ta-
+                                                               largest of all for the reasoning-tuned Qwen3-8B,
+ble 1), whereas the spoken-casual register’s run-
+                                                               is consistent with a tokenization-fragmentation ac-
+on grammar (clause chaining, pronoun doubling),
+                                                               count: fillers and false starts inserted around a pre-
+which no punctuation restoration can undo, is
+                                                               cise specification lengthen and fragment the con-
+where the mis-scoping arises. Finally, 3/20 “fail-
+                                                               text the model must condition on, and code is least
+ures” were items whose meaning the rewrite had
+                                                               tolerant of such disturbance because its output is
+altered, so the true robustness penalty is slightly
+                                                               brittle to specification drift. This suggests a con-
+smaller than measured.
+                                                               crete cross-modal hypothesis the shared framework
+                                                               is built to test: are models that are robust to key-
+A.9   Discussion
+                                                               board typos also robust to spoken-casual disfluency,
+Conclusion (voice arm). Under a five-seed                      once edit distance or token-inflation ratio is held
+matched-pair design across five instruction-tuned              fixed? If yes, robustness is largely a property of
+models (7–14B) and six benchmarks, spoken-                     the input encoder and is modality-agnostic; if no,
+casual (high-disfluency) verbalization produces a              the two modalities exercise different mechanisms
+reproducible accuracy penalty: 21 of the 30 (model,            (sub-word fragmentation for keyboards, disfluency-
+benchmark) deltas have across-seed 95% CIs ex-                 density and register effects for voice) and robust-
+cluding zero and are negative, against one that is             ness claims must be made per modality. The key-
+positive. Spoken-formal (prepared-talk) verbal-                board arm, run through the identical matched-pair
+ization degrades about half as much (−2.2 against              machinery, provides the missing half of this com-
+−4.5 points pooled), yielding a monotonic order-               parison.
+ing Clean ≥ Spoken-formal ≥ Spoken-casual.
+The penalty is largest on code generation for the              B    The HIVE operator suite
+reasoning-tuned Qwen3-8B (HumanEval spoken-
+casual −20.3 points), and is present but smaller on            The full operator specification referenced through-
+math (Llama-3.1-8B GSM8K −7.1, Qwen2.5-7B                      out the paper.
+−6.4, phi-4 −6.2); MMLU-Pro is comparatively
+robust. The finding is therefore confirmed, not                C    LLM prompts for data processing
+merely directional: degradation tracks disfluency
+density and register, not the mere fact that the               All LLM-processed registers use a local Qwen2.5-
+input was spoken, consistent with encoders that                7B-Instruct model with greedy or low-temperature
+tolerate extra function words and fillers until they           decoding. We list every prompt verbatim be-
+cross a density threshold. The suite (Table 1) turns           low. The spoken-filler-stripped, clean+fillers, and
+this into concrete guidance for how humans should              clean+numwords registers are deterministic (algo-
+interact with LLM agents. What to preserve: state              rithmic filler-strip / filler-injection / digit-to-word),
+the facts in order, in separate complete statements,           so they have no prompt.
+
+                                                          16
+ # Method                           Gen.   Control knobs                   Meaning drift                 Example (operator applied to the running stem)
+Baselines
+                                                                                                         Miguel uses 2 pads of paper a week. If there are 30
+ 0   clean                          —      —                               —                             sheets on a pad, how many sheets does he use every
+                                                                                                         month?
+                                                                                                         How many sheets does Miguel use every month? He
+ 1   context/question swap          Det.   —                               reorder-only                  uses 2 pads of paper a week, and there are 30 sheets
+                                                                                                         on a pad.
+                                                                                                         (MCQ) options relabelled A ↔ C; the gold letter
+ 2   option permutation             Det.   —                               gold relabeled
+                                                                                                         follows its content
+Voice transcription perturbations
+                                                                                                         um, so, like, if Miguel, uh, uses two pads of paper,
+                                                                                                         you know, every week, and each pad has thirty
+ 3   spoken-casual                  LLM1   —                               LLM filtered (89% kept)
+                                                                                                         sheets, right, then how many sheets does he use in a,
+                                                                                                         uh, month?
+                                                                                                         So, Miguel uses two pads of paper each week. If
+ 4   spoken-formal                  LLM    —                               LLM filtered (94% kept)       each pad has thirty sheets, how many sheets does he
+                                                                                                         use in a month?
+                                                                                                         How many sheets does Miguel use in a month if he
+ 5   spoken-succinct                LLM    —                               LLM filtered (73% kept)
+                                                                                                         uses 2 pads of 30 sheets per week?
+                                                                                                         If Miguel uses two pads of paper every week, and
+ 6   spoken-clean                   LLM    —                               LLM filtered (83% kept)       each pad has thirty sheets, then how many sheets
+                                                                                                         does he use in a month?
+                                                                                                         If Miguel uses two pads of paper every week, and
+                                                                                                         each pad has thirty sheets, then how many sheets
+                                           verbalizer: Llama-3.1-8B
+ 7   spoken-clean (Llama)           LLM                                    LLM filtered (85% kept)       does he use in a month? (a replicate of row 6 under
+                                           instead of Qwen2.5-7B
+                                                                                                         a different verbalizer; the two agree verbatim on
+                                                                                                         only 4.5% of stems, and coincide on this one)
+                                                                                                         so, if Miguel, uses two pads of paper, every week,
+                                           n: fillers removed from
+ 8   spoken-filler-stripped         Det.                                   delete-only                   and each pad has thirty sheets, then how many
+                                           spoken-casual [default all]
+                                                                                                         sheets does he use in a, month?
+                                                                                                         Um, Miguel uses 2 pads um, of paper a week. uh, If
+                                           f : add filler every f tok
+ 9   clean+fillers                  Det.                                   insert-only                   there are 30 like, sheets on a pad, you know, how
+                                           [default f =4]
+                                                                                                         many sheets does I mean, he use every month?
+                                                                                                         Miguel uses two pads of paper a week. If there are
+10   clean+numwords                 Det.   —                               values re-parsed              thirty sheets on a pad, how many sheets does he use
+                                                                                                         every month?
+                                                                                                         Miguel uses 2 pads of paper week. If there are 30
+                                           n: drop every n-th func. word
+11   clean-remove-func-words        Det.                                   delete-only, func. words      sheets on pad, how many sheets does he use every
+                                           [default n=2]
+                                                                                                         month?
+                                                                                                         miguel uses 2 pads of paper a week if there are 30
+12   clean-remove-case/punct        Det.   —                               in-number digits kept         sheets on a pad how many sheets does he use every
+                                                                                                         month
+                                                                                                         Miguel uses 2 pads of paper a weak. If there are 30
+                                           n: max homophone swaps
+13   clean+homophone                Det.                                   number-words excluded         sheets on a pad, how many sheets does he use every
+                                           [default n=3]
+                                                                                                         month?
+                                                                                                         um so like if miguel uh uses two pads of paper you
+                                                                                                         know every week and each pad has thirty sheets
+14   tts-asr-casual2                Det.   —                               —
+                                                                                                         right then how many sheets does he use in a uh
+                                                                                                         month
+                                                                                                         so miguel uses two pads of paper each week if each
+15   tts-asr-formal2                Det.   —                               —                             pad has thirty sheets how many sheets does he use
+                                                                                                         in a month
+QWERTY keyboard perturbations
+                                                                                                         Miguel uses 2 pads of pazer a week. If there are 30
+                                           n (number of words edited); d
+16   random-replace                 Det.                                   non-word; numbers protected   sheets on a pad, how many sheets does he use every
+                                           (edit distance)
+                                                                                                         month?
+                                                                                                         Miguel uses 2 pads of paoer a week. If there are 30
+17   keyboard-neighbor              Det.   n; d                            non-word; numbers protected   sheets on a pad, how many sheets does he use every
+                                                                                                         month?
+                                                                                                         Miguel uses 2 pads of paper a week. If there are 30
+18   key-swap                       Det.   n                               non-word; numbers protected   sehets on a pad, how many sheets does he use every
+                                                                                                         month?
+                                                                                                         Miguel uses 2 pads of papper a week. If there are 30
+19   repeated-key                   Det.   n; d                            non-word; numbers protected   sheets on a pad, how many sheets does he use every
+                                                                                                         month?
+                                                                                                         Miguel uses 2 pads of paper a week. If there are 30
+20   connected-key                  Det.   n                               non-word; numbers protected   sheets on a pasd, how many sheets does he use every
+                                                                                                         month?
+                                                                                                         Miguel uses 2 pads of paper aweek. If there are 30
+21   missed-space                   Det.   n                               merge; recoverable            sheets on a pad, how many sheets does he use every
+                                                                                                         month?
+
+
+Table 4: The HIVE operator suite, grouped into baselines and the two input modalities, with each operator’s control
+knobs and its effect on one running stem (GSM8K, clean row). Knobs: n = number of words/tokens changed, d =
+edit distance per change (DL radius / numeric magnitude), f = filler frequency. Gen.: LLM = produced by a rewriter
+model; Det. = deterministic algorithm, drift-free by construction. Meaning drift: for LLM rewrites, the % of items
+an independent judge found to still ask the same question; for deterministic operators, the structural invariant; for
+the two baselines, how the gold is kept correct after the deliberate change. 1 LLM steps use Qwen2.5-7B-Instruct:
+the spoken registers by few-shot style transfer, succinct/clean by rewriting, plus the drift judge; spoken-clean is
+additionally replicated with Llama-3.1-8B. 2 implemented, not in the reported runs.
+
+
+
+                                                                               17
+Verbalizer (spoken-casual and spoken-formal).                 unit, and the precise question asked must be
+Rewrites a written question into a spoken tran-               unchanged. Do NOT add, drop, or alter
+                                                              information,
+script in the target register. Template slots:                and do NOT answer or solve it.
+{description} and {fillers}/{pct} come from                4. Output ONLY the rewritten question wrapped
+the register’s filler profile (spoken-casual φ≈5%,         in
+                                                              <q>...</q> tags.
+spoken-formal φ≈1.5%), and {shots} are two
+fixed written→spoken exemplars.                            SPOKEN: {text}
+You rewrite a written question as a verbatim
+transcript                                                 Spoken-clean (compress, structure-preserving).
+of how a person would SAY it out loud, as if               Tightens the wording but keeps the original clause
+captured
+by a speech-to-text system.                                order and the question in its final position.
+                                                           Rewrite the spoken question below into concise
+Speaker style: {description}.                              standard
+Insert natural disfluencies - fillers ({fillers            written English.
+}), brief
+hesitations, occasional false starts or self-              STRICT RULES:
+corrections                                                1. KEEP THE SAME STRUCTURE: state the facts in
+- at roughly {pct} of words. Keep it sounding              the SAME
+like real                                                     order they are given, keep them as separate
+unscripted speech in that style.                              sentences,
+                                                              and keep the final question in its ORIGINAL
+HARD RULES (a violation makes the output                      position
+unusable):                                                    at the END. Do NOT move the question to the
+1. Preserve the meaning EXACTLY. Every number,                front, do
+name,                                                         NOT merge the premises into one clause, do
+   unit, and quantity must appear unchanged. Do               NOT reorder
+   not add,                                                   anything.
+   drop, or alter any factual content.                     2. Only remove fillers, repetitions, false
+2. Do NOT answer the question or add                       starts,
+information that                                              redundant words, and pronoun doubling ("Amber
+   wasn't in the original.                                    , she
+3. If the question lists labelled multiple-                   ran" -> "Amber ran"); fix grammar and
+choice                                                        punctuation.
+   options, do NOT include them - rewrite only                Write numbers as DIGITS.
+   the                                                     3. Preserve the EXACT meaning: every quantity,
+   question itself.                                        entity,
+4. Output ONLY the spoken version wrapped in                  relationship, and the question asked must be
+   <spoken>...</spoken> tags, nothing else.                   unchanged. Do NOT add, drop, alter, compute,
+                                                              or answer
+{shots}Now do this one:                                       anything.
+WRITTEN: {question}                                        4. Output ONLY the rewritten question wrapped
+                                                           in
+                                                              <q>...</q> tags.
+Spoken-succinct (compress, structure-free).
+                                                           SPOKEN: {text}
+Compresses the spoken transcript into concise text-
+book form (this rewrite is allowed to reorder).
+                                                           Meaning-drift judge. Flags any rewrite whose
+Rewrite the spoken question below as a concise
+written                                                    meaning drifted from the original. Used to measure
+question, exactly as it would appear in a                  how often each operator changes the question, not
+textbook or
+exam.
+                                                           to filter.
+                                                           You check whether a REWRITE asks the exact same
+RULES:                                                      problem
+1. Make it as SHORT and DIRECT as possible:                as the ORIGINAL, with the same correct answer.
+remove all
+   fillers, redundancy, repetition,                        ORIGINAL: {clean}
+   conversational
+   framing, and pronoun doubling ("Amber, she              REWRITE: {variant}
+   ran" ->
+   "Amber ran"). Use clean, complete sentences.            Ignore wording, filler words ("um", "like"),
+2. Write every number as DIGITS ("52", not "               and
+fifty-two";                                                phrasing/order differences. Judge ONLY whether
+   "3 times", not "three times").                          the
+3. Preserve the EXACT meaning: every quantity,             facts, quantities, relationships, conditions,
+entity,                                                    and the
+
+
+                                                      18
+question asked are identical, so that the
+correct answer
+is unchanged. Answer NO if the rewrite flips a
+relationship (e.g. "have" vs "do not have"),
+changes a
+bound (e.g. "at least" vs "above"), drops or
+adds a
+condition, states a computed intermediate the
+original
+did not, or asks something different.
+
+Reply with exactly one word on the first line:
+YES or NO.
+
+
+
+
+                                                 19
+

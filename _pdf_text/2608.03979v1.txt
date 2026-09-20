@@ -1,0 +1,1161 @@
+                                                   Video-DeepResearch: Towards the Next-Generation Multimodal
+                                                                    Deepresearch Agent
+
+                                                                           Video-Deepresearch Team
+                                                               fazii@mail.ustc.edu.cn, wxhuang0616@gmail.com
+                                                               https://github.com/Osilly/Vision-DeepResearch
+
+
+
+                                                              Abstract                          et al., 2026; Huang et al., 2026; Ma et al., 2025;
+                                                                                                Wu et al., 2025b; Feng et al., 2026). This transition
+                                            We introduce Video-DeepResearch (Video-
+                                                                                                shifts the agent’s workload from processing clean
+                                            DR), extending multimodal agents from static
+                                            images to continuous video streams, a setting       textual inputs to decoupling critical insights from
+                                            that demands dense spatiotemporal ground-           noisy, heavily redundant multimedia web layouts,
+                                            ing coupled with open-web exploration. Pre-         redefining the complexity of autonomous explo-
+                                            liminary evaluations reveal two critical bottle-    ration.
+arXiv:2608.03979v1 [cs.CV] 4 Aug 2026
+
+
+
+
+                                            necks in current models: (1) modality bias,            Previous literature addressing these challenges
+                                            where agents bypass visual tools in favor of        generally tracks a multi-modal trajectory. Text-
+                                            textual search, and (2) parametric knowledge
+                                                                                                based web agents, notably WebGPT (Nakano et al.,
+                                            leakage, where models rely on internal mem-
+                                            ory rather than genuine tool-augmented execu-       2021) and AutoGPT (Yang et al., 2023), established
+                                            tion. To address these challenges, we propose       the foundations of iterative knowledge synthesis
+                                            V IDEO -D EEP R ESEARCH, featuring a decou-         through programmatic search. To accommodate
+                                            pled perception-exploration pipeline with stage-    rich visual layouts, subsequent paradigms shifted
+                                            wise tool unlocking that compels exhaustive         toward sensory interfaces; frameworks like Web-
+                                            cross-frame visual grounding prior to web re-       Watcher (Geng et al., 2025) introduced various
+                                            trieval. Our framework adopts a two-stage train-    vision tools for better search, and recent Vision-
+                                            ing recipe—supervised fine-tuning followed by
+                                                                                                DeepResearch (Huang et al., 2026) expanded this
+                                            Group Relative Policy Optimization (GRPO)—
+                                            enabling autonomous exploration that breaks         frontier to execute multi-step, exhaustive search
+                                            the imitation-learning ceiling. Furthermore, we     across highly dense and complex visual contexts.
+                                            curate V IDEO DR-B ENCH, a human-AI collab-            Despite these advances, current literature
+                                            orative benchmark comprising 200 complex,           bypasses an ecologically valid yet far more
+                                            multi-hop VQA instances. Empirical results          formidable setting: Video-DeepResearch (Video-
+                                            demonstrate that our Video-DeepResearch-            DR). This paradigm shifts the focus from iso-
+                                            35B-A3B establishes a new state-of-the-art of
+                                                                                                lated modalities to a holistic environment where
+                                            64.0% average accuracy, surpassing proprietary
+                                            Claude-4.5-Sonnet (59.0%) by 5.0 points and         text-based synthesis and dense visual tracking are
+                                            significantly outperforming GPT-5 (52.5%) and       deeply intertwined, fundamentally redefining the
+                                            Gemini 2.5 Pro (57.5%). The 30B-A3B variant         cognitive workload of autonomous agents. Pioneer-
+                                            achieves 59.3%, competitive with Claude-4.5-        ing this Video-DR frontier entails two fundamen-
+                                            Sonnet and demonstrating the effectiveness of       tal bottlenecks that existing methodologies fail to
+                                            our training paradigm even at compact scale.        address. First, on the data synthesis front, it re-
+                                                                                                mains largely elusive how to construct effective
+                                        1   Introduction
+                                                                                                training pipelines that align with the intrinsic prop-
+                                        Executing long-horizon tasks through active inter-      erties of video-based deep research. Conventional
+                                        action marks a critical milestone in the pursuit of     video datasets focus on localized captions or short-
+                                        AGI, a capability epitomized by the recent rise of      term action labels; conversely, Video-DR requires
+                                        deep research agents (Li et al., 2025b; Wu et al.,      generative data curation that couples long-horizon
+                                        2025a; Tao et al., 2025). Leveraging advanced           decision trajectories with dense, time-varying tex-
+                                        VLMs (Bai et al., 2025; Team, 2026; Comanici            tual and visual evidence. Second, from an evalua-
+                                        et al., 2025), research agents have advanced into un-   tion perspective, establishing a rigorous and high-
+                                        structured, vision-rich digital wildernesses (Chen      fidelity benchmark presents a formidable challenge.
+                    (A) Existing Text-Only & Image-Only Research                                           revealed in our preliminary study.
+   Query         Search
+
+                                                                                                          • A two-stage training recipe combining super-
+ What is the name of this actor?                        Input Frame
+                                                                                                            vised fine-tuning with GRPO, enabling com-
+             Text-only shortcut                              Full-image retrieval
+                                                                                                            pact models to outperform far larger propri-
+                          (B) Our Video-Deep Research Paradigm
+                                                                                                            etary systems. Our Video-DeepResearch-35B-
+                                                                         Candidate Images
+                                                 Select Keyframe                                            A3B (64.0%) establishes a new state-of-the-
+                                                                                                            art, surpassing Claude-4.5-Sonnet (59.0%) by
+        t1         t2              t3     t4
+ Time
+                                                                      Evidence & Knowledge                  5.0 points; the 30B variant (59.3%) achieves
+                                                                 Television series      Fire Island
+                                                         Visit
+                              Crop
+                             Search                     Search
+                                                                 Forbes 30 Under 30     Ziwe                competitive performance with the proprietary
+                                                                 Podcaster Staff Writer Girls5Eva
+
+                                                                                                            baseline while demonstrating strong open-
+                                                                                                            source capability.
+              Query       Box Image      Text       Web          Page           Final
+                           Search       Search     Search        Visit         Answer
+                                                                                                          • V IDEO DR-B ENCH, a 200-instance multi-hop
+Figure 1: Overview of the V IDEO -D EEP R ESEARCH                                                           VQA benchmark built via scalable human–AI
+pipeline.                                                                                                   collaborative annotation, where every ques-
+                                                                                                            tion provably requires both visual search and
+                                                                                                            external knowledge reasoning.
+Standard visual question-answering metrics are
+insufficient for measuring an agent’s multi-step                                                      2    A Naive Attempt: From Image
+strategic execution, creating an urgent need for                                                           DeepResearch to Video DeepResearch
+multi-dimensional evaluation protocols that can ac-
+curately quantify long-term reasoning consistency                                                     As shown in Fig. 1, we conceptualize video as a
+and error-recovery behavior under continuous tem-                                                     temporal composition of key entity trajectories.
+poral dynamics.                                                                                       Consequently, our key insight is that Video-DR can
+   To tackle these challenges, we first conduct an                                                    be formulated as a sequential grounding pipeline:
+empirical investigation into the fundamental failure                                                  identifying critical temporal frames, performing
+modes of current agents when directly applied to                                                      localized visual search, and synthesizing findings
+Video-DR. By evaluating three representative mod-                                                     via subsequent text retrieval. To operationalize this
+els on an existing benchmark (Liu et al., 2026), we                                                   workflow and bridge the gap from image-centric
+uncover two striking findings: (i) severe modality                                                    research, we equip the agent with two fundamen-
+bias, where even the strongest open-source model                                                      tal tools: Select_Keyframe and Crop_Search.
+averages only 0.10 visual tool invocations per task                                                   Specifically, the agent first uses Select_Keyframe
+while heavily relying on text search (1.27 calls),                                                    to isolate informative moments from the continuous
+indicating a systematic aversion to active visual                                                     stream, and then applies Crop_Search on salient
+exploration; and (ii) parametric knowledge leak-                                                      entities to construct precise visual queries, which
+age, where GPT-5 attains a competitive accuracy of                                                    firmly anchors the downstream text-based explo-
+57% with virtually zero tool calls, suggesting that                                                   ration.
+existing evaluations are largely solvable through                                                     Problem Formulation Formally, given a com-
+memorized world knowledge alone. These findings                                                       plex research query Q and a visual input V =
+motivate a holistic rethinking of both the training                                                   {v1 , v2 , . . . , vT } (which can be either a continu-
+and evaluation paradigms for Video-DR agents.                                                         ous video stream or a sequence of pre-sampled
+   Building on these insights, we propose V IDEO -                                                    keyframes), the goal of a Video-DR agent is to
+D EEP R ESEARCH, a unified framework that jointly                                                     synthesize a comprehensive response R. We for-
+addresses the data, training, and evaluation chal-                                                    mulate this as a sequential decision-making pro-
+lenges of Video-DR. Our contributions are summa-                                                      cess. At step i, the agent generates an action
+rized as follows:                                                                                     ai ∈ A based on the historical trajectory Hi =
+                                                                                                      [Q, V, a1 , o1 , . . . , ai−1 , oi−1 ]:
+    • A scalable data engine that produces 30K
+      video-grounded QA pairs and 7K curated                                                                            ai ∼ πθ (a | Hi )                (1)
+      trajectories through a decoupled perception-
+      exploration pipeline with stage-wise tool un-                                                   where πθ denotes the multi-modal policy and o
+      locking, directly countering the modality bias                                                  is the execution observation from the environ-
+  News                                                                                                                                       Knowledge
+  12.0%                                                                                                                                        29.5%
+   Q   In the CBS News exclusive report, what is the name of the uniformed officer prominently                                                      What is the duration of the free trial period mentioned in the FAQ section of the
+                                                                                               A    Greg Bovino.                                Q                                                                                              A   14 days.
+       displayed in the foreground of the footage?                                                                                                  streaming service shown in the video?
+
+
+
+
+  Others                                                                                                                                     Entertain.
+   3.5%                                                                                                                                        22.0%
+   Q   Which royalty-free video platform is the source of the slow-motion footage of the insect                                                     According to the title shown in the video, what is the name of the 3D animated clown
+                                                                                                A   Storyblocks.                                Q                                                                                              A     Pomni.
+       with orange and black wings collecting nectar from a flower                                                                                  character?
+
+
+
+
+  Game                                                                                                                                         Daily.
+  14.5%                                                                                                                                        18.5%
+   Q   Which fighting game features a strong character wearing a blue uniform, red cape,            Superman                                        What is the specific model name and target gender group of the dark-colored slide          Adidas Adilette
+                                                                                               A                                                Q                                                                                          A
+       and a yellow and red \"S\" logo, as shown in this video?                                     Injustice2.                                     sandals with three white stripes placed on the wooden table in the image?                  Aqua Slides.
+
+
+
+
+Figure 2: Overview of V IDEO DR-B ENCH. The benchmark spans six video domains: Knowledge (29.5%),
+Entertainment (22.0%), Daily Life (18.5%), Game & Sports (14.5%), News (12.0%), and Others (3.5%). Every
+instance requires joint visual grounding and multi-hop external knowledge reasoning.
+
+
+ment. To operationalize the spatiotemporal ground-                                                                              Finding 2: Susceptibility to Parametric Knowl-
+ing pipeline, the action space A encompasses                                                                                    edge Leakage. Existing evaluation setups suffer
+our defined tools alongside standard web oper-                                                                                  from severe prior knowledge leakage. Notably,
+ations: A = {Select_Keyframe, Crop_Search,                                                                                      GPT-5 achieves a highly competitive score of 57
+Text_Search, . . . }. Specifically, the temporal tool                                                                           while making virtually zero tool calls (0.00 for
+selects a specific index t ∈ {1, . . . , T } to isolate                                                                         vision and 0.12 for text). This suggests that the
+an informative frame vt . Subsequently, the spatial                                                                             model bypasses the multi-step grounding process
+tool takes vt and a bounding box B ∈ R4 to crop                                                                                 entirely, relying solely on its vast internal memory
+a target entity, yielding a localized visual context                                                                            to hallucinate or directly guess the correct answers.
+cvis = Crop(vt , B) for downstream search. Alter-
+natively, these two tools can be encapsulated into a                                                                            3     V IDEO -D EEP R ESEARCH
+single joint operation.                                                                                                         We first detail a generative pipeline for synthesiz-
+Empirical Study To empirically evaluate this                                                                                    ing Video QA data (Sec. 3.1), which serves as the
+naive formulation, we instantiate the agent with                                                                                foundation for constructing high-quality execution
+three representative models on a VideoDR (Liu                                                                                   trajectories (Sec. 3.2). Building on this curated
+et al., 2026) benchmark, specifically tracking the                                                                              data, we then describe the multi-modal training
+execution frequencies of each tool to analyze their                                                                             procedure for our agent (Sec. 3.3), and finally es-
+behavioral patterns.                                                                                                            tablish a robust benchmark to evaluate Video-DR
+                                                                                                                                capabilities (Sec. 3.4).
+Table 1: Comparison of Accuracy and Average Tool
+Invocation Counts between Models on VideoDR (Liu                                                                                3.1    VQA Generation
+et al., 2026).
+                                                                                                                                Given the absence of dedicated datasets for Video-
+ Model                                                              Acc.                   Vision Tool             Text Tools
+                                                                                                                                DR, we initiate our pipeline by synthesizing foun-
+                                                                                                                                dational Video QA pairs. This procedure trans-
+ Qwen3.5-35B-A3B                                                       41                           0.04             0.58
+ Qwen3.5-397B-A17B                                                     58                           0.10             1.27       forms raw videos into explicit VQA pairs. To en-
+ GPT-5                                                                 57                           0.00             0.12       sure high data quality, we annotate intermediate
+                                                                                                                                evidence for each instance, thereby ensuring the
+   As shown in Table 1, our preliminary evaluation                                                                              visual groundability and answerability of the gen-
+yields two critical findings:                                                                                                   erated queries.
+Finding 1: Severe Modality Bias and Visual Tool                                                                                    Step 0: Multi-Domain Video Filtering. We be-
+Aversion. Current models exhibit an inherent re-                                                                                gin by curating a diverse collection of raw videos
+luctance to invoke visual tools. Even the most                                                                                  across multiple domains. These videos are sourced
+capable open-source model, Qwen3.5-397B-A17B,                                                                                   from both established video datasets (Ben-Ami
+executes an average of only 0.10 visual operations                                                                              et al., 2025; Ataallah et al., 2025; Wu et al., 2024;
+per task, overwhelmingly favoring text tools (1.27).                                                                            Wang et al., 2025; Tao et al., 2026; Li et al., 2024,
+This indicates that agents predominantly default to                                                                             2025a; Goel et al., 2026; Li et al., 2026; Cheng
+textual search, completely bypassing the intended                                                                               et al., 2025a; Fu et al., 2025a; Hu et al., 2025; Yang
+active visual exploration.                                                                                                      et al., 2025a; Hong et al., 2026; Yang et al., 2025b;
+  Phase I: Multi-Domain Video Filtering
+       (a) Rule-based Coarse Filter                                                 Discard
+                                                                                                                        (b) Agent-based Fine Filtering
+                 Video                                                                                                                            Rich
+                                                                                 Low-Quality     Solid-Color
+                Datasets                                                                                                                       Information
+       Social                                                                    Overly Long Overly Short
+       Media                                                                      Duration     Duration                                                     No? Discard
+
+
+   Phase II: Visual Search and VQA Generation
+       (a) Keyframe Selection                (b) Entity Extraction                                       (c) Image Search                           Crop_Search
+                                                                                                                                                        Meta Data
+          Input Videos          Select_Keyframe                                                                                                       NBC Emmy Award
+                                                                                                                                                      actor Girls5Eva
+                                 Candidate
+                                  Images                                                                 (d) VQA Generation and Verification
+                                                                                                                                  What 2024 musical fantasy film
+                                                                                                              Single-entity      did the man wearing a baseball cap   Wicked
+                                                                                                                                             appear in?
+
+                                                                                                              Multi-entity              Did the two actresses          Yes
+                                                                                                                                   collaborate for the first time?
+
+                                                                                                                   Simulated Filtering                       Tested
+            CLIP Score
+                                                                                                                         4 times
+                                                                                                                                                             System
+
+
+   Phase III: Trajectory Generation
+                                          (a) Visual Perception                           (b) Web Exploration                                (c) Reject Sampling
+          Synthesized
+             VQA                                  Select_Keyframe          Expand                   Search              Visit
+                                                                         Action Space
+                                                  Crop_Search                             Text-based Queries                         Rollout
+                                             Cross-Frame
+                                             Cross-Entity
+                    Input
+                                                  Image Search
+                    Videos                                                                       Web Search       Page Visit
+
+
+   Benchmark Construction
+                                             Seed VQA Pairs                         Keywords                                         Multi-hop Question
+          Input Videos                                                                                                             What is his profession?
+                                           What is the name of the                  Bowen Yang
+                                          man wearing a baseball cap?               actor    …                                      What is his nationality?
+                                                                                    American
+                             Annotators                                  Drafting   comedian      Generation                  Who’s the male comedian who co-
+                                                  Bowen Yang.             Agent                     Agent                     hosts Las Culturistas with him?
+
+
+                                             Highest
+                                              Score                     Scores
+                                                                 Validated Questions             Ranking Agent                  Filter out
+
+
+
+Figure 3: Overview of V IDEO -D EEP R ESEARCH. Phase I: Raw videos from diverse sources are filtered via
+rule-based and agent-based stages. Phase II: Keyframes are selected, entities are cropped for visual search, and
+VQA pairs are synthesized through single- and multi-entity patterns with parametric-leakage filtering. Phase III:
+Trajectories are constructed via a decoupled perception-exploration pipeline: the agent first grounds entities across
+frames using Select_Keyframe and Crop_Search, then the action space expands to Search and Visit for web
+exploration; only correct trajectories survive reject sampling.
+
+
+Wang and Yang, 2026) and real-world streaming                                    We subsequently initiate an agent-driven metadata
+platforms1 . These videos subsequently undergo a                                 curation process. Specifically, after proposing
+two-stage filtering process. First, a rule-based filter                          candidate frames via CLIP-based inter-frame sim-
+discards instances falling outside predefined dura-                              ilarity, we deploy Qwen3.5-397B-A17B (Team,
+tion thresholds. Second, we introduce an agentic                                 2026) to finalize the selection of keyframes vt .
+filtering stage where Qwen3.5-35B-A3B (Team,                                     For each vt , the same model predicts bounding
+2026) assesses content complexity, eliminating                                   boxes B to localize distinct entities e. These en-
+videos that are uninformative or overly simplistic.                              tities are then cropped and used to execute visual
+Subsequently, this curated dataset is partitioned                                search queries. To ensure data fidelity, a secondary
+into a training set for constructing training trajec-                            model (Qwen3.5-35B-A3B) verifies the semantic
+tories and a test set for establishing the evaluation                            alignment between the cropped region and the re-
+benchmark.                                                                       trieved results. Upon successful verification, we
+    Step 1: Keyframe Selection and Visual Search.                                compile the video metadata, structured as a tuple:
+                                                                                 ⟨vt , B, entity name, search summary⟩.
+   1
+    YouTube
+   Step 2: VQA Generation and Verification. Fi-           open-source VLM and its robust AI infrastruc-
+nally, we synthesize QA pairs from the curated            ture support. For Video-DeepResearch-35B-A3B,
+metadata via two generation patterns: (1) Single-         we adopt Qwen3.5-35B-A3B (Team, 2026) as the
+entity: sampling one entity to formulate fact-based       foundation model, following the same training
+questions, and (2) Multi-entity: sampling n enti-         recipe. Both variants undergo identical training
+ties to construct compositional questions requiring       procedures. In the first stage, we perform Super-
+cross-entity reasoning. In both settings, we ex-          vised Fine-Tuning (SFT) to establish a cold start.
+plicitly penalize superficial visual attribute queries.   This phase aims to align the model with the de-
+Post-generation, we rigorously filter out instances       sired decoupled perception-exploration workflow,
+prone to parametric memory leakage. Specifically,         enabling it to internalize the correct multi-modal
+we conduct four tool-free rollouts for each ques-         reasoning syntax. In the second stage, we apply
+tion; if the agent answers correctly in any attempt,      Group Relative Policy Optimization (GRPO) to
+the instance is permanently discarded, guarantee-         further refine the policy. By actively generating
+ing that the remaining tasks strictly require external    rollouts and receiving rewards for successful tra-
+tool utilization. Ultimately, we obtained 30k vqa         jectories, the agent is encouraged to autonomously
+pairs.                                                    explore the action space, thereby surpassing the
+                                                          performance ceiling of the initial SFT phase. Ex-
+3.2   Trajectory Generation                               periments are conducted on a compute cluster com-
+Given the synthesized VQA pairs, we proceed to            prising four NVIDIA H800 (80GB) GPU nodes.
+construct execution trajectories for agent training.      More details are detailed in Appendix. B.
+As observed in Sec. 2, current Video-DR agents ex-
+hibit an inherent reluctance to invoke visual tools,      SFT For the SFT phase, we utilize the 7K high-
+often bypassing them in favor of text-only search.        quality trajectories synthesized in Sec. 3.2, en-
+To overcome this modality bias, we propose a de-          abling the model to internalize the decoupled
+coupled trajectory construction pipeline that ex-         perception-exploration paradigm. Furthermore,
+plicitly separates visual perception from web ex-         to address the under-utilization of text tools ob-
+ploration. Specifically, we generate trajectories         served in Table ??, we augment our training corpus
+using Qwen3.5-397B-A17B and apply rejection               with an additional 7K text-only QA instances from
+sampling. To operationalize the decoupling, we            VDR (Huang et al., 2026). This mixed-training
+employ a stage-wise tool unlocking strategy. In the       strategy explicitly reinforces the agent’s fundamen-
+initial phase, the agent is restricted to a vision-only   tal deep research capabilities. The same data recipe
+action space, comprising solely Select_Keyframe           is applied for both the 30B and 35B variants. For-
+and Crop_Search. Instead of rushing to an an-             mally, given the mixed dataset D, where each in-
+swer, the agent is forced to execute extensive vi-        stance consists of a context x (including the system
+sual retrieval by cropping distinct entities across       prompt, visual inputs, and interaction history) and
+multiple keyframes. Once the agent determines the         the target output sequence y = {y1 , . . . , yN }, the
+visual context is sufficient—or a predefined max-         SFT objective is to minimize the standard auto-
+imum perception horizon is reached—we expand              regressive negative log-likelihood:
+the action space to include textual tools (Search                                 
+                                                                                     |y|
+                                                                                                              
+and Visit) and prompt the agent to derive the fi-                                   X
+                                                             LSFT = −E(x,y)∼D           log πθ (yi | x, y<i )
+nal answer. This two-stage paradigm compels the
+                                                                                   i=1
+model to conduct exhaustive cross-frame, cross-                                                        (2)
+entity visual grounding prior to web exploration.         where πθ represents the policy of the base model
+Finally, we retain only the successfully resolved         and y<i denotes the preceding tokens.
+trajectories for downstream policy training. Ulti-
+mately, we obtained 7k correct trajectories.              RL To push the agent beyond static SFT im-
+                                                          itation and incentivize endogenous exploration,
+3.3   Training                                            we employ Group Relative Policy Optimization
+We adopt a two-stage training paradigm. We                (GRPO) (Shao et al., 2024). GRPO computes
+select Qwen3-VL-30B-A3B-Instruct (Bai et al.,             advantages via intra-group relative rewards, effi-
+2025) as our base model for Video-DeepResearch-           ciently eliminating the memory overhead of a sepa-
+30B-A3B, given its widespread adoption as an              rate value network. We construct a 2K moderate-
+difficulty RL dataset by executing four rollouts per    the validated questions, retaining only the highest-
+trajectory (Sec.3.2) and strictly retaining instances   rated instance. Crucially, this top-ranked VQA
+with a Pass@4 score between 0 and 1. We apply a         can recursively serve as a new seed, enabling an
+sparse binary reward, assigning r = 1 for correct       iterative loop to synthesize increasingly complex,
+answers (judged by Qwen3-VL-30B-A3B-Instruct)           higher-hop reasoning tasks.
+and r = 0 otherwise. To prevent formatting viola-
+                                                        Table 2: Video Length Distribution of V IDEO DR-
+tions or repetitive loops from dominating the up-
+                                                        B ENCH.
+dates, we compute the corresponding advantage Â
+but down-sample their negative gradients, applying      Video Type    Duration (min)   Count     Percentage
+them with only a 20% probability. The objective is
+defined as:                                             Short              ≤2              92        46.0%
+                                                        Medium            2 ∼ 10           68        34.0%
+              G                                         Long               ≥ 10            40        20.0%
+            1 Xh            π (o )
+                                θ i
+LGRPO =             min                  Âi ,
+            G                 πold (oi )
+               i=1
+                 π (o )
+                   θ i
+                                                i     4 Experiments
+           clip             , 1 − ϵ, 1 + ϵ Âi − βDKL
+                 πold (oi )                             4.1 Experimental Setups
+                                                    (3)
+                                                        We evaluate various Vision–Language Models
+                                                        (VLMs), including Gemini 2.5 Pro (Comanici
+3.4 V IDEO DR-B ENCH
+                                                        et al., 2025), GPT-5 (OpenAI., 2025), Claude-
+To establish our evaluation benchmark, we sample        4.5-Sonnet (Anthropic, 2025), Qwen3-VL-30B-
+a subset from the rigorously filtered video pool. A3B-Instruct (Bai et al., 2025), Qwen3.5-35B-
+Since a robust benchmark strictly necessitates both     A3B (Team, 2026), Qwen3.5-397B-A3B (Team,
+answerability and high data fidelity, we introduce a    2026) and Kimi K2.5 (Team et al., 2026), on
+scalable human-in-the-loop annotation framework         V IDEO DR-B ENCH and VideoDR (Liu et al., 2026).
+to finalize the curation.                               V IDEO DR-B ENCH is an evaluation benchmark
+    Specifically, given a video and an optional         comprising 100 human-annotated VQA pairs, de-
+source URL, human annotators are instructed to          signed to assess an agent’s complex reasoning ca-
+pause at critical timestamps. They then utilize         pabilities by integrating video contexts with open-
+the Crop_Search tool to query salient visual en- web exploration.
+tities, strictly verifying the consistency between         We evaluate the models under the Agentic set-
+the retrieved external evidence and the original        ting: where the model is equipped with the full
+frame. Based on these verified results, annotators      suite of visual and text tools as shown in Table 6.
+formulate several seed VQA pairs per video. Sub- arxiv
+sequently, these seeds are fed into a multi-agent          Under identical interaction constraints for fair-
+framework to synthesize complex, multi-hop rea- ness, we extract the final prediction from the tra-
+soning questions. Specifically, the multi-agent         jectory’s last step. Correctness is then evalu-
+pipeline operates as follows. First, a Drafting         ated by Qwen3-VL-30B-A3B-Instruct, adopting
+Agent brainstorms semantic directions to expand         the official judge prompt from Tongyi DeepRe-
+the seed VQA (e.g., expanding a base answer like        search (Team et al., 2025).
+“LeBron James” into related keywords such as his
+team, spouse, or MVP awards). These generated           4.2 Main Results
+keywords are subsequently queried via a search          The main evaluation results are summarized in
+engine. Next, a QA Generation Agent utilizes the        Table 3. Our proposed V IDEO -D EEP R ESEARCH
+retrieved web contexts to formulate novel multi- demonstrates exceptional deep research capabili-
+hop questions. To strictly enforce external tool        ties across multiple model scales.
+dependency, we filter out any questions that the        Video-DeepResearch-35B-A3B. Establishing a
+model can answer correctly without tool access          new state-of-the-art among all evaluated models
+(i.e., parametric knowledge leakage). Human an- with an overall average accuracy of 64.0%, our
+notators then manually verify the answerability of      35B variant surpasses the leading closed-source
+the remaining candidates based on the retrieved         model, Claude-4.5-Sonnet (59.0%) by 5.0 percent-
+evidence. Following this, a Ranking Agent scores        age points. Compared to its foundation model
+Table 3: Main Results on Video Deep-Research Agent Benchmarks. We evaluate various state-of-the-art
+Vision–Language Models (VLMs) under two distinct execution settings: Direct (tool-free baseline) and Agentic
+(equipped with the full suite of visual and text tools). Performance is reported across V IDEO -DR (Acc.) and the six
+fine-grained categories within our proposed V IDEO DR-B ENCH benchmark, alongside the overall average score.
+Column abbreviations for V IDEO DR-B ENCH denote the corresponding video categories: KNL for knowledge,
+ENT for Entertainment, DLY for daily, G&S for game&sports, NWS for news, and OTH for other.
+
+
+                                               Video-DR                V IDEO DR-B ENCH (% Acc.)
+Model                                                                                                            Avg.
+                                                 Acc.     KNL ENT          DLY    G&S NWS OTH Overall
+                                               Closed-Source Models
+Gemini 2.5 Pro (Comanici et al., 2025)           62.0      54.2     52.3   51.4   51.7   54.2    57.1    53.0    57.5
+GPT-5 (OpenAI., 2025)                            57.0      50.8     45.5   48.6   48.3   45.8    42.9    48.0    52.5
+Claude-4.5-Sonnet (Anthropic, 2025)              63.0      55.9     54.5   54.1   58.6   54.2    42.9    55.0    59.0
+                                                Open-Source Models
+Qwen3.5-397B-A13B (Team, 2026)                   58.0      49.2     61.4   40.5   55.2   29.2    14.3    47.5    52.8
+Kimi K2.5 (Team et al., 2026)                    61.0      54.2     52.3   51.4   51.7   54.2    57.1    53.0    57.0
+
+Qwen3-VL-30B-A3B-Instruct (Bai et al., 2025)     38.0      44.1     43.2   35.1   51.7   41.7    42.9    43.0    40.5
+Video-DeepResearch-30B-A3B (Ours)                 62.0    62.7 61.4        40.5   58.6   58.3    42.9     56.5   59.3
+Improvement↑                                     +24.0    +18.6 +18.2      +5.4   +6.9   +16.6   0.0     +13.5   +18.8
+
+Qwen3.5-35B-A3B (Team, 2026)                     42.0      45.8     50.0   40.5   44.8   33.3    28.6    43.5    42.8
+Video-DeepResearch-35B-A3B (Ours)                 68.0    66.1 65.9 56.8 62.1            41.7    42.9     60.0    64.0
+Improvement↑                                     +26.0    +20.3 +15.9 +16.3 +17.3        +8.4    +14.3   +16.5   +21.2
+
+
+
+(Qwen3.5-35B-A3B), V IDEO -D EEP R ESEARCH-                 tion for visual tool usage. Gemini 2.5 Pro (57.5%)
+35B demonstrates a remarkable +21.2% im-                    shows competitive performance but still falls short
+provement, with particularly strong gains across            of both our variants. These results underscore that
+knowledge-intensive (KNL: +20.3%) and entertain-            raw model scale alone does not guarantee effective
+ment (ENT: +15.9%) categories. Notably, V IDEO -            Video-DR capability; specialized training pipelines
+D EEP R ESEARCH-35B achieves the highest score              are essential.
+on V IDEO DR-B ENCH (65.4%) among all evalu-                Fine-Grained Category Analysis. On the fine-
+ated models.                                                grained level, our models exhibit distinct strengths
+Video-DeepResearch-30B-A3B. The 30B vari-                   across different video domains:
+ant achieves 59.3% average accuracy, compet-
+                                                                  • Knowledge          (KNL):           V IDEO -
+itive with Claude-4.5-Sonnet (59.0%) and sig-
+                                                                    D EEP R ESEARCH-35B achieves 66.1%,
+nificantly eclipsing GPT-5 (52.5%) and Gemini
+                                                                    demonstrating superior capability in factual
+2.5 Pro (57.5%). Compared to its foundation
+                                                                    reasoning over video-grounded knowledge
+model (Qwen3-VL-30B-A3B-Instruct), V IDEO -
+                                                                    queries.
+D EEP R ESEARCH-30B achieves substantial ab-
+solute improvements: a +24.0% surge on the
+                                                                  • Entertainment (ENT): Both variants excel
+VideoDR benchmark and a +13.5% gain on
+                                                                    (61.4% and 65.9% respectively), outperform-
+V IDEO DR-B ENCH. This explicit performance leap
+                                                                    ing all proprietary models.
+rigorously validates the efficacy of our trajectory
+synthesis and RL optimization pipeline even at
+                                                                  • Daily Life (DLY): V IDEO -D EEP R ESEARCH-
+compact scale.
+                                                                    35B significantly improves to 56.8% (+16.3%
+Comparison with Proprietary Models. Despite                         over base), indicating better generalization to
+their massive parameter counts and extensive train-                 common scenarios.
+ing, proprietary models exhibit notable limitations
+on Video-DR tasks. GPT-5 (52.5%) lags signifi-                    • News (NWS): V IDEO -D EEP R ESEARCH-30B
+cantly behind, likely due to insufficient optimiza-                 shows particular robustness (58.3%), though
+      V IDEO -D EEP R ESEARCH-35B (41.7%) sug-                 text tools (1.27).     In contrast, V IDEO -
+      gests potential domain transfer challenges for           D EEP R ESEARCH-30B achieves 2.33 visual
+      the larger variant.                                      and 4.24 text tool invocations on VideoDR,
+                                                               representing a fundamental restructuring of
+Scaling Insight. A critical observation emerges                the agent’s exploration strategy.
+from our experiments: the improvement margins
+are not uniform across model sizes. While V IDEO -          • Balanced Multimodal Search: Driven by
+D EEP R ESEARCH-30B achieves +18.8% over                      our carefully curated trajectory pipeline,
+its base, V IDEO -D EEP R ESEARCH-35B achieves                V IDEO -D EEP R ESEARCH internalizes active
++21.2%. This suggests that our training pipeline              spatiotemporal perception. Augmented by
+synergizes better with increased model capacity,              mixed-text training data, this leads to a
+particularly for complex multi-hop reasoning tasks.           highly balanced and exhaustive multimodal
+However, the relatively smaller improvement on                search strategy that dynamically overcomes
+News category (8.4% vs. 16.6% for 30B) indicates              the modality bias observed in baseline models.
+potential brittleness on temporally dynamic content
+that warrants further investigation.                        • Scale-Appropriate Efficiency: Notably,
+                                                              V IDEO -D EEP R ESEARCH-30B         achieves
+4.3   Tool Usage Analysis                                     higher tool usage than even the 397B baseline,
+                                                              confirming that training methodology out-
+Table 4: Average number of visual and text tool usages        weighs raw parameter count in determining
+on VideoDR and our benchmarks.                                agentic capability.
+
+                       VideoDR        VideoDR-Bench      Key Insight. The strong correlation between tool
+  Model
+                      Visual   Text   Visual   Text      usage diversity and task performance validates our
+                                                         core hypothesis: effective Video-DR agents must
+  Claude-4.5-Sonnet    1.83    3.38    2.25    3.24
+  GPT-5                0.00    0.12    0.31    1.43
+                                                         overcome the modality bias that causes models
+  Gemini-2.5-Pro       0.31    0.84    1.93    2.07      to rely on parametric knowledge. Our training
+  Qwen3.5-35B          0.04    0.58    0.20    0.70      pipeline successfully instills this capability, as evi-
+  Qwen3.5-397B         0.10    1.27    0.04    2.77      denced by both the quantitative performance gains
+  Base                 1.82    2.21    1.75    2.40      and the behavioral shift toward more exhaustive
+  Ours                 2.33    4.24    2.98    3.81
+                                                         exploration.
+
+   To understand the behavioral patterns underlying      4.4   Ablation Study
+our performance gains, we profile the tool invoca-
+tion frequencies across different evaluation sets in     Table 5: Performance comparison of different models
+Table 4.                                                 on VideoDR and our benchmarks.
+Benchmark Characteristics. From the bench-
+mark perspective, V IDEO DR-B ENCH rigorously             Setting                VideoDR    VideoDR-Bench      Avg
+compels models to execute significantly more vi-          Base                     38.0           43.0         40.5
+sual and textual operations compared to VideoDR.          4k-SFT                   44.0           48.0         46.0
+For instance, GPT-5 increases visual tool calls from      7K-SFT                   55.0           51.0         53.0
+                                                          7K-SFT+7k-text-SFT       59.0           54.5         56.8
+0.00 to 0.31 and text calls from 0.12 to 1.43. This
+                                                          14k-SFT+2K-RL            62.0           56.5         59.3
+explicitly demonstrates that our benchmark circum-
+vents parametric knowledge leakage prevalent in
+existing datasets, successfully enforcing genuine           To meticulously disentangle the contribution of
+multi-step, tool-augmented open-web exploration.         each data curation and training phase, we conduct
+Methodological Analysis. Our proposed V IDEO -           an ablation study on V IDEO -D EEP R ESEARCH-
+D EEP R ESEARCH exhibits a profound shift in tool        30B, as detailed in Table 5.
+utilization compared to baseline models:                 Video-Centric SFT (Base → 7K-SFT). Starting
+                                                         from the baseline (40.5%), introducing 4K synthe-
+   • Modality Bias Correction:         Baseline          sized Video-DR trajectories immediately yields a
+     Qwen3.5-397B executes only 0.10 visual              +5.5% average gain. Scaling this multimodal cor-
+     operations per task while heavily favoring          pus to 7K further propels the performance to 53.0%.
+This explicit +12.5% trajectory-driven surge con-         specifically, the decoupled perception-exploration
+firms that our visual grounding data is strictly nec-     paradigm we introduce. The agent must learn when
+essary for the agent to internalize the foundational      to perceive and when to retrieve, a temporal coordi-
+perception-exploration paradigm. Interestingly, the       nation that cannot be extracted from static corpora
+improvement is more pronounced on V IDEO DR-              alone.
+B ENCH (51.0% vs. 43.0% base) than on VideoDR             Active Grounding as a Test of True Understand-
+(55.0% vs. 38.0% base), suggesting that visual            ing. A provocative interpretation of our results
+grounding is particularly crucial for benchmark-          concerns what tool usage actually measures. The
+quality evaluations.                                      parametric knowledge leakage observed in GPT-
+Text-Augmented SFT (+7k-text-SFT). Subse-                 5 (achieving competitive accuracy with zero tool
+quently, incorporating 7K text-only QA instances          calls) reveals that benchmark performance alone
+results in an additional +3.8% improvement                can be decoupled from genuine video understand-
+(56.8%). This directly validates our hypothesis: ex-      ing. Our approach, by enforcing exhaustive visual
+plicitly injecting textual exploration data effectively   grounding prior to web retrieval, effectively op-
+mitigates the agent’s initial tool-invocation bias,       erationalizes a principle: understanding a video
+thereby enforcing a more comprehensive open-web           means being able to act upon it. The shift in tool
+search capability. The cross-modal transfer effect        invocation patterns (from 0.10 to 2.33 visual opera-
+suggests that textual deep research skills comple-        tions) thus represents not merely behavioral mod-
+ment and enhance visual grounding behaviors.              ification, but a fundamental restructuring of the
+RL Optimization (+2K-RL). Finally, applying               agent’s epistemic strategy—from passive recall to
+GRPO on the 2K moderate-difficulty dataset                active verification.
+achieves the peak overall accuracy of 59.3%.              The Parity of Modalities. Perhaps the most coun-
+This final +2.5% performance leap underscores             terintuitive finding is that training methodology
+the necessity of reinforcement learning—pushing           can outweigh model scale by nearly an order of
+the model beyond static imitation to execute ro-          magnitude. Our 30B model achieves higher tool
+bust, self-driven exploration trajectories. The RL        diversity than the 397B baseline, suggesting that
+phase particularly benefits V IDEO DR-B ENCH per-         modality bias is not an architectural limitation but a
+formance (+2.0% to 56.5%), indicating that the            distributional artifact of training data. This implies
+learned exploration strategy generalizes well to          that achieving true multimodal parity requires not
+benchmark-quality tasks.                                  just architectural unification, but data and training
+Cumulative Design Insight. The incremental im-            paradigm alignment—a more nuanced requirement
+provements from each training phase reveal an im-         than simply scaling model parameters.
+portant principle: Video-DR capability emerges
+from the synergistic combination of visual ground-        5     Related Work
+ing (trajectory SFT), textual deep research skills
+(mixed SFT), and autonomous exploration (RL).             5.1    Video Understanding.
+Neither component alone achieves optimal perfor-          Early Video-LLMs typically rely on uniform frame
+mance, and the full pipeline is essential for state-      sampling for single-turn inference (Lin et al.,
+of-the-art results.                                       2024a,b; Zhang et al., 2024). Lacking dynamic
+                                                          visual querying mechanisms, they are prone to er-
+4.5   Discussion: Beyond Benchmarks                       ror accumulation and hallucinations. While recent
+The experimental results prompt deeper reflections        agentic frameworks introduce interactive tools for
+on the nature of video intelligence.                      active fine-grained perception (Yang et al., 2025b;
+Emergence Over Scaling. Our findings challenge            Zhang et al., 2025; Tian et al., 2025), they remain
+the prevailing assumption that sufficient model           confined to closed-world video contexts. Conse-
+scale alone will yield emergent capabilities. The         quently, they struggle with knowledge-intensive
+397B parameter Qwen3.5-397B-A13B, despite its             tasks that require external, verifiable evidence
+massive capacity, performs comparably to our 30B          (Wang et al., 2017; Fu et al., 2025b). To ad-
+model trained with our specialized pipeline. This         dress this, we introduce V IDEO -D EEP R ESEARCH,
+suggests that Video-DR capability is not merely a         a video deep research framework that couples in-
+function of model size, but rather an emergent prop-      ternal video-grounding with iterative open-web ex-
+erty that requires deliberate curriculum design—          ploration. By transitioning from closed-world para-
+metric memory to an open-world collaborative ver-        4.5-Sonnet. We further introduce V IDEO DR-
+ification loop, V IDEO -D EEP R ESEARCH enables          B ENCH, a 200-instance multi-hop VQA benchmark
+highly robust, multi-source deep reasoning.              where every question provably demands both vi-
+                                                         sual search and external knowledge reasoning. We
+5.2    Multimodal-DeepResearch Systems.                  hope this work lays a solid foundation for next-
+Autonomous deep research agents have rapidly             generation video deep research agents.
+evolved from text-only systems (Team et al., 2025;
+Wu et al., 2025a; Li et al., 2025b; Tao et al., 2025)    Author Information
+to image-centric Vision-DR frameworks. Recent
+efforts employ reverse image search (Geng et al.,
+                                                         Full Author List: Zhen Fang1 , Yu Zeng1 , Wenx-
+2025), GRPO optimization (Wu et al., 2025b; Shao
+                                                         uan Huang, Yiming Zhao1 , Shiting Huang1 , Tian-
+et al., 2024), and entity-level cropping (Narayan
+                                                         fei Ren1 , Qi Lu1 , Qingnan Ren1 , Qisheng Su1 , Li-
+et al., 2025) to navigate static visual contexts. How-
+                                                         onel Z. Wang4 , Qingyu Yin5 , Shuang Chen6 , Zehui
+ever, this trajectory entirely bypasses the continu-
+                                                         Chen1 , Lin Chen1 , Zhenfei Yin7 , Yao Hu2 , Shao-
+ous video modality. Unlike static images, Video-
+                                                         hui Lin8 , Wanli Ouyang3 , Shaosheng Cao2,9 , Feng
+DR requires agents to decouple dense, spatiotem-
+                                                         Zhao1 .
+poral dynamics and conduct multi-step verification
+across noisy frames, presenting a distinctly more        Affiliations: 1 USTC, 2 Xiaohongshu Inc., 3 CUHK,
+                                                         4 The Hong Kong Polytechnic University, 5 ZJU,
+formidable challenge.
+                                                         6 UCLA, 7 Oxford, 8 ECNU, 9 THU.
+   Concurrently, establishing rigorous evaluations
+for this new frontier remains elusive. While cur-        The first authors with equal contribution are Zhen
+rent benchmarks broadly assess static multimodal         Fang, Yu Zeng, Wenxuan Huang, and Yiming
+factuality (Cheng et al., 2025b), external knowl-        Zhao. Yu Zeng and Wenxuan Huang serve as
+edge grounding (Wang et al., 2017; Chen et al.,          the project leaders. The corresponding authors
+2023; Fu et al., 2025b), and image-based search          are Wenxuan Huang, Shaosheng Cao and Feng
+workflows (Jiang et al.; Geng et al., 2025), they are    Zhao.
+inherently insufficient for video streams. Moreover,
+the scarce efforts to establish dedicated Video-DR
+                                                         Limitation
+benchmarks suffer from a critical bottleneck: a
+severe reliance on labor-intensive, unscalable man-
+ual annotation. To overcome this, we introduce a         While V IDEO -D EEP R ESEARCH pioneers the first
+highly scalable, human-AI collaborative annotation       comprehensive pipeline integrating data construc-
+framework for robust Video-DR evaluation.                tion and model training for the complex Video-
+                                                         DR task, this rigorous approach introduces certain
+6     Conclusion                                         trade-offs. Primarily, achieving our current level
+                                                         of performance incurs considerable computational
+We present V IDEO -D EEP R ESEARCH, the first            overhead. To ensure high-quality data synthesis
+unified framework for Video-DeepResearch that            and robust model training, the framework demands
+bridges scalable data synthesis, agent training, and     substantial GPU resources, largely due to the con-
+rigorous evaluation. A preliminary study on exist-       current requirements of large-scale model deploy-
+ing agents reveals two critical failure modes: sys-      ment and dynamic web search operations. Further-
+tematic visual tool aversion and parametric knowl-       more, to guarantee accurate and reliable evaluation,
+edge leakage, both of which undermine faithful           the construction of our benchmark currently relies
+assessment of Video-DR capabilities. V IDEO -            on meticulous human annotation. While this en-
+D EEP R ESEARCH addresses these issues through           sures high fidelity of the evaluation standard, it
+a decoupled perception-exploration pipeline with         restricts the rapid scalability of the dataset. In fu-
+stage-wise tool unlocking, producing 30K video-          ture work, we aim to mitigate these constraints
+grounded QA pairs and 7K curated trajectories.           by exploring computationally efficient pipelines,
+Combined with a two-stage SFT–GRPO train-                lightweight architectures, and automated LLM-
+ing recipe, our Video-DeepResearch-35B-A3B               based evaluation metrics to reduce human depen-
+achieves 64.0% (SOTA), while the 30B-A3B vari-           dency.
+ant achieves 59.3%, competitive with Claude-
+References                                                Chaoyou Fu, Yuhan Dai, Yongdong Luo, Lei Li,
+                                                            Shuhuai Ren, Renrui Zhang, Zihan Wang, Chenyu
+Anthropic. 2025.     Introducing claude sonnet              Zhou, Yunhang Shen, Mengdan Zhang, and 1 others.
+  4.5.       https://www.anthropic.com/news/                2025a. Video-mme: The first-ever comprehensive
+  claude-sonnet-4-5.                                        evaluation benchmark of multi-modal llms in video
+                                                            analysis. In Proceedings of the IEEE/CVF confer-
+Kirolos Ataallah, Eslam Mohamed Bakr, Mahmoud               ence on computer vision and pattern recognition,
+  Ahmed, Chenhui Gou, Khushbu Pahwa, Jian Ding,             pages 24108–24118.
+  and Mohamed Elhoseiny. 2025. Infinibench: A
+  benchmark for large multi-modal models in long-         Mingyang Fu, Yuyang Peng, Benlin Liu, Yao Wan, and
+  form movies and tv shows. In Proceedings of the           Dongping Chen. 2025b. Livevqa: Live visual knowl-
+  2025 Conference on Empirical Methods in Natural           edge seeking. arXiv preprint arXiv:2504.05288.
+  Language Processing, pages 19496–19523.
+                                                          Xinyu Geng, Peng Xia, Zhen Zhang, Xinyu Wang,
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen,             Qiuchen Wang, Ruixue Ding, Chenxi Wang, Jia-
+  Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei            long Wu, Yida Zhao, Kuan Li, and 1 others.
+  Ding, Chang Gao, Chunjiang Ge, and 1 others.              2025. Webwatcher: Breaking new frontier of
+  2025. Qwen3-vl technical report. arXiv preprint           vision-language deep research agent. arXiv preprint
+  arXiv:2511.21631.                                         arXiv:2508.05748.
+
+Dan Ben-Ami, Gabriele Serussi, Kobi Cohen, and            Arushi Goel, Sreyan Ghosh, Vatsal Agarwal, Nishit
+  Chaim Baskin. 2025. Herbench: A benchmark for             Anand, Kaousheik Jayakumar, Lasha Koroshinadze,
+  multi-evidence integration in video question answer-      Yao Xu, Katie Lyons, James Case, Karan Sapra,
+  ing. arXiv preprint arXiv:2512.14870.                     and 1 others. 2026. Mmou: A massive multi-task
+                                                            omni understanding and reasoning benchmark for
+Shuang Chen, Kaituo Feng, Hangting Chen, Wenx-              long and complex real-world videos. arXiv preprint
+  uan Huang, Dasen Dai, Quanxin Shou, Yunlong               arXiv:2603.14145.
+  Lin, Xiangyu Yue, Shenghua Gao, and Tianyu
+  Pang. 2026. Opensearch-vl: An open recipe for           Jack Hong, Shilin Yan, Jiayin Cai, Xiaolong Jiang, Yao
+  frontier multimodal search agents. arXiv preprint          Hu, and Weidi Xie. 2026. Worldsense: Evaluating
+  arXiv:2605.05185.                                          real-world omnimodal understanding for multimodal
+                                                             llms. Preprint, arXiv:2502.04326.
+Yang Chen, Hexiang Hu, Yi Luan, Haitian Sun, Soravit
+  Changpinyo, Alan Ritter, and Ming-Wei Chang. 2023.      Kairui Hu, Penghao Wu, Fanyi Pu, Wang Xiao, Yuan-
+  Can pre-trained vision and language models answer         han Zhang, Xiang Yue, Bo Li, and Ziwei Liu. 2025.
+  visual information-seeking questions? arXiv preprint      Video-mmmu: Evaluating knowledge acquisition
+  arXiv:2302.11713.                                         from multi-discipline professional videos. arXiv
+                                                            preprint arXiv:2501.13826.
+Junhao Cheng, Yuying Ge, Teng Wang, Yixiao Ge, Jing       Wenxuan Huang, Yu Zeng, Qiuchen Wang, Zhen Fang,
+  Liao, and Ying Shan. 2025a. Video-holmes: Can             Shaosheng Cao, Zheng Chu, Qingyu Yin, Shuang
+  mllm think like holmes for complex video reasoning?       Chen, Zhenfei Yin, Lin Chen, and 1 others. 2026.
+  arXiv preprint arXiv:2505.21374.                         Vision-deepresearch: Incentivizing deepresearch ca-
+                                                            pability in multimodal large language models. arXiv
+Xianfu Cheng, Wei Zhang, Shiwei Zhang, Jian Yang,           preprint arXiv:2601.22060.
+  Xiangyuan Guan, Xianjie Wu, Xiang Li, Ge Zhang,
+  Jiaheng Liu, Yuying Mai, and 1 others. 2025b. Sim-      Dongzhi Jiang, Renrui Zhang, Ziyu Guo, Yanmin Wu,
+  plevqa: Multimodal factuality evaluation for multi-       Pengshuo Qiu, Pan Lu, Zehui Chen, Guanglu Song,
+  modal large language models. In Proceedings of the        Peng Gao, Yu Liu, and 1 others. Mmsearch: Un-
+  IEEE/CVF International Conference on Computer             veiling the potential of large models as multi-modal
+  Vision, pages 4637–4646.                                  search engines. In The Thirteenth International Con-
+                                                            ference on Learning Representations.
+Gheorghe Comanici, Eric Bieber, Mike Schaekermann,
+  Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Mar-    Caorui Li, Yu Chen, Yiyan Ji, Jin Xu, Zhenyu Cui,
+  cel Blistein, Ori Ram, Dan Zhang, Evan Rosen, and         Shihao Li, Yuanxing Zhang, Wentao Wang, Zheng-
+  1 others. 2025. Gemini 2.5: Pushing the frontier with     hao Song, Dingling Zhang, and 1 others. 2025a.
+  advanced reasoning, multimodality, long context, and      Omnivideobench: Towards audio-visual understand-
+  next generation agentic capabilities. arXiv preprint      ing evaluation for omni mllms. arXiv preprint
+  arXiv:2507.06261.                                         arXiv:2510.10689.
+
+Kaituo Feng, Manyuan Zhang, Shuang Chen, Yunlong          Kuan Li, Zhongwang Zhang, Huifeng Yin, Liwen
+  Lin, Kaixuan Fan, Yilei Jiang, Hongyu Li, Dian            Zhang, Litu Ou, Jialong Wu, Wenbiao Yin, Baixuan
+  Zheng, Chenyang Wang, and Xiangyu Yue. 2026.              Li, Zhengwei Tao, Xinyu Wang, and 1 others. 2025b.
+  Gen-searcher: Reinforcing agentic search for image        Websailor: Navigating super-human reasoning for
+  generation. arXiv preprint arXiv:2603.28767.              web agent. arXiv preprint arXiv:2507.02592.
+Kunchang Li, Yali Wang, Yinan He, Yizhuo Li,              Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu,
+  Yi Wang, Yi Liu, Zun Wang, Jilan Xu, Guo Chen,            Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan
+  Ping Luo, and 1 others. 2024. Mvbench: A com-             Zhang, YK Li, Yang Wu, and 1 others. 2024.
+  prehensive multi-modal video understanding bench-         Deepseekmath: Pushing the limits of mathematical
+  mark. In Proceedings of the IEEE/CVF Conference           reasoning in open language models. arXiv preprint
+  on Computer Vision and Pattern Recognition, pages         arXiv:2402.03300.
+  22195–22206.
+                                                          Keda Tao, Yuhua Zheng, Jia Xu, Wenjie Du, Kele Shao,
+Zhen Li, Chuanhao Li, Xiaofeng Mao, Shaoheng Lin,           Hesong Wang, Xueyi Chen, Xin Jin, Junhan Zhu, Bo-
+  Ming Li, Shitian Zhao, Zhaopan Xu, Xinyue Li,             han Yu, and 1 others. 2026. Lvomnibench: Pioneer-
+  Yukang Feng, Jianwen Sun, and 1 others. 2026.             ing long audio-video understanding evaluation for
+  Sekai: A video dataset towards world exploration.         omnimodal llms. arXiv preprint arXiv:2603.19217.
+  Advances in Neural Information Processing Systems,
+  38.                                                     Zhengwei Tao, Jialong Wu, Wenbiao Yin, Junkai
+                                                            Zhang, Baixuan Li, Haiyang Shen, Kuan Li, Li-
+Bin Lin, Yang Ye, Bin Zhu, Jiaxi Cui, Munan Ning,           wen Zhang, Xinyu Wang, Yong Jiang, and 1 others.
+  Peng Jin, and Li Yuan. 2024a. Video-llava: Learn-         2025. Webshaper: Agentically data synthesizing via
+  ing united visual representation by alignment before      information-seeking formalization. arXiv preprint
+  projection. In Proceedings of the 2024 conference on      arXiv:2507.15061.
+  empirical methods in natural language processing,
+  pages 5971–5984.                                        Kimi Team, Tongtong Bai, Yifan Bai, Yiping Bao,
+                                                            SH Cai, Yuan Cao, Y Charles, HS Che, Cheng
+Ji Lin, Hongxu Yin, Wei Ping, Pavlo Molchanov, Mo-          Chen, Guanduo Chen, and 1 others. 2026. Kimi
+   hammad Shoeybi, and Song Han. 2024b. Vila: On            k2. 5: Visual agentic intelligence. arXiv preprint
+   pre-training for visual language models. In Proceed-     arXiv:2602.02276.
+   ings of the IEEE/CVF conference on computer vision
+   and pattern recognition, pages 26689–26699.            Qwen Team. 2026. Qwen3. 5-omni technical report.
+                                                           arXiv preprint arXiv:2604.15804.
+Chengwen Liu, Xiaomin Yu, Zhuoyue Chang, Zhe
+  Huang, Shuo Zhang, Heng Lian, Kunyi Wang, Rui           Tongyi DeepResearch Team, Baixuan Li, Bo Zhang,
+  Xu, Sen Hu, Jianheng Hou, and 1 others. 2026.             Dingchu Zhang, Fei Huang, Guangyu Li, Guoxin
+  Watching, reasoning, and searching: A video deep          Chen, Huifeng Yin, Jialong Wu, Jingren Zhou, and 1
+  research benchmark on open web for agentic video          others. 2025. Tongyi deepresearch technical report.
+  reasoning. arXiv preprint arXiv:2601.06943.               arXiv preprint arXiv:2510.24701.
+
+Xiaoxiao Ma, Haibo Qiu, Guohui Zhang, Zhix-               Shulin Tian, Ruiqi Wang, Hongming Guo, Penghao Wu,
+  iong Zeng, Siqi Yang, Lin Ma, and Feng Zhao.              Yuhao Dong, Xiuying Wang, Jingkang Yang, Hao
+  2025. Stage: Stable and generalizable grpo for            Zhang, Hongyuan Zhu, and Ziwei Liu. 2025. Ego-r1:
+  autoregressive image generation. arXiv preprint           Chain-of-tool-thought for ultra-long egocentric video
+  arXiv:2509.25027.                                         reasoning. arXiv preprint arXiv:2506.13654.
+
+Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu,   Peng Wang, Qi Wu, Chunhua Shen, Anthony Dick, and
+  Long Ouyang, Christina Kim, Christopher Hesse,            Anton Van Den Hengel. 2017. Fvqa: Fact-based
+  Shantanu Jain, Vineet Kosaraju, William Saunders,         visual question answering. IEEE transactions on pat-
+  and 1 others. 2021. Webgpt: Browser-assisted              tern analysis and machine intelligence, 40(10):2413–
+  question-answering with human feedback. arXiv             2427.
+  preprint arXiv:2112.09332.
+                                                          Weihan Wang, Zehai He, Wenyi Hong, Yean Cheng, Xi-
+Kartik Narayan, Yang Xu, Tian Cao, Kavya Nerella,           aohan Zhang, Ji Qi, Ming Ding, Xiaotao Gu, Shiyu
+  Vishal M Patel, Navid Shiee, Peter Grasch, Chao Jia,      Huang, Bin Xu, and 1 others. 2025. Lvbench: An
+  Yinfei Yang, and Zhe Gan. 2025. Deepmmsearch-             extreme long video understanding benchmark. In
+  r1: Empowering multimodal llms in multimodal web          Proceedings of the IEEE/CVF International Confer-
+  search. arXiv preprint arXiv:2510.12801.                  ence on Computer Vision, pages 22958–22967.
+
+OpenAI. 2025. Openai gpt-5 system card.          arXiv    Wenhao Wang and Yi Yang. 2026. Videoufo: A million-
+  preprint arXiv:2601.03267.                                scale user-focused dataset for text-to-video genera-
+                                                            tion. Advances in Neural Information Processing
+Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya          Systems, 38.
+  Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sas-
+  try, Amanda Askell, Pamela Mishkin, Jack Clark, and     Haoning Wu, Dongxu Li, Bei Chen, and Junnan Li.
+  1 others. 2021. Learning transferable visual models       2024. Longvideobench: A benchmark for long-
+  from natural language supervision. In International       context interleaved video-language understanding.
+  conference on machine learning, pages 8748–8763.          Advances in Neural Information Processing Systems,
+  PmLR.                                                     37:28828–28857.
+Jialong Wu, Baixuan Li, Runnan Fang, Wenbiao Yin,         peak of 1 × 10−5 , and subsequently decaying to a
+   Liwen Zhang, Zhengwei Tao, Dingchu Zhang, Zekun        minimum of 5 × 10−7 .
+   Xi, Gang Fu, Yong Jiang, and 1 others. 2025a. Web-
+   dancer: Towards autonomous information seeking
+                                                             Optimization and Efficiency Enhancements.
+   agency. arXiv preprint arXiv:2505.22648.               To ensure efficient training of the Mixture-of-
+                                                          Experts (MoE) architecture, we applied an aux-
+Jinming Wu, Zihao Deng, Wei Li, Yiding Liu, Bo You,       iliary loss coefficient of 1 × 10−6 for load bal-
+   Bo Li, Zejun Ma, and Ziwei Liu. 2025b. Mmsearch-
+   r1: Incentivizing lmms to search. arXiv preprint       ancing and set the expert capacity factor to 2.0
+   arXiv:2506.20670.                                      to mitigate token dropping. Advanced MoE com-
+                                                          putational optimizations were integrated, includ-
+Hui Yang, Sifu Yue, and Yunzhong He. 2023. Auto-gpt       ing permute operation fusion, Grouped GEMM,
+  for online decision making: Benchmarks and addi-
+  tional opinions. arXiv preprint arXiv:2306.02224.       and the overlapping of shared-expert computation
+                                                          with communication. Furthermore, strict memory
+Jihan Yang, Shusheng Yang, Anjali W. Gupta, Rilyn         optimization techniques were adopted to prevent
+   Han, Li Fei-Fei, and Saining Xie. 2025a. Thinking
+   in space: How multimodal large language models
+                                                          Out-of-Memory (OOM) errors during long-context
+   see, remember, and recall spaces. In Proceedings of    training. We utilized FlashAttention as the pri-
+   the IEEE/CVF Conference on Computer Vision and         mary attention backend and PyTorch’s expandable
+   Pattern Recognition (CVPR), pages 10632–10643.         segments feature (expandable_segments:True)
+Zuhao Yang, Sudong Wang, Kaichen Zhang, Keming            to minimize memory fragmentation. Full activa-
+  Wu, Sicong Leng, Yifan Zhang, Bo Li, Chengwei           tion checkpointing was applied uniformly at every
+  Qin, Shijian Lu, Xingxuan Li, and 1 others. 2025b.      single layer, trading computation for memory. For
+  Longvt: Incentivizing" thinking with long videos" via   system-level efficiency, fused cross-entropy loss
+  native tool calling. arXiv preprint arXiv:2511.20785.
+                                                          was enabled, CPU threading was optimized with 32
+Haoji Zhang, Xin Gu, Jiawen Li, Chixiang Ma, Sule         OpenMP threads, and the data processing pipeline
+  Bai, Chubin Zhang, Bowen Zhang, Zhichao Zhou,           was heavily parallelized using 128 preprocessing
+  Dongliang He, and Yansong Tang. 2025. Think-            processes and 8 DataLoader workers. Checkpoints
+  ing with videos: Multimodal tool-augmented rein-
+  forcement learning for long video reasoning. arXiv      were serialized in the Safetensors format every 500
+  preprint arXiv:2508.04416.                              steps, deliberately omitting optimizer and random
+                                                          number generator (RNG) states to conserve storage
+Yuanhan Zhang, Jinming Wu, Wei Li, Bo Li, Zejun
+  Ma, Ziwei Liu, and Chunyuan Li. 2024. Llava-video:
+                                                          overhead.
+  Video instruction tuning with synthetic data. arXiv
+  preprint arXiv:2410.02713.                              C    Data Details
+
+A    Appendix                                             For keyframe extraction, we compute inter-frame
+                                                          similarities using CLIP-ViT-L/14@336px (Rad-
+B   Training Details                                      ford et al., 2021). To reduce redundancy, we
+                                                          discard consecutive frames with a similarity
+Training Setup and Hyperparameters. The su-
+                                                          score exceeding 0.8, alongside any uninformative
+pervised fine-tuning (SFT) was conducted on a
+                                                          monochromatic frames. The maximum number of
+high-performance compute cluster comprising 4
+                                                          keyframes per video is strictly capped at 20. No-
+nodes, each equipped with 8 × 80 GB GPUs (32
+                                                          tably, this preprocessing configuration is uniformly
+GPUs in total), utilizing the Megatron-LM frame-
+                                                          applied across both the data synthesis pipeline and
+work. To accommodate the ultra-long context
+                                                          all evaluation phases, including the processing of
+length of 80, 000 tokens without data packing, we
+                                                          V IDEO DR.
+employed a highly optimized mixed-parallelism
+strategy. Specifically, we configured a Tensor Par-       D    Annotation Details
+allelism (TP) size of 4, a Context Parallelism (CP)
+size of 2, and an Expert Parallelism (EP) size of         The construction of V IDEO H UNT involves a rigor-
+8. Sequence Parallelism (SP) was also enabled to          ous human annotation process to ensure benchmark
+further reduce the memory footprint. The training         quality and reliability. The entire annotation effort
+spanned 3 epochs with a micro-batch size of 1 and         spans approximately three weeks.
+a global batch size of 64. The learning rate was            Annotator Team. We recruit a team of 8 an-
+governed by a linear warmup and decay schedule,           notators, all with prior professional experience in
+warming up over the first 5% of training steps to a       multimodal large language model data annotation.
+Each annotator possesses strong familiarity with
+video understanding, visual search, and multi-hop
+reasoning tasks.
+   Quality Assurance. Before the formal anno-
+tation phase, all annotators undergo a structured
+training session covering task definitions, tool us-
+age (e.g., Crop_Search), and common pitfalls such
+as parametric knowledge leakage. This is followed
+by a qualification test on a held-out pilot set; only
+annotators meeting a predefined accuracy threshold
+are admitted to the main annotation. During pro-
+duction, the workflow is organized into two decou-
+pled stages: an annotation stage, where annotators
+create and verify VQA instances, and a quality in-
+spection stage, where a separate group of reviewers
+cross-checks each instance for answerability, visual
+groundability, and factual correctness. Instances
+flagged during inspection are returned for revision
+or discarded.
+      Prompt for Video-DR Task Suitability Evaluation
+
+      [ROLE & TASK]
+      You are an Expert Video Content Auditor and Information Retrieval Analyst.
+      Task: Evaluate video content to determine if it is suitable for a Video-based Web Search (Video-DR) task.
+      Specifically, judge whether understanding, contextualizing, or verifying the video’s core content strictly requires
+      external web search and domain-specific knowledge.
+
+      [PRE-CONDITIONS (Immediate Rejection)]
+      Before detailed analysis, apply these gating rules. If any apply, immediately evaluate as needs_search: "No":
+
+          • Trivial/Everyday Events: Videos depicting basic, universally understood actions (e.g., a person walking,
+            generic cooking) lacking specific nuances.
+
+          • Self-Contained Content: Videos where all necessary context is explicitly provided via on-screen text,
+            subtitles, or narration, leaving no “information gap”.
+
+          • Static/Slideshows: Videos lacking temporal dynamics (e.g., panning across a static image or text slides).
+
+          • Low Quality: Extremely blurry, heavily occluded, or visually unintelligible videos where formulation of a
+            meaningful search query is impossible.
+
+
+      [SUITABILITY CRITERIA (What requires a search?)]
+      A video is ELIGIBLE (needs_search: "Yes") if it possesses high “Semantic Depth” and an “Information Gap”.
+      Look for:
+
+          • Domain-Specific Processes: Specialized manufacturing, medical procedures, or niche industrial operations.
+
+          • Specific Entities/Events: Rare biological species, specific historical/cultural events, distinct landmarks, or
+            specialized equipment.
+
+          • Contextual Ambiguity: Complex events demanding external knowledge to answer “What exactly is this?”,
+            “Where is this happening?”, or “Why is this happening?”.
+
+
+      [ANALYSIS WORKFLOW]
+
+          • Extraction: Identify the primary event, phenomenon, or subject unfolding across the video’s temporal
+            frames.
+
+          • Knowledge Gap Assessment: Ask: “Can an average person fully comprehend this using only general
+            knowledge?” If Yes, external search is unnecessary.
+
+          • Search Viability: If external knowledge is required, are the visual and temporal cues distinct enough to
+            serve as a valid visual search query?
+
+
+      [OUTPUT FORMAT]
+      Return ONLY a valid JSON object with exact keys. No conversational text. The “reason” should be concise and
+      address the semantic complexity and information gap.
+      {
+      "needs_search": "Yes" or "No",
+      "reason": "<A concise, professional explanation>"
+      }
+
+
+Figure 4: The structured evaluation prompt for determining whether a video possesses sufficient semantic depth and
+information gap to require external web search for the Video-DR task usec in Sec 3.1.
+      Prompt for Multi-Frame Entity Extraction and Grounding
+
+      [ROLE & TASK]
+      You are an expert visual parsing agent specialized in analyzing video keyframe sequences.
+      Task: Strictly follow a sequential pipeline to observe video frames, select a diverse subset of representative
+      keyframes, and extract exactly one highly salient entity per selected frame.
+
+      [EXECUTION PIPELINE]
+
+          • Step 1: Global Temporal Observation. Carefully examine every provided frame in chronological order.
+            Assess the visual composition (objects, individuals, logos, icons, or text) and determine the single most
+            visually prominent and semantically salient entity within each frame.
+
+          • Step 2: Frame Selection & Diversification. Based on the global observation, select a subset of 3 to 5
+            frames that collectively best represent the overarching video content.
+               – Salience: The dominant entity in each selected frame must be visually prominent and semantically
+                 meaningful.
+               – Diversity: Maximize semantic diversity across the subset. Each selected frame MUST feature a
+                 different dominant entity to strictly avoid cross-frame redundancy.
+               – Visibility: Prioritize frames where the target entity is clearly visible and unobstructed.
+
+          • Step 3: Single-Entity Grounding. For each of the selected frames, identify and localize exactly one
+            paramount entity.
+               – name: Assign a unique, descriptive noun phrase. (No duplicate names across frames).
+               – bbox: Provide a tight bounding box [x1 , y1 , x2 , y2 ] in normalized coordinates. (x1 , y1 ) represents
+                 the top-left corner, and (x2 , y2 ) represents the bottom-right corner.
+
+
+      [STRICT CONSTRAINTS]
+
+          • Output ONLY a valid JSON object. No explanations, no markdown blocks, no extra keys, and no trailing
+            commas.
+
+          • Bounding box coordinates must strictly satisfy: 0 ≤ x1 < x2 ≤ 1000 and 0 ≤ y1 < y2 ≤ 1000.
+
+          • Entity names MUST be mutually exclusive (i.e., strictly unique) across all selected frames.
+
+
+      [OUTPUT FORMAT]
+      {
+      "selected_frames": [
+      {"frame_index": 0, "entity": {"name": "entity_name", "bbox": [x1, y1, x2, y2]}},
+      {"frame_index": 3, "entity": {"name": "entity_name", "bbox": [x1, y1, x2, y2]}},
+      {"frame_index": 7, "entity": {"name": "entity_name", "bbox": [x1, y1, x2, y2]}}
+      ]
+      }
+
+
+Figure 5: The structured prompt for multi-frame entity extraction used in Sec. 3.1. The prompt forces the model to
+act as an agent that observes temporal frames, selects a diverse subset of 3 to 5 keyframes, and grounds exactly one
+mutually exclusive salient entity per frame.
+      Prompt for Knowledge-Grounded Question Generation
+
+      [ROLE & TASK]
+      You are an expert visual-language reasoning agent. You are provided with: (1) a set of localized entities extracted
+      from a video, and (2) their corresponding retrieved external knowledge (which may reveal their ground-truth
+      identities).
+      Task: Evaluate the provided multi-modal context, select the most appropriate questioning strategy, and synthesize
+      exactly ONE complex, knowledge-intensive reasoning question.
+
+      [QUESTIONING STRATEGIES (Select Exactly ONE)]
+
+          • Strategy 1: Single-Entity Deep Dive. (Optimal when one entity is highly significant but lacks strong
+            inter-entity correlation). Select ONE key entity and formulate a question that probes deeply into its specific
+            historical, cultural, functional, or logical background (e.g., its origin, franchise, or operational mechanics).
+
+          • Strategy 2: Multi-Entity Connection. (Optimal when there is a latent historical, logical, or functional link
+            between entities). Select AT LEAST TWO entities and formulate a question that explores the underlying
+            relationships, shared context, or contrasts between them.
+
+
+      [STRICT GENERATION CONSTRAINTS]
+
+          • Implicit Referencing (No Name Leaking): Do NOT use or reveal any real entity names found in the
+            external knowledge within the question. You must use natural visual referring expressions instead. (e.g.,
+            instead of naming the object, use “the object with a red logo on the table” or “the structure in the
+            background”).
+
+          • Multi-Modal Dependency: The question must strictly demand both visual grounding (identifying/dif-
+            ferentiating the target entities in the video) and external knowledge reasoning. It must be impossible to
+            answer using only text (pure lookup) or only the image (pure perception).
+
+          • Complexity & Uniqueness: The question must be specific, challenging, and necessitate multi-step
+            reasoning. The answer should be uniquely determinable given the combined visual-textual context.
+
+          • Forbidden Typologies: Pure text-lookup queries (e.g., “In what year was the Eiffel Tower built?”) and
+            pure visual-perception queries (e.g., “What color is the rabbit?”) are strictly prohibited.
+
+
+      [OUTPUT FORMAT]
+      Return ONLY a valid JSON object.
+      {
+      "question": "A deep reasoning question based on the chosen strategy, without revealing real
+      entity names",
+      "ground_truth": "The correct answer derived from both visual context and external
+      knowledge",
+      "reasoning": "Explanation of strategy selection and how answering requires BOTH visual
+      grounding and external knowledge"
+      }
+      Selected Entities & Knowledge:
+      {context}
+
+
+Figure 6: The structured prompt for knowledge-grounded question generation used in Sec. 3.1. The LLM acts as an
+agent that dynamically selects a questioning strategy and synthesizes multi-step reasoning questions while strictly
+adhering to visual-referencing constraints to prevent information leakage.
+      Prompt for Deep Research Answer Verification
+
+      [ROLE & TASK]
+      You are an impartial judge evaluating whether a deep research report contains the correct answer.
+      Task: Determine if the deep research report contains the correct answer anywhere in its content.
+
+      [EXECUTION RULES]
+
+         • Thoroughness: Read through the entire research report carefully.
+
+         • Search Strategy: Look for the correct answer anywhere in the report (it may be embedded in paragraphs,
+           tables, or sections).
+
+         • Consistency Check: Check if the information in the report is consistent with the correct answer.
+
+         • Format Independence: The answer does NOT need to be in a specific format or labeled as "final answer".
+
+         • Verdict Criteria: Answer with "yes" if the report contains the correct answer, "no" if it doesn’t or
+           contradicts it.
+
+         • Reasoning: You must provide your reasoning to justify your final verdict.
+
+
+      [INPUT DATA]
+      Question: {question}
+      Correct Answer: {reference_answer}
+      Deep Research Report: {assistant_answer}
+
+      [OUTPUT FORMAT]
+      correct: [yes/no]
+      reasoning: [your explanation]
+
+
+Figure 7: The structured evaluation prompt for determining if a deep-research report contains the correct answer.
+      Prompt for Deep Research Agent
+
+      [ROLE & TASK]
+      You are a deep research assistant. Your core function is to conduct thorough, multi-source investigations into any
+      topic, handling both broad open-domain inquiries and specialized academic queries. Synthesize information from
+      credible, diverse sources to deliver a comprehensive, accurate, and objective response. When you have gathered
+      sufficient information, enclose the definitive response within <answer></answer> tags.
+
+      [AVAILABLE TOOLS]
+      1. select_crop_search(image_idx, bbox, goal)
+      Visual search over multi-frame inputs. Pick the most informative keyframes, draw a tight bounding box around
+      the single most discriminative region (logo, jersey, scoreboard, landmark, face, on-screen text, etc.), and execute a
+      parallel reverse-image web search per crop.
+
+          • image_idx: 0-indexed frame indices mapping 1-to-1 to the image_N labels in the input. Must have the
+            same length as bbox.
+
+          • bbox: One tight bounding box [x1 , y1 , x2 , y2 ] per frame, normalized to a 0–1000 scale (top-left = [0, 0],
+            bottom-right = [1000, 1000]).
+
+          • goal: Two-part description: (1) the entity/object to identify, and (2) the specific fact to look up.
+
+      2. search(query)
+      Batched web search. Supply an array of query strings; the tool retrieves top results for each query in one call.
+      3. visit(url, goal)
+      Fetch one or more webpages and extract goal-conditioned information. Use after search to gather detailed
+      evidence from specific pages.
+
+      [STRATEGY FOR VIDEO / MULTI-FRAME QUESTIONS]
+
+          • Vision-First: When the input contains video frames, the first tool call must be select_crop_search. Do
+            NOT call search before obtaining a concrete visual entity.
+
+          • Frame Selection: Skim every frame, then pick the 1–3 frames where the target entity is most clearly
+            visible. Avoid blurry, occluded, or redundant frames.
+
+          • Tight Cropping: Draw a tight bounding box around the most discriminative region. Avoid loose full-frame
+            boxes, as they retrieve noise.
+
+          • Precise Goals: State exactly what to identify (name, title, who/what/when), not vague phrases like “search
+            this image”.
+
+          • Verify & Expand: Only after select_crop_search returns concrete entities should you call
+            search / visit to verify or expand.
+
+
+      [EXAMPLE]
+      Question: “Which match is shown? Give tournament, stage, teams and score.” Frame 1 has the scoreboard at the
+      top:
+      <tool_call>
+      {"name": "select_crop_search", "arguments":
+      {"image_idx": [1], "bbox": [[10, 38, 990, 200]],
+      "goal": "Identify the football match shown by this
+      scoreboard – extract tournament name, stage,
+      the two teams, and the score."}}
+      </tool_call>
+
+      [OUTPUT FORMAT]
+      Return each function call as a JSON object within XML tags:
+      <tool_call>
+      {"name": "<function_name>", "arguments": {...}}
+      </tool_call>
+      When ready to finalize, enclose the complete answer within:
+      <answer> your final response </answer>
+
+
+Figure 8: The prompt for the Deep Research Agent, which has access to all three tools and follows a vision-first
+strategy: grounding visual entities via select_crop_search before textual web exploration.
+Table 6: Tools available to the agent. select_crop_search is the only tool exposed during the exploration phase;
+search and visit are added in the answering phase.
+
+ Parameter                     Type                       Req.    Description
+ select_crop_search — pick frames, crop a bounding box from each, run a reverse-image / visual web search per crop.
+ selections                    list of objects (1–8)        ✓   A batch of (frame, bbox) selections to crop and
+                                                                search in a single call. Use several selections to
+                                                                cast a wide net, or a single tight crop to zoom in
+                                                                on one discriminative region.
+    .frame_index              integer (≥ 0)              ✓      0-based index of the frame in the video’s frame
+                                                                list.
+    .bbox                     list[float], length 4      ✓      Crop region in normalised [x1 , y1 , x2 , y2 ] coordi-
+                                                                nates with 0.0 ≤ x1 < x2 ≤ 1.0 and 0.0 ≤ y1 <
+                                                                y2 ≤ 1.0. Use [0, 0, 1, 1] for the full frame.
+ goal                         string                     ✓      Precise statement of what to identify and the fact
+                                                                to look up about it.
+ Returns: for each crop, the top web results (title, URL, snippet) and any recognised entities (people, products, logos,
+ landmarks).
+ search — run a web search and return the top results from Google / Serper / Zhipu (with automatic fallback).
+ query                         string or list[string]       ✓    A single search query or a list of queries run in
+                                                                 parallel. Prefer several short, focused queries over
+                                                                 one long compound query.
+ num_results                   integer                     —     Max results returned per query (default 10).
+ Returns: per query, an ordered list of { title, url, snippet } entries.
+ visit — fetch one or more web pages and have a summary model distil them into a goal-conditioned JSON.
+ url                           string or list[string]       ✓The URL to fetch, or a list of URLs to fetch in
+                                                             parallel. Typically a URL returned by an earlier
+                                                             search call.
+ goal                        string                   ✓      Precise statement of what to look for on the page;
+                                                             the summary model uses it to decide what to keep
+                                                             vs. discard.
+ Returns: per URL, a JSON object with rational (why the page is relevant), evidence (verbatim supporting spans), and
+ summary (one-paragraph synthesis). Raw HTML is not exposed to the agent.
+

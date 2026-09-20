@@ -1,0 +1,113 @@
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hacker News: Newest</title><link>https://news.ycombinator.com/newest</link><description>Hacker News RSS</description><docs>https://hnrss.org/</docs><generator>hnrss v2.1.1</generator><lastBuildDate>Mon, 17 Aug 2026 16:08:37 +0000</lastBuildDate><atom:link href="https://hnrss.org/newest" rel="self" type="application/rss+xml"></atom:link><item><title><![CDATA[Show HN: Classifier and browser extension to detect rule violating HN comments]]></title><description><![CDATA[
+<p>I love HN, but lately I have been sick of reading the same dismissive criticisms over and over again.  Along with political arguments that have been litigated to death, people's issues with smooth scrolling on blogs, etc.  Many of these comments do not get flagged for whatever reason.  So I made a service to automatically classify whether comments violate (a a modified form of) the HN guidelines automatically.  In addition there's a Chrome extension to collapse these comments (if they violate your score thresholds) so you don't have to read them too.  You can also just watch guideline violating comments as they are posted on the home page.<p>Here's more info on how it works: <a href="https://classify.stylometry.net/how-it-works" rel="nofollow">https://classify.stylometry.net/how-it-works</a></p>
+<hr>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333213">https://news.ycombinator.com/item?id=49333213</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:04:30 +0000</pubDate><link>https://classify.stylometry.net/</link><dc:creator>costco</dc:creator><comments>https://news.ycombinator.com/item?id=49333213</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333213</guid></item><item><title><![CDATA[Show HN: OpenWebSearch – A router for web search indexes]]></title><description><![CDATA[
+<p>Hi HN, I'm one of the people behind OpenWebSearch (<a href="https://openwebsearch.ai" rel="nofollow">https://openwebsearch.ai</a>).<p>It's a router for web search indexes. You POST to one endpoint with a
+`provider` field, and it normalizes both the request and the response for web search indexes like Parallel, Brave, Exa and more<p>Why we built it: we run a model company (Interfaze) and a lot of our models are smaller in size and we're experimenting if given web search can a smaller 9b or 70b model perform the same as 300b or 600b model and we found that it does extremely better when given web search similar to this paper (<a href="https://arxiv.org/abs/2203.05115" rel="nofollow">https://arxiv.org/abs/2203.05115</a>)<p>but we also found not all web search are built the same, some are better in people search, some better at financial data and others are bio research, etc.<p>Like LLMs, web indexes are becoming commoditized with different indexes having different strengths and weaknesses with access to niche data, performance and cost. Every large model lab including Interfaze has to build their own internal mini-Google for training and eventually launch that index as a service.<p>Some cool features:
+- Centralized billing
+- Standardized input and output structure
+- Fallback support if a provider goes down
+- Cost tracking<p>Full blog: <a href="https://interfaze.ai/blog/introducing-openwebsearch">https://interfaze.ai/blog/introducing-openwebsearch</a></p>
+<hr>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333187">https://news.ycombinator.com/item?id=49333187</a></p>
+<p>Points: 2</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:03:11 +0000</pubDate><link>https://openwebsearch.ai</link><dc:creator>yoeven</dc:creator><comments>https://news.ycombinator.com/item?id=49333187</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333187</guid></item><item><title><![CDATA[Trivially bypass text watermarks by requesting a Base64 response]]></title><description><![CDATA[
+<p>Anthropic plans to release text watermarking based on SynthID, which modulates the PNRG behind the token choosing mechanism deterministically in a way that lets another tool later estimate whether text was written by AI.<p>This is trivial to bypass that, it's current form:
+1. Ask for the response/essay/email encoded in base64
+2. Decode it using https://www.base64decode.org/<p>While the encoded text will follow the watermarked distribution, the decoded text will not.</p>
+<hr>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333167">https://news.ycombinator.com/item?id=49333167</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:01:55 +0000</pubDate><link>https://news.ycombinator.com/item?id=49333167</link><dc:creator>hanneshdc</dc:creator><comments>https://news.ycombinator.com/item?id=49333167</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333167</guid></item><item><title><![CDATA[Covert advertising and its takeover of social media]]></title><description><![CDATA[
+<p>Article URL: <a href="https://outofbound.net/posts/covert-advertising/">https://outofbound.net/posts/covert-advertising/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333158">https://news.ycombinator.com/item?id=49333158</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:01:41 +0000</pubDate><link>https://outofbound.net/posts/covert-advertising/</link><dc:creator>naaaaaaat</dc:creator><comments>https://news.ycombinator.com/item?id=49333158</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333158</guid></item><item><title><![CDATA[LLM City – 3D render of all Kimi K3's weights as 2.5mm tiles]]></title><description><![CDATA[
+<p>Article URL: <a href="https://magik.net/llmcity/">https://magik.net/llmcity/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333151">https://news.ycombinator.com/item?id=49333151</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:01:07 +0000</pubDate><link>https://magik.net/llmcity/</link><dc:creator>devttyeu</dc:creator><comments>https://news.ycombinator.com/item?id=49333151</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333151</guid></item><item><title><![CDATA[Big Walk by House House]]></title><description><![CDATA[
+<p>Article URL: <a href="https://bigwalk.game/">https://bigwalk.game/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333147">https://news.ycombinator.com/item?id=49333147</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 16:00:44 +0000</pubDate><link>https://bigwalk.game/</link><dc:creator>duck</dc:creator><comments>https://news.ycombinator.com/item?id=49333147</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333147</guid></item><item><title><![CDATA[Ask HN: Is GitHub Fried Today?]]></title><description><![CDATA[
+<p>Keep getting weird responses and their pink unicorn of death.  Is Github unreliable today?</p>
+<hr>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333136">https://news.ycombinator.com/item?id=49333136</a></p>
+<p>Points: 2</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:59:45 +0000</pubDate><link>https://news.ycombinator.com/item?id=49333136</link><dc:creator>johncole</dc:creator><comments>https://news.ycombinator.com/item?id=49333136</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333136</guid></item><item><title><![CDATA[Theory of Fluids Enters the 21st Century]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.quantamagazine.org/theory-of-fluids-enters-the-21st-century-20260817/">https://www.quantamagazine.org/theory-of-fluids-enters-the-21st-century-20260817/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333091">https://news.ycombinator.com/item?id=49333091</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:56:40 +0000</pubDate><link>https://www.quantamagazine.org/theory-of-fluids-enters-the-21st-century-20260817/</link><dc:creator>librasteve</dc:creator><comments>https://news.ycombinator.com/item?id=49333091</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333091</guid></item><item><title><![CDATA[UL-SMF – Open-source linear-complexity KV-cache compression]]></title><description><![CDATA[
+<p>Article URL: <a href="https://github.com/liventruth/UL-SMF-Cache-Compression">https://github.com/liventruth/UL-SMF-Cache-Compression</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333084">https://news.ycombinator.com/item?id=49333084</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:56:14 +0000</pubDate><link>https://github.com/liventruth/UL-SMF-Cache-Compression</link><dc:creator>liventruth</dc:creator><comments>https://news.ycombinator.com/item?id=49333084</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333084</guid></item><item><title><![CDATA[The Primitive Puppet Show]]></title><description><![CDATA[
+<p>Article URL: <a href="https://spiffworks.substack.com/p/the-primitive-puppet-show">https://spiffworks.substack.com/p/the-primitive-puppet-show</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333079">https://news.ycombinator.com/item?id=49333079</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:55:57 +0000</pubDate><link>https://spiffworks.substack.com/p/the-primitive-puppet-show</link><dc:creator>danfunk</dc:creator><comments>https://news.ycombinator.com/item?id=49333079</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333079</guid></item><item><title><![CDATA[Instagram blocked the search terms. Its algorithm serves the videos anyway]]></title><description><![CDATA[
+<p>Article URL: <a href="https://thenextweb.com/news/meta-glasses-harassment-videos-instagram-algorithm-recommends">https://thenextweb.com/news/meta-glasses-harassment-videos-instagram-algorithm-recommends</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333074">https://news.ycombinator.com/item?id=49333074</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:55:47 +0000</pubDate><link>https://thenextweb.com/news/meta-glasses-harassment-videos-instagram-algorithm-recommends</link><dc:creator>mikelgan</dc:creator><comments>https://news.ycombinator.com/item?id=49333074</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333074</guid></item><item><title><![CDATA[AI Terms Explained with Simple Examples Using a Dosa Analogy]]></title><description><![CDATA[
+<p>Article URL: <a href="https://qainsights.com/ai-terms-explained-with-simple-examples-using-a-dosa-analogy/">https://qainsights.com/ai-terms-explained-with-simple-examples-using-a-dosa-analogy/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333067">https://news.ycombinator.com/item?id=49333067</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:55:41 +0000</pubDate><link>https://qainsights.com/ai-terms-explained-with-simple-examples-using-a-dosa-analogy/</link><dc:creator>qainsights</dc:creator><comments>https://news.ycombinator.com/item?id=49333067</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333067</guid></item><item><title><![CDATA[Practical multi-agent orchestration in Codex]]></title><description><![CDATA[
+<p>Article URL: <a href="https://twitter.com/pvncher/status/2080707291603407077">https://twitter.com/pvncher/status/2080707291603407077</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333043">https://news.ycombinator.com/item?id=49333043</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:54:17 +0000</pubDate><link>https://twitter.com/pvncher/status/2080707291603407077</link><dc:creator>tosh</dc:creator><comments>https://news.ycombinator.com/item?id=49333043</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333043</guid></item><item><title><![CDATA[I ditched Google Maps' offline mode for this app]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.xda-developers.com/i-ditched-google-maps-offline-mode-for-organic-maps-and-now-i-never-worry-about-connectivity-again/">https://www.xda-developers.com/i-ditched-google-maps-offline-mode-for-organic-maps-and-now-i-never-worry-about-connectivity-again/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333041">https://news.ycombinator.com/item?id=49333041</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:54:06 +0000</pubDate><link>https://www.xda-developers.com/i-ditched-google-maps-offline-mode-for-organic-maps-and-now-i-never-worry-about-connectivity-again/</link><dc:creator>DemiGuru</dc:creator><comments>https://news.ycombinator.com/item?id=49333041</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333041</guid></item><item><title><![CDATA[Vendo.run: Your product, shaped to every customer]]></title><description><![CDATA[
+<p>Article URL: <a href="https://vendo.run">https://vendo.run</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333029">https://news.ycombinator.com/item?id=49333029</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:53:04 +0000</pubDate><link>https://vendo.run</link><dc:creator>grncdr</dc:creator><comments>https://news.ycombinator.com/item?id=49333029</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333029</guid></item><item><title><![CDATA[Every Disease Is a Policy Failure]]></title><description><![CDATA[
+<p>Article URL: <a href="https://worksinprogress.co/issue/future-of-medicine/">https://worksinprogress.co/issue/future-of-medicine/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333018">https://news.ycombinator.com/item?id=49333018</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:52:12 +0000</pubDate><link>https://worksinprogress.co/issue/future-of-medicine/</link><dc:creator>karakoram</dc:creator><comments>https://news.ycombinator.com/item?id=49333018</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333018</guid></item><item><title><![CDATA[Ubuntu is growing faster on Windows than on Linux to become its biggest base]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.xda-developers.com/ubuntu-is-growing-faster-on-windows-than-on-linux-and-it-could-soon-become-its-biggest-user-base/">https://www.xda-developers.com/ubuntu-is-growing-faster-on-windows-than-on-linux-and-it-could-soon-become-its-biggest-user-base/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333013">https://news.ycombinator.com/item?id=49333013</a></p>
+<p>Points: 2</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:51:52 +0000</pubDate><link>https://www.xda-developers.com/ubuntu-is-growing-faster-on-windows-than-on-linux-and-it-could-soon-become-its-biggest-user-base/</link><dc:creator>DemiGuru</dc:creator><comments>https://news.ycombinator.com/item?id=49333013</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333013</guid></item><item><title><![CDATA[AI scrapers use bogus URL tracking tags to make website visits seem legit]]></title><description><![CDATA[
+<p>Article URL: <a href="https://disassociated.com/ai-scraper-bogus-url-tracking-tags/">https://disassociated.com/ai-scraper-bogus-url-tracking-tags/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49333012">https://news.ycombinator.com/item?id=49333012</a></p>
+<p>Points: 1</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:51:47 +0000</pubDate><link>https://disassociated.com/ai-scraper-bogus-url-tracking-tags/</link><dc:creator>speckx</dc:creator><comments>https://news.ycombinator.com/item?id=49333012</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49333012</guid></item><item><title><![CDATA[Universal Health Coverage Could Save $1T and 114,000 Lives a Year, Yale Study]]></title><description><![CDATA[
+<p>Article URL: <a href="https://ysph.yale.edu/news-article/universal-health-coverage-could-save-one-trillion-dollars-and-114000-lives-every-year/">https://ysph.yale.edu/news-article/universal-health-coverage-could-save-one-trillion-dollars-and-114000-lives-every-year/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49332981">https://news.ycombinator.com/item?id=49332981</a></p>
+<p>Points: 61</p>
+<p># Comments: 28</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:49:57 +0000</pubDate><link>https://ysph.yale.edu/news-article/universal-health-coverage-could-save-one-trillion-dollars-and-114000-lives-every-year/</link><dc:creator>karakoram</dc:creator><comments>https://news.ycombinator.com/item?id=49332981</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49332981</guid></item><item><title><![CDATA[Show HN: AI-Generated Flash Fiction Arena]]></title><description><![CDATA[
+<p>Which model will win at writing ~500 word short stories?</p>
+<hr>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=49332976">https://news.ycombinator.com/item?id=49332976</a></p>
+<p>Points: 1</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Mon, 17 Aug 2026 15:49:50 +0000</pubDate><link>https://worldsenoughstudios.com/flash-fight/</link><dc:creator>eykd</dc:creator><comments>https://news.ycombinator.com/item?id=49332976</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=49332976</guid></item></channel></rss>

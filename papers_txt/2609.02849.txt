@@ -1,0 +1,263 @@
+                                                                                                                                      2026-9-3
+
+
+
+                                          Post-Training Language Models for Gold-Medal
+                                               Performance in Coding Competitions
+                                        Aleksander Ficek∗ , Sean Narenthiran∗ , Mehrzad Samadi, Somshubra Majumdar, Boris Ginsburg
+
+
+
+                                        Abstract. Competitive programming has become a key test of large language model reasoning,
+                                        with international competitions such as IOI and ICPC representing its most challenging settings.
+                                        We present an end-to-end specialization pipeline combining large-scale problem curation,
+                                        synthetic reasoning traces, supervised fine-tuning (SFT), and reinforcement learning (RL).
+                                        Using 22,000 curated problems, we train Nemotron-3-Nano-CC (30B-A3B) with SFT and RL
+arXiv:2609.02849v1 [cs.LG] 2 Sep 2026
+
+
+
+
+                                        and Nemotron-3-Ultra-CC (550B-A55B) with SFT alone. We further introduce GenCorrect,
+                                        a feedback-driven test-time compute strategy that iteratively generates, evaluates, and refines
+                                        diverse solutions. On IOI 2025, Nano-CC improves from 130 points to 291 after post-training
+                                        and to 468 with GenCorrect, exceeding the gold threshold of 438.3 while Ultra-CC reaches
+                                        502. Guided by these results, we develop a competition-specific Ultra-CC system and evaluate
+                                        it prospectively during IOI 2026. Under the same time, internet-access, and submission
+                                        constraints as human contestants, it scores 535.4 out of 600, exceeding both the gold threshold
+                                        of 361.12 and the top human score of 498.27. To our knowledge, this is the first AI system to
+                                        outscore the highest-scoring human contestant on an IOI problem set.
+
+
+                                        1. Introduction
+                                        Competitive programming has emerged as a challenging domain for evaluating the reasoning
+                                        capabilities of large language models (LLMs). Unlike conventional coding benchmarks, competitive
+                                        programming requires models to synthesize novel algorithms, reason over complex constraints, and
+                                        produce implementations that pass hidden tests under time and memory limits. Performance on
+                                        competitive programming has become a strong indicator of a model’s reasoning and coding ability (Li
+                                        et al., 2022; Jain et al., 2024; Zheng et al., 2025). Recent years have seen progress on these tasks,
+                                        with proprietary and open-weight models achieving gold-medal performance in competitions such
+                                        as the International Olympiad in Informatics (IOI) and the International Collegiate Programming
+                                        Contest (ICPC) (OpenAI et al., 2025; DeepSeek-AI, 2025; Samadi et al., 2026; Yang et al., 2026).
+                                        Despite this progress, the contributions of components required to reach gold-medal performance
+                                        remain difficult to isolate. Existing systems are often closed, rely on specialized models, or combine
+                                        changes in training data, post-training, model scale, and inference-time compute.
+                                        We present a competitive-programming pipeline combining large-scale problem curation, synthetic
+                                        data generation, supervised fine-tuning (SFT), reinforcement learning (RL), and iterative test-
+                                        time refinement. We curate 22,000 problems and use DeepSeek-V4-Flash (DeepSeek-AI, 2026) to
+                                        generate 1.2 million reasoning traces for our compact model and 477,642 traces for our larger model,
+                                        excluding and deduplicating all evaluation problems from training. Starting from Nemotron-3-
+                                        Nano-30B-A3B (NVIDIA, 2025), we apply SFT and RL to produce Nemotron-3-Nano-CC, a
+                                        30B-parameter mixture-of-experts model with 3B active parameters. Starting from Nemotron-3-
+                                        Ultra-550B-A55B (NVIDIA, 2026), we apply SFT without code-specific RL to produce Nemotron-3-
+                                        Ultra-CC, a 550B-parameter model with 55B active parameters. Both models use GenCorrect, our
+                                          ∗
+                                              Equal contribution.
+
+
+
+                                         © 2026 NVIDIA. All rights reserved.
+                                            Post-Training Language Models for Gold-Medal Performance in Coding Competitions
+
+
+
+                                                    IOI 2025 Capability Progression                                                        IOI 2026 Live Result
+                         600                                                                                                       600
+                               Base               SFT               RL                            TTC
+                                                                                                                       468                                          535.4
+IOI score (out of 600)
+
+
+
+
+                         500                                                                               443                     500
+                                                                                         403      419                                                 498.27
+                                                                                                                   Gold ≥ 438.3
+                         400                                                   361                                                 400
+                                                                         291
+                                                                                                                  Silver ≥ 338.0          361.12
+                                            262         276   280
+                         300                                                                                                       300
+                                                                                                                 Bronze ≥ 252.0
+                         200                                                                                                       200
+                                      130
+
+
+                         100                                                                                                       100
+
+
+                           0                                                                                                        0
+                                             3 Epochs           1 Epoch              5 Rounds (+10 submissions each)                       Gold      Top human    Nemotron-3
+                                                                                                                                         threshold   contestant    Ultra-CC
+                                                                Post-training stage
+
+   (a) General Nano-CC on IOI 2025: SFT and RL improve Score@1, while                                                               (b) Competition Ultra-CC sur-
+   GenCorrect achieves gold-medal performance with 50 submissions.                                                                  passes highest human score.
+                                      Figure 1 | Performance of our pipeline and models on IOI 2025 and IOI 2026.
+
+       iterative inference strategy that refines diverse solutions using feedback from previous submissions.
+       Figure 1a summarizes the progression of Nemotron-3-Nano-CC on IOI 2025. Its Score@1 increases
+       from 130 to 280 after SFT and 291 after RL, while five GenCorrect rounds raise its score to 468,
+       exceeding the gold threshold of 438.3 under the official 50-submission limit (International Olympiad
+       in Informatics, 2025). Our general Nemotron-3-Ultra-CC reaches 304 without code-specific RL and
+       502.0 after five rounds of GenCorrect.
+     After completing these general-pipeline experiments, we apply their insights to develop a competition-
+     specific model and inference pipeline for IOI 2026. We use IOI 2025 as a development benchmark to
+     select the training and inference adaptations used by this system. We then evaluate the resulting
+     system live on the IOI 2026 problem set under competition time and submission, before the problems
+     are publicly released.† Under matched competition time, internet-access, and submission constraints,
+     Competition Ultra-CC scores 535.4/600, exceeding the gold threshold of 361.12 and the top official
+     contestant score of 498.27, as shown in Figure 1b (International Olympiad in Informatics, 2026). We
+     plan to release our competition Nemotron-3-Ultra-CC checkpoint together with runnable inference
+     and evaluation recipes in NeMo-Skills.‡ To summarize, our main contributions are:
+
+                          • We develop an end-to-end specialization pipeline for competitive programming, including
+                            large-scale problem curation, synthetic reasoning data, long-context supervised fine-tuning,
+                            and reinforcement learning with executable rewards.
+                          • We introduce GenCorrect, a closed-loop test-time compute strategy that iteratively generates
+                            diverse solutions, incorporates evaluator feedback, and refines subsequent generations under a
+                            constrained submission budget.
+                          • We provide a comprehensive empirical analysis of how synthetic data, SFT, RL, model scale,
+                            and test-time compute contribute to competitive-programming performance.
+                          • We apply our pipeline to develop a competition-specific system evaluated live during IOI
+                            2026. Under the same time limits, submission platform, and internet restrictions as human
+                            contestants, it scored 535.4/600, surpassing the highest-scoring human contestant. To our
+                            knowledge, this is the first time an AI system has done so on any IOI problem set.
+
+          †
+            Our system was not an official IOI contestant and the run was not supervised by IOI. Therefore, its score was not
+       included in the official rankings and the evaluation is reported as an unofficial, unsupervised benchmark.
+          ‡
+            https://github.com/NVIDIA-NeMo/Skills
+
+
+
+                                                                                                                                                                            2
+                   Post-Training Language Models for Gold-Medal Performance in Coding Competitions
+
+
+
+                 Data Curation                     Supervised Fine-Tuning   Reinforcement      Test-Time Compute
+                                     22K                                      Learning
+                                  Competition
+                                   Problems
+                    Agentic
+  Competition                                    1.2M DeepSeek
+                  Filtering &                                      SFT          GRPO        GenCorrect    Submission
+  Problem Pool                                    Flash Traces
+                  Validation
+                                 4K Executable
+                                   Problems
+
+
+
+
+Figure 2 | Our competitive-programming pipeline. Nemotron-3-Nano-CC undergoes supervised
+fine-tuning and reinforcement learning, while Nemotron-3-Ultra-CC uses supervised fine-tuning only.
+Both models use GenCorrect at inference time.
+
+2. Competition Settings
+
+2.1. International Olympiad in Informatics.
+
+IOI is an individual programming competition conducted over two contest days (IOI 2026 Organizing
+Committee, 2026). At IOI 2025, contestants were presented with six problems, each worth up to 100
+points and divided into subtasks covering different input constraints. A submission received credit
+for each subtask whose test cases it passed, allowing partially correct or less efficient algorithms to
+earn partial scores. Contestants could submit at most 50 solutions per problem, and the six problem
+scores were summed to produce a maximum score of 600 (International Olympiad in Informatics,
+2025; OpenAI et al., 2025). Medal thresholds were determined from the final score distribution, with
+approximately the top 1/12 of contestants receiving gold, the next 1/6 receiving silver, and the next
+1/4 receiving bronze (IOI 2026 Organizing Committee, 2026).
+
+2.2. International Collegiate Programming Contest.
+
+At the ICPC 2025 World Finals, teams of three contestants competed for five hours using a single
+shared computer. The contest contained 12 algorithmic problems evaluated using binary scoring:
+a problem was solved only when a submission passed all hidden test cases. Teams were ranked
+primarily by the number of problems solved, with ties broken by total penalty time. For each solved
+problem, penalty time consisted of the elapsed contest time before acceptance plus 20 minutes for
+each preceding incorrect submission (International Collegiate Programming Contest, 2025c). The
+top four teams received gold medals, teams placing 5th–8th received silver medals, and teams placing
+9th–12th received bronze medals (International Collegiate Programming Contest, 2025b).
+
+
+3. Method
+Our pipeline, summarized in Figure 2, combines supervised fine-tuning (SFT), reinforcement learning
+(RL), and iterative test-time compute. Modifications used for our live IOI 2026 benchmark run are
+described in Section 5.
+
+3.1. Data Curation
+
+We curate 22,000 problems from 16 regional and international competition families spanning the
+last two decades, together with problems from online programming platforms. An automated
+pipeline packages each problem into an executable evaluation environment containing its statement,
+constraints, test cases, auxiliary files, and reference solutions. We retain only environments that
+produce consistent verdicts across reference and generated solutions. We exclude all IOI 2025, ICPC
+2025, and LiveCodeBench Pro problems from the SFT and RL data and deduplicate the training
+
+                                                                                                                       3
+                Post-Training Language Models for Gold-Medal Performance in Coding Competitions
+
+                     2%                                       2.7%
+
+
+
+                                                    17.3%
+                                29%                                  24.3%
+             30%                                                                        Easy
+                                                                                        Medium
+                     CCC                                SFT                             Hard
+                   Problems                            Traces                           Skipped
+                                                                                        Self-correction
+
+
+                          39%                         56.3%
+
+
+
+
+Figure 3 | Composition of the curated competitive-programming corpus (left) and SFT traces (right).
+
+
+corpus against these evaluations. IOI 2026 is a strictly prospective evaluation because our system
+was run before the problems were publicly released. Appendix A provides the complete construction
+and filtering procedure.
+
+3.2. Supervised Fine-Tuning
+
+We use DeepSeek-V4-Flash to generate 1.2 million reasoning traces for Nemotron-3-Nano-30B-A3B
+and 477,642 traces for NVIDIA-Nemotron-3-Ultra-550B-A55B (DeepSeek-AI, 2026; NVIDIA, 2025,
+2026). As shown in Figure 3, we allocate more generations to difficult problems and include self-
+improvement traces in which the teacher refines a previously generated solution. These traces
+expose the models to the iterative refinement behavior used by GenCorrect. We fine-tune Nano
+for three epochs and Ultra for one epoch, using a global batch size of 64 and sequence packing up
+to 262K tokens. Ultra is initialized from its RLVR-teacher checkpoint (NVIDIA, 2026). Complete
+optimization, parallelism, and compute settings are provided in Appendix B.
+
+3.3. Reinforcement Learning
+
+We apply RL only to Nemotron-3-Nano-30B-A3B. After filtering for reliable and sufficiently fast
+executable environments, the RL corpus contains 3,219 problems, split into 2,847 training and 372
+validation problems. We split at the parent-problem level to prevent subtasks from the same problem
+appearing in both sets. We train using NeMo RL (NVIDIA, 2025) with Group Relative Policy
+Optimization (GRPO) (Shao et al., 2024). Each step samples 16 rollouts for each of 64 prompts at
+temperature 1.0, yielding 1,024 rollouts. Generated C++17 solutions are compiled and executed,
+receiving a terminal reward of 1 for full credit and 0 otherwise. We optimize a token-level clipped
+policy-gradient objective with no reference-policy KL penalty (Yu et al., 2025) and select the final
+checkpoint using held-out validation performance. Further details are provided in Appendix B.
+
+3.4. Test-Time Compute
+
+We introduce GenCorrect, an iterative test-time compute strategy applied for up to five rounds
+(Figure 4). GenCorrect combines large-scale sampling and behavior-based clustering for competitive
+programming (Li et al., 2022; Leblond et al., 2023), iterative self-critique and test-based refine-
+ment (Ahmad et al., 2025a; Ridnik et al., 2024), and execution-grounded test-time selection (Samadi
+et al., 2026; Li et al., 2025). Each round consists of:
+
+   • Generation. We generate up to 200 candidate solutions in parallel and compile them locally.
+     The first round uses only the problem statement; subsequent rounds additionally use solutions
+     and evaluator feedback from earlier rounds.
+
+                                                                                                          4
+

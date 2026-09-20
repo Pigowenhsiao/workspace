@@ -1,0 +1,990 @@
+<?xml version="1.0" encoding="UTF-8"?><feed
+	xmlns="http://www.w3.org/2005/Atom"
+	xmlns:thr="http://purl.org/syndication/thread/1.0"
+	xml:lang="en-US"
+	>
+	<title type="text">The Verge</title>
+	<subtitle type="text">The Verge is about technology and how it makes us feel. Founded in 2011, we offer our audience everything from breaking news to reviews to award-winning features and investigations, on our site, in video, and in podcasts.</subtitle>
+
+	<updated>2026-08-17T15:25:55+00:00</updated>
+
+	<link rel="alternate" type="text/html" href="https://www.theverge.com" />
+	<id>https://www.theverge.com/rss/index.xml</id>
+	<link rel="self" type="application/atom+xml" href="https://www.theverge.com/rss/index.xml" />
+
+	<icon>https://platform.theverge.com/wp-content/uploads/sites/2/2025/01/verge-rss-large_80b47e.png?w=150&amp;h=150&amp;crop=1</icon>
+		<entry>
+			
+			<author>
+				<name>Stevie Bonifield</name>
+			</author>
+			
+			<title type="html"><![CDATA[Apple ordered to stop scaring iPhone and iPad users away from third-party apps]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/tech/980977/apple-app-tracking-transparency-settlement-germany" />
+			<id>https://www.theverge.com/?p=980977</id>
+			<updated>2026-08-17T11:25:55-04:00</updated>
+			<published>2026-08-17T11:10:25-04:00</published>
+			<category scheme="https://www.theverge.com" term="Apple" /><category scheme="https://www.theverge.com" term="News" /><category scheme="https://www.theverge.com" term="Policy" /><category scheme="https://www.theverge.com" term="Privacy" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[Apple's changing its rules for data collection consent prompts after Germany's Federal Cartel Office accused Apple of giving the prompts a design that favored its own apps. Apple's App Tracking Transparency prompts reportedly cost social media apps nearly $10 billion when they launched with iOS 14.5, making cross-app tracking of users largely opt in. But [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Vector illustration of the Apple logo." data-caption="" data-portal-copyright="Image: Cath Virginia / The Verge" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/25697380/STK071_APPLE_A.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">Apple's changing its rules for data collection consent prompts after <a href="https://www.bundeskartellamt.de/SharedDocs/Meldung/EN/Pressemitteilungen/2026/08_17_2026_Apple_ATTF.html">Germany's Federal Cartel Office</a> accused Apple of giving the prompts a design that favored its own apps. Apple's App Tracking Transparency prompts reportedly <a href="https://www.theverge.com/2021/10/31/22756135/apple-app-tracking-transparency-policy-snapchat-facebook-twitter-youtube-lose-10-billion">cost social media apps nearly $10 billion</a> when they <a href="https://www.theverge.com/2021/4/27/22405474/apple-app-tracking-transparency-ios-14-5-privacy-update-facebook-data">launched with iOS 14.5</a>, making cross-app tracking of users largely opt in. But as a designated "gatekeeper" under <a href="https://www.theverge.com/2023/9/6/23859570/european-union-commission-digital-markets-act-gatekeepers-apple-google-meta-microsoft">the EU's DMA rules</a>, it is facing additional scrutiny over whether the program provides a level playing field. </p>
+<p class="wp-block-paragraph">The regulator <a href="https://www.bundeskartellamt.de/SharedDocs/Publikation/EN/PressReleases/Apple_ATTF_FAQ.pdf?__blob=publicationFile&amp;v=5">says</a> the prompts steer users away from agreeing to let third-party apps use their data, while encouraging them to give consent for  …</p>
+<p><a href="https://www.theverge.com/tech/980977/apple-app-tracking-transparency-settlement-germany">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Cameron Faulkner</name>
+			</author>
+			
+			<title type="html"><![CDATA[WiiM’s capable HomePod-esque smart speaker is almost $50 off]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/gadgets/980916/wiim-sound-speaker-lite-airpods-max-2-deal-sale" />
+			<id>https://www.theverge.com/?p=980916</id>
+			<updated>2026-08-17T10:55:34-04:00</updated>
+			<published>2026-08-17T10:35:25-04:00</published>
+			<category scheme="https://www.theverge.com" term="Deals" /><category scheme="https://www.theverge.com" term="Gadgets" /><category scheme="https://www.theverge.com" term="Verge Shopping" />
+							<summary type="html"><![CDATA[The smart speaker market is more or less dominated by major tech companies: Apple, Google, Sonos, and Amazon. But WiiM’s powerful 100W Sound smart speaker is an attractive alternative because it’s not locked down to play nicely with select music services. It supports over 20 services, and it sports Wi-Fi 6E, Bluetooth 5.3 and ethernet, [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="" data-caption="" data-portal-copyright="Image: The Verge" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/vergedealsgrifstudio.png?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">The smart speaker market is more or less dominated by major tech companies: Apple, Google, Sonos, and Amazon. But <strong>WiiM’s powerful 100W Sound smart speaker</strong> is an attractive alternative because it’s not locked down to play nicely with select music services. It supports over 20 services, and it sports Wi-Fi 6E, Bluetooth 5.3 and ethernet, giving you multiple ways to connect. Additionally, it taps into standards used by other speakers, including Chromecast, Spotify Connect, DLNA, Alexa Cast, and more (AirPlay 2 is off the table, though its <a href="https://www.amazon.com/dp/B0BJDY6D1W">Pro Music Streamer</a> supports it). In other words, it can be added to multi-room setups you may already have in the Google Home or Amazon Echo ecosystem.</p>
+
+<p class="wp-block-paragraph">The black and white versions are rarely discounted, but they’re each 15 percent off at <a href="https://www.amazon.com/dp/B0FPCQM66H">Amazon</a> and directly through <a href="https://wiimhome.sjv.io/c/482924/3983502/56074?u=https%3A%2F%2Fwww.wiimhome.com%2Fproducts%2Fwiim-sound">WiiM</a>. Normally $299.99, they’re $254.15.</p>
+<div class="product-block"><h3>WiiM Sound Smart Speaker</h3>
+<figure class="product-image"><img width="300" height="200" src="https://platform.theverge.com/wp-content/uploads/sites/2/2025/05/wiim2.jpg?w=300" class="attachment-medium size-medium" alt="" /></figure>
+<h3>Where to Buy:</h3><ul><li><a href="https://www.amazon.com/dp/B0FPCQM66H"> <strike>$299</strike> $254.15 at <strong>Amazon</strong></a></li><li><a href="https://wiimhome.sjv.io/c/482924/3983502/56074?u=https%3A%2F%2Fwww.wiimhome.com%2Fproducts%2Fwiim-sound"> <strike>$299</strike> $254.15 at <strong>WiiM</strong></a></li></ul></div>
+<p class="wp-block-paragraph">WiiM also makes the <strong>Sound Lite</strong>, which is also discounted by 15 percent. Originally $229, it’s $194.65 at <a href="https://www.amazon.com/WiiM-Sound-Lite-Correction-Multi-E2-80-91Room-dp-B0G2LQCNSF/dp/B0G2LQCNSF">Amazon</a> and <a href="https://www.wiimhome.com/products/wiim-sound-lite">WiiM</a>. It has the same dimensions, connectivity and performance output as the Sound (plus, the ability to use AI to adapt its sound quality to your room), but it lacks the 1.8-inch touch display that can show off album art, and there’s no voice remote included — those are around <a href="https://www.wiimhome.com/wiimremote/overview">$33</a>. That said, you can wirelessly pair these speakers and other recent WiiM products to each other to build a surround sound setup. <a href="https://www.theverge.com/news/666733/wiim-sound-sub-pro-amp-ultra-smart-speaker-audiophile-streaming">Read more in our coverage</a>.</p>
+
+<hr class="wp-block-separator has-alpha-channel-opacity" />
+
+<h2 class="wp-block-heading">Other great Verge-approved deals</h2>
+
+<ul class="wp-block-list">
+<li>All colors of <strong>Apple’s AirPods Max 2 over-ear, noise-canceling headphones</strong> are down to $429 at <a href="https://www.bestbuy.com/product/apple-airpods-max-2-usb-c-midnight/JJGCQYH99P">Best Buy</a> as part of its 60-year anniversary sale. Originally $549, this sale brings them down to their second-best price, only bested by Prime Day’s $399 deal. Amazon has fewer colors available at this price. In our <a href="https://www.theverge.com/tech/903754/apple-airpods-max-2-review">review</a>, John Higgins praised their improved sound quality and noise cancellation effect, but wished certain things about it had changed. At their original price, he would have liked a proper carrying case included with purchase. But, at least with this discount, you can get a nicer case with the cash you’ll save.</li>
+
+
+
+<li>Look, sometimes you just need a cheap TV, not an amazing one. If that’s you, there might be a <strong>58-inch Hisense 4K QLED Roku TV</strong> that’ll do. Normally $399.99, the QD5 is down to $189.99 at <a href="https://www.bestbuy.com/product/hisense-58-class-qd50-hi-qled-series-4k-uhd-smart-roku-tv-2026/J3Z9Z42T8S/sku/6684763">Best Buy</a>. It doesn’t seem particularly impressive, but it’s a feature-packed TV at a good price. Beyond having built-in Roku guts for streaming movies and TV shows, it supports Dolby Vision, HDR 10 and HLG, and its game mode supports variable refresh rate and auto low latency mode (though, it tops out at 60Hz refresh rate).</li>
+
+
+
+<li>We highlighted a deal on the <strong>Godox ES45 key light</strong> recently, and the deal is back on at <a href="https://www.amazon.com/dp/B0915RDS44">Amazon</a>. The $20 off sale brings the powerful key light setup down to $119, and while it doesn’t match Elgato’s Key Light one-for-one with specs, it’s a great value that costs $60 less. It has adjustable color temperature and brightness, and its settings can be easily tweaked with its controller, which gets recharged by sticking magnetically to the back of the light. A key light is great for adding a strong light source to your room. It can be used to light you directly, or aim it at the wall to be softly illuminated in light that bounces off.</li>
+</ul>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Andrew J. Hawkins</name>
+			</author>
+			
+			<title type="html"><![CDATA[Uber partners with Zipline on Eats drone deliveries]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/transportation/980912/uber-eats-zipline-drone-delivery-investment" />
+			<id>https://www.theverge.com/?p=980912</id>
+			<updated>2026-08-17T10:31:50-04:00</updated>
+			<published>2026-08-17T10:24:35-04:00</published>
+			<category scheme="https://www.theverge.com" term="Business" /><category scheme="https://www.theverge.com" term="Drones" /><category scheme="https://www.theverge.com" term="News" /><category scheme="https://www.theverge.com" term="Ride-sharing" /><category scheme="https://www.theverge.com" term="Tech" /><category scheme="https://www.theverge.com" term="Transportation" /><category scheme="https://www.theverge.com" term="Uber" />
+							<summary type="html"><![CDATA[Uber is teaming up with drone company Zipline to start airborne takeout deliveries later this year, with the goal of reaching one million daily drone deliveries by 2029. Uber also said it was making a strategic investment in Zipline, a California-based company that has been orchestrating drone deliveries in Texas since 2025. The news comes [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Zipline Uber Eats drone delivery" data-caption="" data-portal-copyright="Image: Zipline" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/ulta-image-final-updated.avif?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">Uber is teaming up with drone company Zipline <a href="https://investor.uber.com/news-events/news/press-release-details/2026/Uber-and-Zipline-Partner-to-Bring-Drone-Delivery-to-Millions-of-Americans/default.aspx">to start airborne takeout deliveries later this year</a>, with the goal of reaching one million daily drone deliveries by 2029.</p>
+<p class="wp-block-paragraph">Uber also said it was making a strategic investment in Zipline, a California-based company that has been orchestrating drone deliveries in Texas since 2025. The news comes as Uber's delivery rivals begin to step up their own drone deliveries, thanks to easing government regulations that allow companies to fly farther and cheaper. </p>
+<p class="wp-block-paragraph">The Uber Eats deliveries will start in Zipline's existing market of Dallas-Fort Worth, before eventually expanding to dozens of additional citie …</p>
+<p><a href="https://www.theverge.com/transportation/980912/uber-eats-zipline-drone-delivery-investment">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Nilay Patel</name>
+			</author>
+			
+			<title type="html"><![CDATA[It’s about ethics in journalism, with Ben Smith]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/podcast/980759/ben-smith-semafor-ethics-journalism-ai-events-buzzfeed-media-news" />
+			<id>https://www.theverge.com/?p=980759</id>
+			<updated>2026-08-17T09:35:41-04:00</updated>
+			<published>2026-08-17T10:00:00-04:00</published>
+			<category scheme="https://www.theverge.com" term="Business" /><category scheme="https://www.theverge.com" term="Decoder" /><category scheme="https://www.theverge.com" term="Facebook" /><category scheme="https://www.theverge.com" term="Meta" /><category scheme="https://www.theverge.com" term="Podcasts" /><category scheme="https://www.theverge.com" term="Social Media" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[Today I’m talking to Ben Smith, the editor-in-chief of Semafor. Everywhere you go, people say they don’t trust the media — and yet they’ve never consumed more of it. Audiences have moved on from legacy names in favor of Substacks and podcasts and TikTok news influencers that seem to be everywhere in our feeds.&#160; Why [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="A photo illustration of Semafor editor-in-chief Ben Smith." data-caption="" data-portal-copyright="Image: The Verge / Photo: Semafor" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/DCD_BenSmith.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="has-drop-cap wp-block-paragraph">Today I’m talking to Ben Smith, the editor-in-chief of <em>Semafor</em>.</p>
+
+<p class="wp-block-paragraph">Everywhere you go, people say they don’t trust the media — and yet they’ve never consumed more of it. Audiences have moved on from legacy names in favor of Substacks and podcasts and TikTok news influencers that seem to be everywhere in our feeds.&nbsp;</p>
+
+<p class="wp-block-paragraph">Why would anyone want to start a new global news organization in the middle of all that, when even <a href="https://www.nytimes.com/2026/06/04/business/cbs-60-minutes-scott-pelley-bari-weiss.html">once-storied brands like <em>CBS News</em></a><em> </em>can’t seem to figure it out?&nbsp;</p>
+
+<p class="wp-block-paragraph">Well, that’s what Ben did four years ago. He’s the guy who ran <em>BuzzFeed News</em> at the height of the Facebook traffic boom, and even wrote a book about it, called <em>Traffic</em>, which he <a href="https://www.theverge.com/23706621/social-media-buzzfeed-news-traffic-semafor-ben-smith">discussed with me on <em>Decoder</em> back in 2023</a>.&nbsp;</p>
+
+<div class="wp-block-vox-media-highlight vox-media-highlight"><img src="https://platform.theverge.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/24792604/The_Verge_Decoder_Tileart.jpg?quality=90&amp;strip=all&amp;crop=0,0,100,100" alt="" title="" data-has-syndication-rights="1" data-caption="" data-portal-copyright="" />
+
+
+<p class="wp-block-paragraph"><em>Verge</em> subscribers, don&#8217;t forget you get exclusive access to ad-free <em>Decoder</em> wherever you get your podcasts. Head <a href="https://www.theverge.com/account/podcasts">here</a>. Not a subscriber? You can <a href="https://www.theverge.com/subscribe">sign up here</a>. </p>
+</div>
+
+<p class="wp-block-paragraph">Around that same time, he cofounded <em>Semafor</em>, which launched in 2022 with a stated goal of <a href="https://www.niemanlab.org/2022/10/the-media-startup-semafor-launches-with-a-more-honest-article-format-and-lots-of-global-ambition/">reaching 200 million college-educated readers</a>.&nbsp;</p>
+
+<p class="wp-block-paragraph">You’re going to hear Ben say that since then, <em>Semafor</em> has evolved into what he calls an anti-scale company. It still doesn’t have a website paywall, but it makes about half its money in the convening business — that’s what media types have taken to calling events lately.</p>
+
+<p class="wp-block-paragraph">And <em>Semafor</em> throws some big events. It actually has a new one called <a href="https://www.semafor.com/article/04/30/2026/semafor-launches-silicon-valley-the-world">Silicon Valley &amp; The World</a>, which will feature some of the biggest names in tech and AI. That’s part of the events business: hosting the subjects you cover on your big event stage.&nbsp;</p>
+
+<p class="wp-block-paragraph">So I wanted to know how that all works, and what it feels like to navigate the ethical conflicts that seem to be everywhere in media right now. In particular, I wanted to dig into how <em>Semafor’</em>s newsroom is approaching AI,&nbsp; the ethics and optics of <a href="https://www.semafor.com/article/04/30/2026/semafor-launches-silicon-valley-the-world">putting people you cover on your conference advisory boards</a>, and whether independence is still something an audience is willing to pay for.</p>
+
+<p class="wp-block-paragraph">Ben and I usually hash this stuff out over beers, and I think you can tell we really enjoy getting into all this together.</p>
+
+<p class="wp-block-paragraph">Okay: <em>Semafor</em> editor-in-chief Ben Smith. Here we go.&nbsp;</p>
+
+<iframe frameborder="0" height="200" src="https://playlist.megaphone.fm?e=VMP6659291274" width="100%"></iframe>
+
+<p class="wp-block-paragraph"><em>This transcript has been lightly edited for length and clarity.&nbsp;</em></p>
+
+<p class="wp-block-paragraph"><strong>Ben Smith, you&#8217;re the co-founder and editor in chief of </strong><strong><em>Semafor</em></strong><strong>. Welcome back to </strong><strong><em>Decoder</em></strong><strong>.</strong></p>
+
+<p class="wp-block-paragraph">It is really nice to be back.</p>
+
+<p class="wp-block-paragraph"><strong>I&#8217;m excited to talk to you. You were on the show three years ago, just as </strong><strong><em>Semafor</em></strong><strong> was launching. It was right as </strong><strong><em>Buzzfeed News</em></strong><strong>, which you founded and ran for a long time, </strong><a href="https://www.theverge.com/2023/4/20/23691169/buzzfeed-news-shut-down-jonah-peretti-memo"><strong>was shutting down</strong></a><strong>.</strong></p>
+
+<p class="wp-block-paragraph"><strong>I keep talking to media CEOs about what is going to happen. It feels like you have figured something out at </strong><strong><em>Semafor</em></strong><strong>. How are things going over there?</strong></p>
+
+<p class="wp-block-paragraph">Things are going incredibly well, and knock on wood as I say that, but I think we figured something out. There are a lot of different things to figure out, and we&#8217;re in this unbelievably strange and unstable moment in media.&nbsp;</p>
+
+<p class="wp-block-paragraph">But I do think we&#8217;ve figured out a model that is quality journalism built around great journalists, paired with really large scale convening that is building both great journalism and a really good business, a profitable business — which is something that is, to me as a former <em>BuzzFeed</em> executive, novel.</p>
+
+<p class="wp-block-paragraph"><strong>A profitable digital media business is in short supply these days. It&#8217;s funny, I was looking over </strong><a href="https://www.theverge.com/23706621/social-media-buzzfeed-news-traffic-semafor-ben-smith"><strong>our conversation from three years ago</strong></a><strong>. You had just published your book </strong><strong><em>Traffic</em></strong><strong>, which was basically about what I would call the millennial digital media moment and everyone chasing massive scale.</strong></p>
+
+<p class="wp-block-paragraph"><strong>“The platforms are going to deliver tons of traffic to us and then we&#8217;ll collect pennies and we&#8217;ll all get rich.” This was a pretty common thesis. It feels like you&#8217;re saying you&#8217;ve turned away from that. You&#8217;ve learned the lesson of that time.</strong></p>
+
+<p class="wp-block-paragraph">Our chief revenue officer, Rachel Oppenheim, likes to joke that my next book will be called <em>No Traffic</em>, but we are really building an anti-scale business. The luxury of starting in that moment, in the rubble of the traffic apocalypse, was obviously not the path to success.</p>
+
+<p class="wp-block-paragraph">We had to think a lot about targeting and building a very specific audience. The thing that I have kind of come to realize in all these conversations… I listen to your show. We have a show about media that we yap about this on. What&#8217;s the future of media? Is it live? We were just talking about it. Who knows?</p>
+
+<p class="wp-block-paragraph">But in journalism, I have a lot of conviction that great stories aren&#8217;t going anywhere. The need for high-quality insight isn&#8217;t going anywhere. Great reporters aren&#8217;t going anywhere. What surface this all lives on is up for grabs, and you can&#8217;t be too ideological about that.</p>
+
+<p class="wp-block-paragraph"><strong>You say surface, I always say distribution.</strong></p>
+
+<p class="wp-block-paragraph">Yeah.</p>
+
+<p class="wp-block-paragraph"><strong>A theme on </strong><strong><em>Decoder</em></strong><strong> that we come back to over and over again is your distribution shapes what you make. It&#8217;s just inevitable. The medium is the message, to borrow that framing. If surfaces — if distribution — are up for grabs, what are you holding onto?</strong></p>
+
+<p class="wp-block-paragraph">I actually don&#8217;t buy that thesis, or at least I&#8217;m resisting that thesis because for the audience, the pull of distribution is incredibly powerful. The core thesis of <em>BuzzFeed</em> was we cracked the distribution and built for the distribution. Maybe I&#8217;m overreacting a little to that, but we definitely think all the time about how we want to reach political leaders and business leaders. We want to reach nonprofit leaders, and we want to reach people making decisions.</p>
+
+<p class="wp-block-paragraph">We want to reach them in person. We reach them a lot in email. We reach them on the web, we reach them in video, but we&#8217;re thinking about that same audience across media, and in fact, I think video is particularly interesting because of the pull. Videos are placed on the web in terms of the place you can get massive scale.</p>
+
+<p class="wp-block-paragraph">Then conversely, where there&#8217;s a pull of massive scale to create the biggest pull is just to be hyper-polarizing and find ways to create polarizing confrontation. That&#8217;s how you go viral, or one of the best ways at least, and we&#8217;re trying hard to build the discipline to resist that pull of distribution.</p>
+
+<p class="wp-block-paragraph"><strong>We&#8217;re already deep into the weeds. I hope that listeners can tell Ben and I like talking to each other about these things.</strong></p>
+
+<p class="wp-block-paragraph">Please visit Semafor.com.</p>
+
+<p class="wp-block-paragraph"><strong>[Laughs] I&#8217;m excited to play some clips for you. So I&#8217;m glad that you said you were reacting to <em>BuzzFeed</em>. A few months ago <a href="https://www.theverge.com/podcast/932154/peretti-allen-buzzfeed-ai-slop-social-media">we had Jonah Peretti on the show</a>, and right after he had <a href="https://www.theverge.com/ai-artificial-intelligence/928345/buzzfeed-ceo-jonah-peretti-is-getting-a-new-job-president-of-buzzfeed-ai">sold <em>BuzzFeed</em> to Byron Allen</a> and the <em>Weather Channel</em>. There’s a lot going on there. In full disclosure to the audience, I literally had a beer with you just before I sat down with Jonah.</strong></p>
+
+<p class="wp-block-paragraph">I remember.</p>
+
+<p class="wp-block-paragraph"><strong>I did not ask the questions you told me to ask, but he said—</strong></p>
+
+<p class="wp-block-paragraph">Were they about running? That&#8217;s another show.</p>
+
+<p class="wp-block-paragraph"><strong>I didn&#8217;t do it. I was quickly in the weeds of Jonah as well, and I put to him what I think of as the original sin of digital media, which is that I think Jonah thought he could go so viral so consistently that he could crack distribution and that Mark Zuckerberg and Facebook would pay him money.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>I&#8217;m going to play for you what he said to me in response to that, and I just want to get your reaction to it. Can we go ahead and play it?</strong></p>
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p class="wp-block-paragraph"><strong>Jonah Peretti: </strong>Yeah. I mean, first, just as a factual matter, we did get paid millions of dollars by Mark Zuckerberg. The prediction that they would pay for content was accurate, but it was just short-lived. So we got paid for that exploding watermelon.</p>
+</blockquote>
+
+<p class="wp-block-paragraph"><strong>Okay, so he said that to me and I said, &#8220;Yeah.&#8221;</strong></p>
+
+<p class="wp-block-paragraph">That was a good day in the office.</p>
+
+<p class="wp-block-paragraph"><strong>It was a great day in the office, I&#8217;m guessing, but everyone knew that Mark Zuckerberg wasn&#8217;t going to pay forever.</strong></p>
+
+<p class="wp-block-paragraph">I agree with Jonah on this. Looking back, we all say the social platforms were obviously going to always be dependent on UGC and never pay for anything, and these media companies building on social platforms never made any sense.&nbsp;</p>
+
+<p class="wp-block-paragraph">It&#8217;s worth remembering these investors’ experience had been shaped by cable, which was a different distribution platform in which companies like Viacom, ESPN, CNN, and MTV had built huge businesses on the back of this new distribution. So they said, &#8220;Here&#8217;s another new distribution. We&#8217;re going to build big businesses on the back of it.&#8221;</p>
+
+<p class="wp-block-paragraph">We now look back and say it was inevitable that Facebook would never pay for content, but it wasn&#8217;t. Facebook executives made choices at various times. They experimented with different things. If you are the person in charge of the success of the blue Facebook app, do you think, “It was a great decision to continually rely on low-quality YouTube generated content”? No, that thing is dying, obviously. They should have found a different path. It was a mistake.</p>
+
+<p class="wp-block-paragraph"><strong>Jonah made this argument to me as well, and this is the other—</strong></p>
+
+<p class="wp-block-paragraph">Obviously I&#8217;m brainwashed by Jonah. I worked with him for a long time.</p>
+
+<p class="wp-block-paragraph"><strong>No, I&#8217;m just curious. Your paths have diverged and you are building a very different business.&nbsp; I&#8217;m just curious. This is the other clip from Jonah that I want to play for you. It is an argument that Facebook made a mistake. Here&#8217;s that clip:&nbsp;</strong></p>
+
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p class="wp-block-paragraph"><strong>Jonah Peretti: </strong>I actually believe that it was a mistake for Facebook and Mark Zuckerberg to not continue with the news tab, to not continue to pay professional content creators. These platforms have tons of resources and could have spent a couple of billion dollars a year on that, sustained a vibrant media ecosystem, really owned media in a way that would have been incredibly powerful for them and given them charisma, relevance, and authority that they just don&#8217;t have today.</p>
+</blockquote>
+
+<p class="wp-block-paragraph"><strong>The claim there is if Mark Zuckerberg had continued to fund </strong><strong><em>BuzzFeed</em></strong><strong>, he would have more charisma.</strong></p>
+
+<p class="wp-block-paragraph">That the Facebook blue app would be more successful had they done different things? That&#8217;s pretty obvious. You could argue which things. That&#8217;s true, and then if you look at whether you would rather be Netflix or the blue Facebook app? You&#8217;d rather be Netflix, right?</p>
+
+<p class="wp-block-paragraph"><strong>Netflix famously doesn&#8217;t invest in these either.</strong></p>
+
+<p class="wp-block-paragraph">Netflix pays a lot for content.</p>
+
+<p class="wp-block-paragraph"><strong>They pay a lot for content, but they don&#8217;t invest in news.</strong></p>
+
+<p class="wp-block-paragraph">News, I agree. News is a complicated business. We&#8217;re a separate question. But they pay for a lot of professional content. YouTube is the biggest and most interesting story here because YouTube has found a way for individuals to build businesses on top of it in a really impressive way. There are occasional news creators like Johnny Harris, but he’s almost the exception that proves the rule, but <a href="https://www.youtube.com/watch?v=MebLshHMyyM">we just had Kareem Rahma on our show</a>.</p>
+
+<p class="wp-block-paragraph">These people are building real businesses, real careers, on top of YouTube, paying producers, increasingly moving up market. I guess the thing that I give Neal Mohan, the YouTube CEO, a hard time about, is I do think YouTube with the idea of the creator and the development of the word creator built a system in which media companies, middlemen, can&#8217;t really survive.&nbsp;</p>
+
+<p class="wp-block-paragraph">There was a company called <a href="https://digiday.com/future-of-tv/disney-maker-studios/">Maker Studios which Disney bought for half a billion dollars</a>. It was supposed to be a middleman between YouTube and creators, and that&#8217;s one way to give a group of media people leverage against the platform. YouTube has designed a system in which it&#8217;s sort of like Uber. It deals with atomized individuals, not with collectives who have any kind of power, and there are all sorts of different collectives.</p>
+
+<p class="wp-block-paragraph">But a media company is one kind, and YouTube has, probably to its own benefit — and to certainly to the detriment of the media industry — built a system where it&#8217;s built for individuals, and no one has any leverage except for YouTube.</p>
+
+<p class="wp-block-paragraph"><strong>This is the big question I&#8217;m getting at. You&#8217;re building a new kind of business, you&#8217;re profitable. You&#8217;re saying you&#8217;re anti-scale, no more chasing traffic.</strong></p>
+
+<p class="wp-block-paragraph">I&#8217;m still personally looking at the traffic.</p>
+
+<p class="wp-block-paragraph"><strong>Who doesn&#8217;t?</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s just a personality flaw.</p>
+
+<p class="wp-block-paragraph"><strong>If you were raised in the swamp, you will always be a creature of the swamp. But I look at some of the other big success stories of our time. TBPN is a big success story of our time. These are not huge numbers that they&#8217;re driving.</strong></p>
+
+<p class="wp-block-paragraph"><strong>They&#8217;re driving massive influence and they&#8217;re charging high rates to advertisers that are integrated into their content, and now they&#8217;re owned by OpenAI, who they cover on their show.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>You look at big YouTubers, and Kareem Rahma is a great example. I saw him speak in and around Cannes and he was very much like, &#8220;Yeah, I make advertising for our partners. I make videos. The advertising is the thing that I make, it&#8217;s the revenue.&#8221;</strong></p>
+
+<p class="wp-block-paragraph"><strong>Somewhere in there is a big tension for the news, for media companies, where we can&#8217;t say, “We probably shouldn&#8217;t make the advertising for the companies we cover,” but that is actually how you monetize all these platforms at scale. I haven&#8217;t found anyone who solved it. I&#8217;m curious if you&#8217;ve taken runs at it.</strong></p>
+
+<p class="wp-block-paragraph">In the entertainment business, which Kareem is in, that&#8217;s always how it&#8217;s been. James Bond is wearing whatever kind of watch he&#8217;s wearing. Although the fact that I don&#8217;t remember is a real failure of marketing. There&#8217;s not that inherent tension in the entertainment business that you&#8217;re going to sell out by doing a product placement, or cutting, or appearing in an advertisement.&nbsp;</p>
+
+<p class="wp-block-paragraph">But for news there really is, and you need to be careful. The answer to that is actually the audience. The traditional advertising business is that you are reaching an audience who the advertiser values. For the scaled advertising business, Google and Meta — and increasingly TikTok — built the best mousetraps, and it&#8217;s impossible for publishers to compete on that scale.</p>
+
+<p class="wp-block-paragraph">If you&#8217;re reaching people in a very focused way in various particular environments — in person, in email, in video — that&#8217;s a case you can really credibly make to advertisers. We&#8217;ve built a big advertising and related convening business that way, and that&#8217;s one answer. It&#8217;s not the only answer, but it is one.</p>
+
+<p class="wp-block-paragraph"><strong>When you say convening business, that&#8217;s your events business.</strong></p>
+
+<p class="wp-block-paragraph">Yeah. Max Tani always gives me a hard time about the word “convening.”</p>
+
+<p class="wp-block-paragraph"><strong>Everyone loves the word “convening.” It&#8217;s good. You&#8217;ve gotten pilled by the revenue people because they love to say it. Everyone else says, &#8220;It&#8217;s parties.&#8221;</strong></p>
+
+<p class="wp-block-paragraph"><strong>We&#8217;re going to come to it because there&#8217;s a relationship between needing to get everyone in the room and then covering them, which I personally find fascinating.</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s booking. You had to not insult me for weeks to get me here.</p>
+
+<p class="wp-block-paragraph"><strong>[Laughs] Or did I nag you every single day until you showed up?</strong></p>
+
+<p class="wp-block-paragraph"><strong>Tell me about the revenue split between those things. Are you mostly making money on journalism? Are you mostly making money in events? Which is higher?</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s just about 50/50.</p>
+
+<p class="wp-block-paragraph"><strong>Is there a pull in either direction or are you trying to grow them both the same way?</strong></p>
+
+<p class="wp-block-paragraph">We&#8217;re a startup. We&#8217;re opportunistic. The convening business grew a lot faster. My partner, Justin Smith, has been building businesses like that. He was CEO of <em>The Atlantic</em> and <em>Bloomberg</em>. I&#8217;s much more his experience than mine.&nbsp;</p>
+
+<p class="wp-block-paragraph">But he came in with this thesis, which I bought into, that basically convening was the business that you could stand up fastest and make profitable fastest, that was a journalism business. We launched hard into that space because it takes longer to build a digital advertising business: you&#8217;ve got to build that digital audience. We launched with that and then it&#8217;s just taken off in a way we, or at least I, didn&#8217;t see. I didn&#8217;t imagine that we&#8217;d be really competing with Davos this soon.</p>
+
+<p class="wp-block-paragraph"><strong>I want to come back to that, too. When you launched, I remember part of the plan was to go to subscriptions. You were going to build this elite audience. You&#8217;re going to charge them lots of money. It was there in the very beginning.</strong></p>
+
+<p class="wp-block-paragraph">Was that part of the plan?</p>
+
+<p class="wp-block-paragraph"><strong>It was early on, it was part of the plan.</strong></p>
+
+<p class="wp-block-paragraph">Startups, yeah.</p>
+
+<p class="wp-block-paragraph"><strong>You also said, &#8220;We barely need a website. It&#8217;s all going to be newsletters.&#8221;</strong></p>
+
+<p class="wp-block-paragraph">Oh, we did talk about that. You were one of those website people.</p>
+
+<p class="wp-block-paragraph"><strong>To this day.</strong></p>
+
+<p class="wp-block-paragraph">The last.</p>
+
+<p class="wp-block-paragraph"><strong>The last website on earth, that&#8217;s TheVerge.com. That all changed for reasons that things change with startups, but the media industry and distribution changed around it. Was there a moment where you said, &#8220;We can keep it free,&#8221; because you are one of the last free websites?</strong></p>
+
+<p class="wp-block-paragraph">In my memory, we always thought at some point we&#8217;d do subscriptions, but in my experience you just cannot be ideological about revenue. It&#8217;s hard enough to build a business in news without getting all hung up on the values of the different revenue streams.&nbsp;</p>
+
+<p class="wp-block-paragraph">Advertising-based publishers will tell you that democracy can only survive in a world where there aren&#8217;t paywalls. Subscription publishers will tell you that advertising is corrupting. At some point you realize everyone&#8217;s just talking about their book and that sometimes they&#8217;re already in a tough business and they&#8217;re talking themselves out of incremental opportunities and really successful media companies.&nbsp;</p>
+
+<p class="wp-block-paragraph">If you look at Disney or <em>The New York Times</em>, what business are they in? They&#8217;re actually in a bunch of different businesses. They&#8217;re managing them all really carefully. Our view is that if at some point it makes sense to do subscriptions, we&#8217;ll totally do them, but we don&#8217;t really see it as an ideological choice. When you&#8217;re starting a company, you just can&#8217;t do that many things at the same time.</p>
+
+<p class="wp-block-paragraph">Also, I would say more broadly, and I got mocked for this at some point, but we are insanely ambitious about our long-term growth. We really are trying to build, over decades, a huge global company, and subscriptions are a trade-off that caps your growth in some ways. That&#8217;s something we think about too. But that said, we&#8217;re really trying to build a good business, and if subscriptions are a part of that, at some point we&#8217;ll certainly be a part of that.</p>
+
+<p class="wp-block-paragraph"><strong>You launched with a lot of ambition. You&#8217;re the first news organization of your kind to say, &#8220;We&#8217;re going to cover Africa a lot, we&#8217;re going to cover the Gulf a lot in various ways.&#8221;</strong></p>
+
+<p class="wp-block-paragraph"><strong>That ambition was that those markets are under-covered, and you’re going to provide new information that readers aren’t necessarily getting from other places. You’ll build up that audience and then monetize them in some specific way. Has that thesis proved out?</strong></p>
+
+<p class="wp-block-paragraph">Yes, and I would say when we launched, this was the thing that was most confusing to people. That Justin and I had worked in global news and had these real ambitions for it, but also were very careful about sequencing.</p>
+
+<p class="wp-block-paragraph">When we launched, we were in the US, Brooklyn, Washington, on Wall Street, Silicon Valley, and Africa. I remember it would be like me, Justin, and our great Africa editor, Yinka Adegoke doing an interview, and it&#8217;d be like, &#8220;Oh yeah, we&#8217;re American and he&#8217;s African,&#8221; and people are like, &#8220;What are you talking about?&#8221; It doesn&#8217;t make any sense, but I think we saw there was an opportunity to be very competitive very quickly in Sub-Saharan Africa, particularly Kenya, Nigeria, and South Africa, with great journalists led by Yinka and his colleague Alexis, to figure out that model.&nbsp;</p>
+
+<p class="wp-block-paragraph">We&#8217;re now in the Gulf, and we&#8217;re going to launch in Europe and Asia. Those are growing businesses and they&#8217;re part of a network. We see it less as a colonial hub-and-spoke model. They&#8217;re not reporting back to New York for what people in New York care about. We&#8217;re trying to build a network of audiences in each of these places.</p>
+
+<p class="wp-block-paragraph"><strong>Is that pulling you in different directions in terms of resourcing? If your audience in Africa grows faster than the audience in the United States, are you going to put more resources there?</strong></p>
+
+<p class="wp-block-paragraph">Yeah, we&#8217;re definitely very attentive to what&#8217;s working. I would say it&#8217;s just a truth that the US is the biggest media market in the world by far. It depends on how you count, but more than half of all revenue associated with media in the world is in the US.</p>
+
+<p class="wp-block-paragraph"><strong>Yeah, that was the pull.</strong></p>
+
+<p class="wp-block-paragraph">Actually the pull is mostly always here. We fight against it a bit because we think this is a really good long-term investment.</p>
+
+<p class="wp-block-paragraph"><strong>This is ancient history, but when I worked at AOL of all places, there was a lot of pull that—</strong></p>
+
+<p class="wp-block-paragraph">Oh, <em>Engadget</em>.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>We ran </strong><strong><em>Engadget China</em></strong><strong>. We wanted to be in all these other countries. We would resource and run those operations against much cheaper advertising revenue. Pennies to dollars in some cases.</strong></p>
+
+<p class="wp-block-paragraph">But the audience was there.</p>
+
+<p class="wp-block-paragraph"><strong>But the audience was there.</strong></p>
+
+<p class="wp-block-paragraph">We had this experience at <em>BuzzFeed</em>. This is part of why I was so excited to do some of it with Justin, because Justin had successfully built businesses in these other markets. At <em>BuzzFeed</em> we&#8217;d gone in, built big audiences, and we’d seen in Brazil, in the UK, in Japan this very intense engagement. People wanted independent journalism of this new digital and independent kind.</p>
+
+<p class="wp-block-paragraph">I remember in the first meeting we were talking about this, Eric Hippeau, this very smart, long-time digital investor was like, &#8220;Do not do this. You will never make any money and you&#8217;ll have to shut it all down.&#8221; We said, &#8220;Ah, forget it, old timer.&#8221; He was totally correct. We just never figured out how to reliably monetize them.</p>
+
+<p class="wp-block-paragraph">Even when you could, you&#8217;d say, &#8220;The Brazilian edition was profitable this year, but bad news, they have currency controls, so the money stays in Brazil.&#8221; &#8220;Oh, nobody told us that.&#8221;</p>
+
+<p class="wp-block-paragraph"><strong>How have you solved for it now?</strong></p>
+
+<p class="wp-block-paragraph">We&#8217;re pretty careful about keeping the costs low and growing the verticals with local revenue. There&#8217;s also a lot of value in these huge gatherings that we&#8217;re building, that they are fundamentally global, whether it&#8217;s in Silicon Valley or in Washington. Building these global networks of CEOs and political leaders feeds that network. That&#8217;s been valuable. But I don&#8217;t know, we&#8217;re careful as part of it. That&#8217;s one thing I learned from <em>BuzzFeed</em>.</p>
+
+<p class="wp-block-paragraph"><strong>The high-flying VC era has produced a generation of very conservative media operators.</strong></p>
+
+<p class="wp-block-paragraph">That&#8217;s right.</p>
+
+<p class="wp-block-paragraph"><strong>I think that’s fascinating. The other big innovation I want to talk to you about from the beginning of </strong><strong><em>Semafor</em></strong><strong>, and then I want to start talking about what you&#8217;re doing now, the Semaform.</strong></p>
+
+<p class="wp-block-paragraph"><strong>You launched with this way of writing an article. You still use it to this day. I see it all the time. The thesis was that it would just sort of make it simpler to understand what all the different pieces are. I always thought that was funny because you were chasing the most elite audience possible, and presumably they could already understand what was going on.</strong></p>
+
+<p class="wp-block-paragraph">That&#8217;s the problem. They could understand what was going on. And what is going on in a newspaper article is we have a who, what, where, why sentence.</p>
+
+<p class="wp-block-paragraph">And then you have another sentence that says the same thing. And then you have a paragraph, and then you have a quote that is from an expert, but it just reflects whatever the reporter thinks and they&#8217;ve picked the expert with their bias to repeat. And then you have an unsupported paragraph of random theories called the nut graf.</p>
+
+<p class="wp-block-paragraph">Everything else is just chronological order. Particularly the “an expert in disinformation says this” or “an expert in democracy says this,” any reader sees, &#8220;This is what the publication thinks, this what the journalist thinks. Why don&#8217;t they just say it rather than do this weird move of filtering your biases through an expert?&#8221; And particularly with a sophisticated audience, they&#8217;re in on the joke a bit. There are two sides to it because one is that the journalist is required to smuggle their opinion or their analysis in other people&#8217;s voices. The other is that really good beat reporters are real experts.</p>
+
+<p class="wp-block-paragraph">A sophisticated reader actually wants to know what Maggie Haberman thinks to a really high degree. Because the other deal in the newspaper is that you conceal your own analysis and opinion. On both sides of that, the reader is sort of losing out. You&#8217;re treating them like an idiot because you&#8217;re smuggling bias and opinion in, and then also — and this is particularly true of really senior experienced beat reporters — people read Reed Albergotti or Burgess Everett and want to know what they think. So tell me what you actually think.</p>
+
+<p class="wp-block-paragraph">The Semaform is an attempt to separate “here are the facts of the story we can all agree on” and “here&#8217;s the journalist&#8217;s analysis.” For an analysis to be interesting, there&#8217;s got to be some chance it can be wrong. Otherwise, it&#8217;s totally banal. We go out of our way to try to find somebody who disagrees with us to include that, too. People like that. It&#8217;s a bit of humility also.</p>
+
+<p class="wp-block-paragraph"><strong>Back in my day, we just called this blogging.</strong></p>
+
+<p class="wp-block-paragraph">[Laughs] Blogging, yes.</p>
+
+<p class="wp-block-paragraph"><strong>I would just write down what I thought all the time.</strong></p>
+
+<p class="wp-block-paragraph">I would say this was influenced by blogging. I know, we&#8217;re all old bloggers now. It&#8217;s so embarrassing to explain to people that you used to have a blog.</p>
+
+<p class="wp-block-paragraph"><strong>What do I run to this day? It&#8217;s still fundamentally the reporters saying what they think.</strong></p>
+
+<p class="wp-block-paragraph">Someday you&#8217;ll be explaining to people you had a podcast.</p>
+
+<p class="wp-block-paragraph"><strong>It&#8217;ll just be my VR avatar talking to your VR avatar.</strong></p>
+
+<p class="wp-block-paragraph">[Laughs] It will be another silly word, yeah.</p>
+
+<p class="wp-block-paragraph"><strong><a href="https://www.wired.com/story/fake-metaverse-good-real-metaverse-bad/">No legs</a>. It&#8217;ll be great. The reason I ask about the format in particular is that my thesis is that distribution and formats shape each other. Semaform was a new format. It was a way to reach an audience and say, &#8220;We know you&#8217;re not stupid. We&#8217;re going to show you the structure of the story out loud.&#8221; Has it been successful? Has it actually succeeded in attracting an audience or is it just the trademark of how you do things now?</strong></p>
+
+<p class="wp-block-paragraph">We hear a lot about it from our audience. People really like it. We also do a lot of shorter form stuff, and so that&#8217;s not always broken out that way. But that value of, “We&#8217;re going to be really humble, we&#8217;re going to be assertive about what we think, but also very, very open to disagreement, very clear about the difference between a fact and analysis,” is core to our DNA and everything we do, including in the events.</p>
+
+<p class="wp-block-paragraph"><strong>Let me ask you </strong><strong><em>Decoder</em></strong><strong> questions. I want to just talk about what&#8217;s going on in this industry now. Because you&#8217;ve learned a lot and it&#8217;s been almost four years that </strong><strong><em>Semafor</em></strong><strong> has been going. Those are all the big early bets and I just want to check in on them. How big is Semafor now?</strong></p>
+
+<p class="wp-block-paragraph">We&#8217;ve got about 60 journalists, and more than 100 employees.</p>
+
+<p class="wp-block-paragraph"><strong>How is all that structured?</strong></p>
+
+<p class="wp-block-paragraph">I&#8217;d say more than 100. It&#8217;s probably about half journalists, half a commercial team that includes revenue and a great events production team. We do all that stuff in-house. Part of the luxury of a startup and part of the challenge in news is that — and I think you&#8217;re inside at the moment one or two companies that have cracked this — there&#8217;s not a lot of talent on the business side of news for obvious reasons. It&#8217;s a terrible business.</p>
+
+<p class="wp-block-paragraph">You go to Harvard Business School and 30 percent of those people go into enterprise sales and .01 percent go into media, for the obvious reason that they like to make money. They look around for where the money is and it&#8217;s not in media.</p>
+
+<p class="wp-block-paragraph">We&#8217;ve been incredibly aggressive about trying to recruit really, really great commercial operators and people on our revenue side. It&#8217;s fun to be in a place where the wattage on the business side is really, really high. That&#8217;s been a real luxury for us. We have bookers, we have producers, we have people thinking about the vibes and the music. We take all that stuff really seriously.</p>
+
+<p class="wp-block-paragraph"><strong>Do you have an in-house DJ?</strong></p>
+
+<p class="wp-block-paragraph">Would I call Brigitte Anders-Kraus an in-house DJ? I think that would be a reasonable thing to say.</p>
+
+<p class="wp-block-paragraph"><strong>That&#8217;s pretty good.</strong></p>
+
+<p class="wp-block-paragraph">I think she would object. She does a lot of other stuff too. She&#8217;s very efficient.</p>
+
+<p class="wp-block-paragraph"><strong>When we did the code conference, I spent a lot of time thinking about the Spotify playlist.</strong></p>
+
+<p class="wp-block-paragraph">You got to think about that stuff.</p>
+
+<p class="wp-block-paragraph"><strong>Actually, that brings me to the other </strong><strong><em>Decoder</em></strong><strong> question I ask everybody. You have a lot of decisions to make. You&#8217;ve grown up a lot over the past four years at </strong><strong><em>Semafor</em></strong><strong>. How do you make decisions? What&#8217;s your framework?</strong></p>
+
+<p class="wp-block-paragraph">I personally make decisions very, very, very fast at very high volume. But I am very attentive to the people around me when they think it&#8217;s a mistake, and I’m quick to reverse them</p>
+
+<p class="wp-block-paragraph">I care a lot about hiring great journalists and having people who I really trust and I rarely jam a decision down anybody&#8217;s throat. I want to be surrounded by people who are deep experts in what they&#8217;re doing, whether it&#8217;s managing or building AI tools or reporting. But I&#8217;m very happy to lose fights.</p>
+
+<p class="wp-block-paragraph"><strong>This is a new kind of business you&#8217;re describing. You want to make a lot of decisions fast. You&#8217;re growing in a lot of different areas. Every time I see you in person, I bring you a new journalism ethics problem. This is a real recurring theme in our relationship. I&#8217;m always struggling to be pure of heart.</strong></p>
+
+<p class="wp-block-paragraph">You come from the most corrupt corner of journalism, which is gadget reviews. You&#8217;ve appropriately figured out that in that dark cave, ethics is this incredible way for <em>The Verge</em> to distinguish itself.</p>
+
+<p class="wp-block-paragraph"><strong>It&#8217;s literally what we say to our audience: “We are selling you this policy that we can&#8217;t be bought.” Maybe that&#8217;s the right thing. I look at some of the creators and I look at some of their Lamborghinis and I think maybe that&#8217;s the wrong thing. But that&#8217;s the way it goes.</strong></p>
+
+<p class="wp-block-paragraph"><strong>I started by playing you that clip of Jonah Peretti saying if Facebook had only paid for news, the tech CEOs would&#8217;ve retained relevance and charisma. Maybe the blue app would be better. I&#8217;m looking at a media ecosystem where it feels like actually there&#8217;s elite capture of traditional media.</strong></p>
+
+<p class="wp-block-paragraph"><strong>David Ellison bought </strong><strong><em>CBS News</em></strong><strong>, to whatever success or failure that&#8217;s going to be. He&#8217;s, depending on your point of view, either trying to get out of his Warner Bros. deal or he&#8217;s dead set on owning CNN and changing it however he wants to change it. Through his family, there&#8217;s ownership of TikTok.</strong></p>
+
+<p class="wp-block-paragraph"><strong>Brendan Carr is fulminating at the FCC about what happens on the broadcast stations. He wrote an entire chapter of Project 2025 about regulating content moderation on platforms. I see more influence on the media from that side of the house than ever before.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>That&#8217;s the audience that you aggressively try to go out and attract and monetize in different ways. How do you view all of that right now?</strong></p>
+
+<p class="wp-block-paragraph">These are really different things. We&#8217;re in this moment of politicized wealthy individuals buying media companies and using them to curry favor with the White House. That&#8217;s just a very specific thing that is incredible.</p>
+
+<p class="wp-block-paragraph">In some sense, my view of the media has always been that if you actually are delivering something your audience wants, that gives you independence. They want you to be asking tough questions. They want you to be delivering them true facts and insight. That&#8217;s the path. There&#8217;s a temptation, particularly for places that don&#8217;t have strong business models, to start making ethical compromises and you see it all over the place.</p>
+
+<p class="wp-block-paragraph">In a way, because you&#8217;re in the gadget review space, you see it so clearly. I think it&#8217;s true in every space. The core thing of journalism and what makes it interesting is the adversarial quality and the independence and the independence of the people you&#8217;re asking questions of, the people you&#8217;re covering. Businesses like advertising complicate that, but if you don&#8217;t hold onto that independence, you&#8217;re giving away the whole story.&nbsp;</p>
+
+<p class="wp-block-paragraph">We think obsessively about that. For businesses that like innovating, it&#8217;s so important that you actually do not want to innovate in the field of ethics. That&#8217;s the one space where nobody should be innovating or you should be very, very careful, because if you think about why marketing conferences are so boring, it&#8217;s because they aren&#8217;t doing tough independent interviews with the people. Our events are interesting because we&#8217;re doing tough independent interviews and giving that away would be an enormous mistake.</p>
+
+<p class="wp-block-paragraph"><strong>Can I ask you a really direct question about that?</strong></p>
+
+<p class="wp-block-paragraph"><strong>You&#8217;re doing Silicon Valley &amp; The World, which is the big new conference. This is you saying you&#8217;re going to compete with Davos. You&#8217;re going to put on a bunch of conferences like this that compete on the biggest stage. You&#8217;re convening people, as I&#8217;ve been told.</strong></p>
+
+<p class="wp-block-paragraph"><strong>I looked at your announcement, and you were kind enough to invite me to it. On the board are Jensen Huang and Satya Nadella, and they&#8217;re advisors, but you’re going to do challenging journalism. How does that work?</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s a reasonable question and it&#8217;s a feature of the convening business that is somewhat new business to me, too. But first of all, we&#8217;re thrilled that Jensen and Andy Jassy are going to be there and we&#8217;re going to be doing newsy on-stage interviews with them. It is a feature of that business.</p>
+
+<p class="wp-block-paragraph">If you look at the way <em>The New York Times</em> and <em>The Wall Street Journal</em> and our other competitors like <em>Bloomberg</em> do it, part of building a community around these events and getting excitement around them is pulling the newsmakers you&#8217;ll be interviewing into the event in some way. <em>The New York Times</em> calls them task forces. <em>The Wall Street Journal</em> calls them a council. <em>Bloomberg</em> actually also calls them an advisory board. But the journalism is totally independent of them.</p>
+
+<p class="wp-block-paragraph"><strong>But how does that work? I did Code Conference and I remember thinking, &#8220;I really need to get so-and-so CEO to show up on stage.&#8221; If the day before they get on the jet to show up in California, we say, &#8220;So-and-so&#8217;s CEO is deeply corrupt. Here&#8217;s our eight-month investigation…”</strong></p>
+
+<p class="wp-block-paragraph">They&#8217;re probably going to cancel on you.</p>
+
+<p class="wp-block-paragraph"><strong>They&#8217;re probably going to cancel. And I thought, &#8220;That&#8217;s going to be fine. That&#8217;d be great actually.&#8221;</strong></p>
+
+<p class="wp-block-paragraph">Yeah, totally.</p>
+
+<p class="wp-block-paragraph"><strong>Because I&#8217;ll get on stage and say, &#8220;They canceled because they can&#8217;t take it.&#8221; But at the same time, I knew that the people buying the tickets probably were buying the tickets to see so-and-so appear on stage. This never actually came to a head. This was never actually a problem. It was just always in my mind.</strong></p>
+
+<p class="wp-block-paragraph">Maybe you weren&#8217;t doing enough exposés.</p>
+
+<p class="wp-block-paragraph"><strong>I thought, &#8220;Should I be causing this problem more?&#8221; How do you think about that? You cover these companies at a really high level.</strong></p>
+
+<p class="wp-block-paragraph">We do obviously write stories that they don&#8217;t like all the time. We try really, really hard to be fair. We try not to sandbag people, but there are two different things. One is, “Did you write a story that upset them and they canceled on you?” You just have to be willing. That&#8217;s just the cost of doing business in journalism and that&#8217;ll happen and you just can&#8217;t think about it. We are trying to be grown up and fair.</p>
+
+<p class="wp-block-paragraph">One of the things that I&#8217;ve noticed is there&#8217;s a sense, particularly if you go to these conferences that are not run by journalists, that you don&#8217;t want to ask the hard question. You&#8217;re a little nervous about there being this core question in the CEO&#8217;s business or in this politician&#8217;s leadership that is awkward to ask. But of course that&#8217;s the question that the CEO spends all his or her time thinking about. Not only are they ready for it, they&#8217;ve also thought about it more than anybody else. They&#8217;re eager to engage on it.&nbsp;</p>
+
+<p class="wp-block-paragraph">It&#8217;s like a weird illusion that senior leaders don&#8217;t want to be asked hard questions. That&#8217;s crazy. The reason they&#8217;re in those gigs is because they find it really interesting. They&#8217;re much more relaxing jobs.</p>
+
+<p class="wp-block-paragraph">If you&#8217;re interviewing the CEO of Ford and you&#8217;re not asking him — and how are you not? — about this crisis of China swallowing their business, what are you doing? There is an impulse, which I think is totally wrong, to tiptoe around the hard questions. I actually think for CEOs, for political leaders, it&#8217;s boring for them to go on stage and tell the same canned anecdotes about their personal biographies they&#8217;ve told a thousand times. It’s their job to answer hard questions.</p>
+
+<p class="wp-block-paragraph"><strong>I&#8217;m always asked by various comms people, “Why do the CEOs come on the show?” In our YouTube comments, people ask, “Why would they show up?” The answer I&#8217;ve most commonly gotten is this is the only way their own employees will listen to them.</strong></p>
+
+<p class="wp-block-paragraph"><strong>They want to see the challenge and the stakes and the conflict as you&#8217;ve described are present in this format, whereas no one&#8217;s listening to the all-hands.</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s important that you be respectful. There&#8217;s a slice of tech journalism that really concluded that the people they cover are monsters. It&#8217;s probably hard to get those folks to talk to you then. Conversely, there&#8217;s a slice of the tech industry that has concluded all journalists are in a deep conspiracy to destroy them.&nbsp;</p>
+
+<p class="wp-block-paragraph">Both of those slices of media culture have run their course and are both toxic and boring at this point. Everybody should stop and just cover these people like important decision makers in the middle of great stories. That&#8217;s just the news business.</p>
+
+<p class="wp-block-paragraph">We care a lot about our independence and other journalists&#8217; independence and build it deeply into the events.</p>
+
+<p class="wp-block-paragraph"><strong>It&#8217;s more than a slice on either side. Our own audience says, “All of these people are monsters,” and they&#8217;re reading a tech website. I look at most of the politicians in America. They&#8217;ve come around to, “Maybe we should stop the data centers, or we should at least talk about it because people will like us if we talk about it.” After a decade of talking about regulating social media—</strong></p>
+
+<p class="wp-block-paragraph">And not doing it.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>—and clamping down on Big Tech and doing nothing, we&#8217;ve never passed a privacy law in this country.</strong></p>
+
+<p class="wp-block-paragraph"><strong>You see there&#8217;s a lot of heat around “these guys are monsters, we can just throw sticks and stones at them.” And then on the other side, they own the distribution channels. They&#8217;re on X, doing whatever they want to do. There&#8217;s a sense that they don&#8217;t need the accountability.</strong></p>
+
+<p class="wp-block-paragraph"><strong>Mark Zuckerberg just </strong><a href="https://www.theverge.com/tech/977395/meta-mark-zuckerberg-superintelligent-ai-ramble"><strong>published a 6,500 word manifesto</strong></a><strong> that in my estimation is freshman year political science thinking. He&#8217;s going to get away with it because there&#8217;s literally no one around him to say, &#8220;Try being smarter than this.&#8221;</strong></p>
+
+<p class="wp-block-paragraph"><strong>Do you see that connection at your events, where the thing you need to challenge some of these executives on is people think you have bad values, not your business decisions?</strong></p>
+
+<p class="wp-block-paragraph">When you are interviewing somebody where there&#8217;s a core critique of the thing they&#8217;re doing that is the values, you should definitely ask. You always ask them. That&#8217;s the question they&#8217;ve been thinking about, too.</p>
+
+<p class="wp-block-paragraph">I actually disagree with you on the AI CEOs though. We&#8217;re moving out of an era where you had business leaders. Marc Andreessen is patient zero of this — very, very smart guy, very influential and influenced a lot of people to think this way, but who had this deep paranoia about the media and the sense that it wasn’t relevant.</p>
+
+<p class="wp-block-paragraph">If you look at the really great business figures of this era, of the new ones — I would say Dario Amodei, Sam Altman, and Jensen Huang — these are classic showmen who love the media. Or I don&#8217;t know if they love the media or they hate the media, but they, like Steve Jobs, understand it, like Donald Trump.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>They&#8217;re selling something.</strong></p>
+
+<p class="wp-block-paragraph">They&#8217;re salesmen who see the media as a very important sales channel, which is how business leaders have always been. They&#8217;re running circles around the guys and the women who are sitting paranoid, saying, &#8220;I don&#8217;t know if we can talk to this reporter.&#8221;</p>
+
+<p class="wp-block-paragraph">They just pick up the phone and they&#8217;re on the cover and they wear the leather jacket and they do whatever the slightly corny but incredibly effective <em>Time</em> magazine cover style thing is. Obviously the legacy media is diminished and there are new outlets, but fundamentally they&#8217;re showmen who aren&#8217;t operating out of some kind of deep theoretical relationship with media that they plan to change.</p>
+
+<p class="wp-block-paragraph">Elon is obviously the big exception to this rule, as of many, but the rest of this new generation of business leaders have a much more normal relationship with the media.</p>
+
+<p class="wp-block-paragraph"><strong>One of the things that I think is really interesting in that context is the rise of the news creator, the news influencer, where they aren&#8217;t of the machine the way that you are of the machine. They don&#8217;t have a Justin Smith saying, &#8220;I&#8217;ve built a global news operation. You just do the great reporting, I&#8217;ll find new business. By the way, all the big print newspapers have task forces. We will have a global conference and solve independence.&#8221;</strong></p>
+
+<p class="wp-block-paragraph"><strong>The influencers and creators I talk to, this is all a first impression for them. The idea that they can be plied with gifts or access or made to seem more important, they feel it.</strong></p>
+
+<p class="wp-block-paragraph"><strong>They struggle with it on a deep level. A lot of our industrialists and politicians now understand that that is a faster route to a bigger audience and that there&#8217;s more influence to be had there over the content, over the editorial. How do you compete with that?</strong></p>
+
+<p class="wp-block-paragraph">You have to have courage in your conviction that people want journalism, that people actually would like true facts rather than lies and independent voices rather than ones that are corrupt. That&#8217;s a very optimistic view, but that&#8217;s broadly true. You&#8217;re seeing that the most interesting and most successful creators are also finding that.</p>
+
+<p class="wp-block-paragraph">The great Silicon Valley podcaster Dwarkesh Patel’s questions have gotten tougher and tougher because he&#8217;s very sophisticated and I think he realizes his audience knows that, if you&#8217;re interviewing Jensen Huang about how he thinks about chips in China, <a href="https://www.noahpinion.blog/p/scoring-the-jensen-dwarkesh-debate">you should ask him the hard questions</a>, not the easy ones, and that&#8217;s more interesting. It&#8217;s so obvious. For journalists who admire or worry about creators, there&#8217;s some lacking in the courage of their own convictions that it is more interesting to ask hard questions than easy ones.</p>
+
+<p class="wp-block-paragraph"><strong>Don&#8217;t you need the person to show up to be asked the questions of? This is the dynamic that I see in so many places. With the podcasters and the creators, what they&#8217;re learning is that their audiences are durable. You don&#8217;t need the famous person. You don&#8217;t need Apple access to get your big audience. If you have a big audience, you can do whatever you want. My formulation of that is the less access you need, the more you get. But that&#8217;s a hard lesson to learn at the beginning.</strong></p>
+
+<p class="wp-block-paragraph">There&#8217;s an old saying that access is a curse, too.</p>
+
+<p class="wp-block-paragraph"><strong>Oh, access is poisonous.</strong></p>
+
+<p class="wp-block-paragraph">I follow politics very closely, and you see this in Washington. I don&#8217;t know if you remember, but in the beginning of the Trump administration, there were all these influencers in the White House press conferences asking Karoline Leavitt how she does her hair. The thing is I think they and their audiences found that that was extremely boring, and they wandered off to talk instead about having paranoid fights with Candace Owens or whatever.</p>
+
+<p class="wp-block-paragraph">Similarly, the Pentagon in particular brought in all these what they saw as allied, pliable, right-wing influencers to replace the hated mainstream media. And then when the Iran war started, <em>Gateway Pundit </em>is grilling Pete Hegseth about the war and he doesn&#8217;t have answers because there are a lot of toxic things about audience capture and you can be pulled all sorts of crazy places by your audience, but also you can be pulled toward journalism by your audience.</p>
+
+<p class="wp-block-paragraph">What you saw in that Pentagon press room was that their audiences were nervous about the war and did not like it. So suddenly Pete Hegseth is being grilled by these pet outlets that he&#8217;d put in there to avoid dealing with real questions. There was some sense that journalism isn&#8217;t a trade that you learned at journalism school. It is actually a service to your audience that anybody can figure out if you are paying attention.</p>
+
+<p class="wp-block-paragraph"><strong>One of the really interesting things to me about that dynamic in particular at the Pentagon is so many of the journalists they put in there were video first. They were making clips. I could see them in those press conferences trying to get a clip. They knew the video would play and then the platforms reward conflict, and the comments were, &#8220;Why did you ask this question?”</strong></p>
+
+<p class="wp-block-paragraph">What do you think Sam Donaldson was doing in the White House press room in the 1980s? These are stages for performance.</p>
+
+<p class="wp-block-paragraph"><strong>Sure. Who was it? It was Newt Gingrich who figured out </strong><a href="https://www.brandeis.edu/magazine/2020/fall/arts-and-culture/gingrich.html"><strong>C-SPAN was the stage for him</strong></a><strong>. I understand, but the clip economy in particular.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>They&#8217;re going to manufacture a clip, and maybe it&#8217;s the audience pulling you towards journalism or maybe it&#8217;s just the algorithm pulling you towards conflict.</strong></p>
+
+<p class="wp-block-paragraph">There are good pulls and there are bad pulls, for sure.</p>
+
+<p class="wp-block-paragraph"><strong>Sometimes it&#8217;s hard to tell the difference. You&#8217;re doing more video now, and that&#8217;s right next to the fact that the Semaform</strong><strong><em> </em></strong><strong>is there to expose the structure of journalism because its audience is really smart and some of them are CEOs. And then you&#8217;re going to go make video on video platforms and you&#8217;re going to experience that other pull. How do you think about managing that? Are you not chasing scale?&nbsp;</strong></p>
+
+<p class="wp-block-paragraph">No, we think about it a lot, about not chasing scale on video, but trying to have really high-level conversations. That there&#8217;s a big — but not the biggest — audience for really sophisticated conversations with leaders in media or in <em>Compound Interest</em>, our business show; CEOs on our <em>CEO Signal</em> show; and other stuff we&#8217;re going to be launching.</p>
+
+<p class="wp-block-paragraph">Video reminds me so much of the social web, and the allure of infinite scale if you just follow it toward this fixed point that everyone else is also going toward. It&#8217;s this incredibly homogenizing force. Everybody on the left is doing Bari Weiss outrage this week, and it&#8217;s very, very hyper partisan. No, we just have really had a lot of internal conversations about resisting that.</p>
+
+<p class="wp-block-paragraph"><strong>How do you make money if you don&#8217;t chase scale on video?</strong></p>
+
+<p class="wp-block-paragraph">You have to reach a really high-quality audience.</p>
+
+<p class="wp-block-paragraph"><strong>And you&#8217;re just going to bake the ads in? Are you going to do the ad reads? This is the other big problem of the creator world is the platforms don&#8217;t pay you any money, and they&#8217;ve certainly learned to pay people less money.</strong></p>
+
+<p class="wp-block-paragraph">Yes, we do integrated campaigns with direct-sold advertisers. I don&#8217;t know. You do host reads. I noticed that <em>Odd Lots</em>, my second favorite show, is doing host reads these days.</p>
+
+<p class="wp-block-paragraph"><strong>This is the biggest concept in all of media.</strong></p>
+
+<p class="wp-block-paragraph">The principle of journalistic independence is incredibly important. The forms change when you&#8217;re in these moments. What I remember is that on Google, the ads used to be in yellow and they had a yellow overlay. At <em>BuzzFeed</em>, we said, &#8220;Okay, that&#8217;s the convention. We&#8217;ll have a yellow overlay on our ads. That&#8217;s how you know it&#8217;s an ad.&#8221;</p>
+
+<p class="wp-block-paragraph">Then Google removed it, and we said, &#8220;I guess that&#8217;s not the convention. I guess ads can be the same color as everything else.&#8221; These things are signals to the audience and the forms change through time. Again, you don&#8217;t want to be innovating the field of ethics, but you have to realize that the forms are changing.</p>
+
+<p class="wp-block-paragraph"><strong>My harshest take about all these platforms is Google made the ads not yellow and then it made them look like the content, and then it changed the economics of the web such that the only profitable thing to publish on the web is marketing content and listicles about what shoes to buy when you go hiking, and now that&#8217;s all that shows up in AI Overviews.</strong></p>
+
+<p class="wp-block-paragraph">And then Meta started charging you to distribute those rather than letting them go viral on their own if they were good.</p>
+
+<p class="wp-block-paragraph"><strong>So everything became advertising. YouTube just </strong><a href="https://www.theverge.com/streaming/977474/youtube-partner-program-new-requirements"><strong>made it harder to make money on YouTube</strong></a><strong>. They changed the rules of their partner program. The only way you can make real money as a creator on YouTube and have your big staff is if you do the integrated brand campaign — if you become an advertiser or an ad agency.</strong></p>
+
+<p class="wp-block-paragraph"><strong>That is the pull of all these platforms: “We&#8217;re not going to pay you anything, we&#8217;re going to take the content for free, maybe we&#8217;ll even train our AI on it, and you will integrate advertising it somewhere.” I get what you&#8217;re saying about not innovating in ethics, but as someone who has resisted the many, many, many demands that I do the host reads and the checks that come along with it, that&#8217;s the innovation is we&#8217;re making the reporters read the ads now.</strong></p>
+
+<p class="wp-block-paragraph">In the old days of TV and radio, the hosts read the ads, and then they stopped. Now they do it again. Maybe there&#8217;s some study saying they were more corrupt.&nbsp; But I haven&#8217;t really seen any evidence of that. I just think these are different kinds of forms.</p>
+
+<p class="wp-block-paragraph">It used to be that front page advertising in newspapers was considered horrifically corrupt and now they do it all the time. Some of this stuff is people get caught up on the forms in a medium that&#8217;s just changing really, really fast. No, we want to create amazing advertising that our advertisers are really happy with and works for them. That&#8217;s just core to the business. It is another nice thing about starting from scratch.&nbsp;</p>
+
+<p class="wp-block-paragraph">There&#8217;s a difference between when you&#8217;re building a media company, as you have done, thinking about, “This is a product that our audience is going to love and that our advertisers are going to love.” And in that neonatal state, church and state can talk to each other a lot. Once you launch the thing, they&#8217;ve got to be really independent.</p>
+
+<p class="wp-block-paragraph"><strong>This is the core challenge of our time, especially if you want to make something that gets wide distribution. If you want to start a newsletter on Substack or Ghost or Beehiiv and charge a lot of money to a small audience, I think you can do pretty well. Your ability to have a massive impact gets immediately limited, as you&#8217;ve said. There&#8217;s a cap on your audience size. It seems like Semafor wants to have the big impact, but retain the elite audience.</strong></p>
+
+<p class="wp-block-paragraph">That is a way to build a big business without reaching a huge scale is to reach a very, very valuable audience. Again, that&#8217;s not the only way to build a media company, you wouldn&#8217;t want to be in a world where that was the only kind of media company, but we are totally, totally focused on that. It is working and it is allowing us to hire great journalists to break stories.</p>
+
+<p class="wp-block-paragraph"><strong>One of the things that I consider with our audience all the time, because we were free until about a year ago, is that we had a huge audience and they were very aware of any of our potential biases. Maybe this is just the tech audience, and we have lots of commenters. But if you love Apple, everything is going to be pro-Apple. That is just the firmament in which a tech publication stands.</strong></p>
+
+<p class="wp-block-paragraph"><strong>But also Comcast was an investor in Vox Media and Vox, and we would have to disclose it. Comcast didn&#8217;t like me, but we would disclose it all the time. There&#8217;s just some part of, “Well, we think the audience is smart, they&#8217;re an elite audience, they understand the structure, they might understand the biases that come with having Jensen on the board of advisors, having a bunch of Saudi royalty on your board of advisors.” How do you feel about that?</strong></p>
+
+<p class="wp-block-paragraph">No, they understand what we&#8217;re doing quite clearly.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>Do they think that that gets some influence? Because that&#8217;s what the consumer audience definitely believes.</strong></p>
+
+<p class="wp-block-paragraph">I don&#8217;t know what they think, but our promise to them is that it doesn&#8217;t, and that we&#8217;re covering these people very independently. In fact, a lot of the people on these advisory boards have diametrically opposed interests to one another.&nbsp;</p>
+
+<p class="wp-block-paragraph">There&#8217;s no journalistic followthrough, not any more than I think being on the <em>DealBook </em>task force influences what you see in <em>The New York Times</em>. I do think though, in the biggest sense like this, as you said, just to go back to something you said earlier, that everything is marketing.</p>
+
+<p class="wp-block-paragraph"><strong>Everything is corrupt.</strong></p>
+
+<p class="wp-block-paragraph">In corners of media, including our corner, we&#8217;ve managed to really hold the line on this, but if you look at a lot of social video in particular and platforms like TikTok, totally undisclosed advertising is everywhere and it really distorts how people see the world. Just in terms of people&#8217;s judgment about what&#8217;s working, what&#8217;s real, what&#8217;s not real.&nbsp;</p>
+
+<p class="wp-block-paragraph">I think about this a lot in the AI space actually, because there are so many anecdotes out there or videos of people doing incredibly cool things with this tool or that tool, and you just never really know. It&#8217;s just hard to know what&#8217;s marketing and what&#8217;s not, what&#8217;s just literally paid for and what&#8217;s not. We are doing a project that I&#8217;m very excited about called the Semafor Innovation Atlas. It&#8217;s just literally trying to report, “Here are some cool particularly public sector AI projects that are real.” Because there&#8217;s so much out there that&#8217;s just unreal but that tells a good story, which is in a way the job of marketing.</p>
+
+<p class="wp-block-paragraph"><strong>I had a partner at a very, very large consulting firm tell me they had done hundreds of AI deployments and less than two dozen had yielded positive ROI.&nbsp; I said, &#8220;Can you just tell me that on the record?&#8221; And he said, &#8220;Absolutely not. We want hundreds more.&#8221;&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>We&#8217;re in that moment where everything feels marketing, everything feels corrupt. The thing I&#8217;m just pushing at is the audience, their base assumption, regardless of how elite the audience is, is that everything is corrupt. I find the higher up we go, the assumption that things can be bought and paid for increases.</strong></p>
+
+<p class="wp-block-paragraph">We live in a very populist moment, in this widespread belief that everything is corrupt. It just diffuses through society and it&#8217;s partly justified. It&#8217;s partly not. My favorite example of this is the congressional stock trading thing, where there&#8217;s been a lot of research. There are, I&#8217;m sure, corrupt Congress people front-running stocks. It&#8217;s never been a big problem and there&#8217;s no study showing that it&#8217;s widespread.&nbsp;</p>
+
+<p class="wp-block-paragraph">To try to disabuse people of this, they passed a law several years ago saying that members of Congress have to disclose their stock trades. And now there are all these accounts. There&#8217;s 400 whatever members of Congress, some of them are winning, some of them are losing. If you only look at the ones who are doing well, you can tell a story about widespread corruption.</p>
+
+<p class="wp-block-paragraph">Now, everyone believes it&#8217;s incredibly corrupt as a result of a transparency measure that actually showed it wasn&#8217;t. We&#8217;re in a moment where there&#8217;s this deeply baked-in sense that every institution is corrupt. We try by being really transparent and really direct and, by not compromising on this stuff, sending a message to counter that. But you&#8217;re swimming against a big cultural tide right now.</p>
+
+<p class="wp-block-paragraph">For us, a big part of the marketing of our events and the way we make them good is that it&#8217;s going to be a festival of news, we&#8217;re going to ask real questions, it&#8217;s going to be exciting. Justin at some point I think called Semafor World Economy “Davos with follow-up questions.”</p>
+
+<p class="wp-block-paragraph"><strong>That&#8217;s pretty good.</strong></p>
+
+<p class="wp-block-paragraph">That to me is like you guys saying, &#8220;We don&#8217;t take freebies in reviewing gadgets.&#8221; That&#8217;s a huge selling point for you. You got to really lean into that, not away from it.</p>
+
+<p class="wp-block-paragraph"><strong>The thing that gets me now, the reason I think we can market it, is that if this was 10 years ago saying, &#8220;</strong><strong><em>The Verge</em></strong><strong> has an ethics policy,&#8221; all of my competitors would say, &#8220;So do we.&#8221; I think </strong><strong><em>Wired</em></strong><strong> is doing great reporting.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>A lot of the way they market their great reporting is they just say out loud, &#8220;Look at all this reporting, we do it. Buy our subscription.&#8221; It&#8217;s totally effective. They&#8217;ve cracked some code there by just saying out loud that they do the reporting, people will pay for it.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph">Turns out people like journalism.</p>
+
+<p class="wp-block-paragraph"><strong>I think that&#8217;s very smart. What has occurred to me in all of that is particularly our youngest audience does not know. They did not come up the same way. The water they&#8217;ve been swimming in their entire lives is social media, integrated brand campaigns by creators, and a feed that is increasingly fake and bought and paid for. I&#8217;m not sure about us showing up and saying, &#8220;There&#8217;s an old way of doing this.&#8221;</strong></p>
+
+<p class="wp-block-paragraph">See, I disagree. People don&#8217;t want to be lied to and don&#8217;t want to be fed slop. We&#8217;re headed for some kind of reckoning like the big payola scandals in the radio industry.</p>
+
+<p class="wp-block-paragraph">Everybody inside the radio industry knew and it was a totally open secret that the way you got your song on the radio is you pay off the DJ, but it turned out the audience was not in on the joke. So when Congress held hearings into it totally blew up the industry and upended everything.&nbsp;</p>
+
+<p class="wp-block-paragraph">Particularly with political influencer marketing, people hate that. You’ve got to think Congress is going to come in and crack down on it. I&#8217;m actually optimistic about that. Adam Schiff just <a href="https://www.schiff.senate.gov/news/press-releases/news-schiff-introduces-bill-to-improve-transparency-of-paid-influencers-promoting-political-campaigns/">recently introduced a bill on it</a>. That probably won&#8217;t be the one, but everybody hates this. The idea that your favorite influencer is being bribed by some politician to lie to you, people do not like that.&nbsp;</p>
+
+<p class="wp-block-paragraph">That disclosure, which is mostly in effect or somewhat in effect with big brand marketing, if PepsiCo buys an ad, they&#8217;re going to disclose it. There&#8217;s a lot of shady stuff happening around the margins. And then politics, because there&#8217;s this chasm between the Federal Elections Commission, which sort of collapsed, and the FTC, which regulates other advertising. There&#8217;s all this undisclosed and undisclosable political advertising. I just do not think people like that. That&#8217;s going to wind up having to be regulated. It makes people angry. It makes <em>you</em> angry.</p>
+
+<p class="wp-block-paragraph"><strong>I&#8217;m curious about this. There was a recent story, </strong><a href="https://www.politico.com/news/magazine/2026/08/01/heritage-foundation-young-republicans-groypers-hiring-01006937"><strong>I think it was </strong><strong><em>Politico</em></strong></a><strong>, saying all of the young staffers on the right have no idea how to do anything, because they&#8217;re all comms people. They&#8217;re all influencers and there&#8217;s a talent shortage.&nbsp;</strong></p>
+
+<p class="wp-block-paragraph"><strong>I think </strong><a href="https://www.esquire.com/news-politics/politics/a35364914/madison-cawthorn-future-republican-politics-staff-legislating/"><strong>Madison Cawthorn was the bellwether</strong></a><strong>. He came into office and he said, &#8220;I&#8217;ve got more comms people than policy people.&#8221; And then it very quickly became clear that wasn&#8217;t going to be great. But now that&#8217;s the norm that we&#8217;re all just tweeting policy into existence. We&#8217;re going to stop the Iran war with tweets. It&#8217;s a real thing that happens once a week in this country.</strong></p>
+
+<p class="wp-block-paragraph"><strong>There&#8217;s something there that&#8217;s broken. Political influence operations, maybe we hate when they&#8217;re paid for, but they are politics now. And they&#8217;re part of the feed in a very real way.</strong></p>
+
+<p class="wp-block-paragraph">Sometimes in really damaging ways, this administration is incredibly responsive to social media. A story goes viral on Twitter and somebody gets their immigration status pulled — I just <a href="https://www.thenation.com/article/society/maryam-tahmasebi-iran-ice-essay/">read a piece</a> from a woman who&#8217;s in ICE holding because there was a sort of misleading campaign saying her husband&#8217;s mother had been a translator for the Iranians in the &#8217;70s, and so she&#8217;s now in an ICE holding cell. The administration acted because this went viral on social media.</p>
+
+<p class="wp-block-paragraph">There&#8217;s always been a very intense relationship between the media and the politicians. <em>The New York Times</em> publishes a story and then Chuck Schumer the next day introduces a piece of legislation, which is the oldest trick in the book.&nbsp;</p>
+
+<p class="wp-block-paragraph">Actually, it’s not been my experience that Republican staffers in Washington are incompetent. I live in New York and often go to Washington, and I&#8217;m in Washington a lot. People in my liberal Brooklyn neighborhood will say, &#8220;God, it must be so horrible to deal with those Trump people.&#8221; The reality is actually they&#8217;re incredibly polite and responsive.&nbsp;</p>
+
+<p class="wp-block-paragraph">It was a nightmare often to deal with the Biden people, because Democrats think that journalists work for them. That writing something independent is an act of betrayal. I suppose Republicans have either appropriate or lower expectations. That&#8217;s sort of always been true.</p>
+
+<p class="wp-block-paragraph">Communication has always been a pretty important part of politics, but there&#8217;s a way in which the disorganization of this administration in particular just means that they&#8217;re totally reactive to random pieces of media that somebody plays Donald Trump on an iPad. That is really different.</p>
+
+<p class="wp-block-paragraph"><strong>I just see that we&#8217;re going to tweet policy into reality as a feature of this administration. There&#8217;s not a lot of rigor under that policy often.</strong></p>
+
+<p class="wp-block-paragraph">Or often somebody else just tweets something and it goes viral. This was the story of DOGE. Musk was just seeing tweets and making policy based on it.</p>
+
+<p class="wp-block-paragraph"><strong>Do you think that has come to an end? We&#8217;re saying people hate these political influence operations, that probably they will get regulated in some way because both sides hate the idea that all the influencers are getting paid by politicians.</strong></p>
+
+<p class="wp-block-paragraph">No, right now we&#8217;re in the worst part of it. Although you&#8217;ve seen a federal government that had had a lot of momentum and ability to execute things, it lost all of that. At the White House, there&#8217;s much less able to do anything right now, so there&#8217;s less happening.</p>
+
+<p class="wp-block-paragraph"><strong>This is where I wanted to wrap up. It&#8217;s going to break somehow. There&#8217;s some kind of reckoning coming where people want the truth. People don&#8217;t trust the tech companies. The antipathy towards AI in particular is high, but the tech companies and a bunch of billionaires own all our distribution in very significant and serious ways. Something is going to happen. The audiences are going to change in some way. There will be some reaction somehow. Do you have a view of that?</strong></p>
+
+<p class="wp-block-paragraph">This stuff keeps changing. There is a temptation to validate the populist impulses of the moment that I actually think journalists should probably resist sometimes. I heard your <a href="https://www.theverge.com/podcast/971855/ai-data-center-backlash-protests-florida-bipartisan">interview with Gaby Del Valle about data center politics</a>. I loved her anecdote about a rumor going around that the data centers were killing cattle, and she tracked it down to one Texas farmer who had lost one cow.&nbsp;</p>
+
+<p class="wp-block-paragraph">I actually think the role of journalism is not always to amplify the populist reaction, even though it&#8217;s so easy and social media validates that. It&#8217;s a little more complicated. I actually hesitate to predict whether things are getting better or worse.</p>
+
+<p class="wp-block-paragraph"><strong>Your event Silicon Valley &amp; The World is coming up. If I had to make one prediction about the midterms, it would be that surveillance and data centers will cause some sort of left-right realignment. They scramble the lines in very populist ways.</strong></p>
+
+<p class="wp-block-paragraph"><strong>But they also cause alignment. They bring together very disparate groups of people. How do you expect that class of billionaires, which all want things, to react to what I feel like will be a surprising story in the midterms?</strong></p>
+
+<p class="wp-block-paragraph">There are different strains of this. The data center story is so hot right now, and I&#8217;m in the minority here. Most people think this will be a huge political issue for a long time. Companies try to build facilities in people&#8217;s neighborhoods and then they go in and they sponsor the Little League team and they pay a bunch of carpenters and they sponsor the parade. That is actually something corporate America is pretty good at. And it&#8217;s unbelievable how badly they screwed this up, these data centers.</p>
+
+<p class="wp-block-paragraph"><strong>Yeah, it&#8217;s very bad.</strong></p>
+
+<p class="wp-block-paragraph">But that is because they aren&#8217;t actually causing stillborn cattle. Fundamentally, with the exception that they&#8217;re going to have to navigate the energy issue, they&#8217;re going to have to find a way to not elevate energy prices. But some of that probably does fade as companies figure out how to do this without infuriating neighborhoods and doing it in places people want it. Maybe it will become less of an issue.</p>
+
+<p class="wp-block-paragraph">The big questions around regulating AI are just fascinating. And you&#8217;re right, after, as you said, not regulating social media and then beginning the [second] Trump administration with this incredibly accelerationist point of view, they are now just doing it. They&#8217;re just regulating this technology day to day. They&#8217;re going to have to figure out a framework for it. Every political candidate will have to have some point of view on it.</p>
+
+<p class="wp-block-paragraph">It’s pretty unpredictable what this is going to be, but I do think we&#8217;re in a new era. Particularly the biggest part of the new era is just that the federal government is now this huge participant in the economy and in the economy of tech. It owns a big chunk of intel and is trying to shape technological policies and picking winners and losers. Executives are in Washington constantly trying to make their case. I think that whoever the next president is, that probably doesn&#8217;t change. And that&#8217;s a really massive structural shift that we&#8217;re all going to be covering.</p>
+
+<p class="wp-block-paragraph"><strong>Do you think that you can run as a populist if you want to take a big stake in our AI companies? Or is that a redistributive move?&nbsp;</strong></p>
+
+<p class="wp-block-paragraph">I don&#8217;t think populism is necessarily that. I wouldn&#8217;t get too far into the details. It just depends how you talk about it.</p>
+
+<p class="wp-block-paragraph"><strong>That does seem like the theme of the day in Washington.</strong></p>
+
+<p class="wp-block-paragraph">What do they say about simple solutions to complex problems?</p>
+
+<p class="wp-block-paragraph"><strong>Yeah, Trump has compared those stakes in companies to the sovereign wealth funds.</strong></p>
+
+<p class="wp-block-paragraph">Yeah, that&#8217;s reasonable.</p>
+
+<p class="wp-block-paragraph"><strong>A lot of Gulf states have that. I actually wanted to ask you about this. You cover the Gulf deeply, you&#8217;ve got events in the Gulf. The United States, I would say, is in some kind of free speech crisis that is modeled a lot after the control that Gulf states have over their media and what people are not allowed to say. The Kushner family is all wrapped up into that.</strong></p>
+
+<p class="wp-block-paragraph"><strong>How do you think about all of the things you talked about independence when you have that money in your organization, when you have those folks on your various boards at events, when you have journalists on the ground in those places?</strong></p>
+
+<p class="wp-block-paragraph">We cover Saudi and the Emirates in particular a lot and pretty aggressively. We hired the great reporters from <em>Bloomberg</em> and <em>The Wall Street Journal</em> and places like that in the region. We don&#8217;t have any investment money from the Gulf and for many sovereigns. I&#8217;m not sure that&#8217;s what you meant, but just to be clear about that.</p>
+
+<p class="wp-block-paragraph"><strong>They&#8217;re on your board for these events.</strong></p>
+
+<p class="wp-block-paragraph">They&#8217;re advisors. There are some executives from that part of the world on advisory boards. But we cover them independently. The same as the <em>Financial Times</em> and <em>The Wall Street Journal</em> and others do in that region, and in <em>The New York Times</em>. If you talk to reporters who work in the region, it&#8217;s very, very hard and complicated. And there are local laws that you have to be careful about.</p>
+
+<p class="wp-block-paragraph">We were the only ones to write about a very interesting story, the way in which the Emirates, I believe, were preventing photojournalists from distributing images. That&#8217;s just the law. If your photographer goes and takes a picture of a drone that hit a building, they will arrest them. Every news organization that operates in that region, that operates in China, you just have to be really, really careful and thoughtful about it, but you can&#8217;t let it compromise the reporting.</p>
+
+<p class="wp-block-paragraph"><strong>Do you feel like it compromises the reporting here in the United States?</strong></p>
+
+<p class="wp-block-paragraph">No. I think that global news organizations actually — and if you think about <em>The New York Times</em>, which has reporters in Tehran — have thought really hard about this. There are stories that you have your correspondent in Washington write that you wouldn&#8217;t have somebody on the ground in Tehran write. And obviously, we think a lot about the safety of our reporters, but it&#8217;s a complicated question.</p>
+
+<p class="wp-block-paragraph"><strong>I asked that question because I see what the Trump administration does to journalists here.</strong></p>
+
+<p class="wp-block-paragraph">It&#8217;s funny, because I think that we obviously are in this, as you said, free speech crisis here in all sorts of ways. I don&#8217;t think it&#8217;s like a monarchy that doesn&#8217;t have the First Amendment. I think we&#8217;re a long way from that.&nbsp;</p>
+
+<p class="wp-block-paragraph">To me, the closer parallel to the Gulf is <a href="https://www.brookings.edu/articles/the-rise-of-personalist-rule/">personalist rule</a>. People talk a lot about corruption, but when you think about these relationships, often it&#8217;s a totally different style of doing business where you&#8217;re helping your friends and family. But it&#8217;s like a totally different modality that obviously in the American tradition is incredibly corrupt. In other parts of the world, that&#8217;s just the nature of business. I think that&#8217;s how parts of the Trump administration operate.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>The Trump family in particular sees that as a model. That was the comparison I was making. You can see them enriching themselves, particularly in that part of the world.</strong></p>
+
+<p class="wp-block-paragraph">I do think that elements of that style of doing business are more like other parts of the world. Obviously a lot of the speech stuff here is terrible, but it&#8217;s really not like… I mean, just as somebody who operates there, it&#8217;s not like being in a country without the First Amendment.</p>
+
+<p class="wp-block-paragraph"><strong>Fair enough. Lastly, I just want to talk about AI in your newsroom for one second. We&#8217;ve talked a lot about AI in the industry. You make a lot of stuff. The pull, especially when you go make a bunch of video, is to fire ever more content into these algorithms. We haven&#8217;t really talked about it. Maybe the only journalistic ethics crisis I&#8217;ve never brought to you is, how should we use AI?</strong></p>
+
+<p class="wp-block-paragraph">Because I know that you&#8217;re such a purist. It&#8217;s funny, I go back and forth on how high impact it will be, but right now I&#8217;m like all the way forth on this. A colleague of mine built this great internal tool that is too boring to explain, but it&#8217;s going to totally change all of our lives internally. And I&#8217;m now a huge believer in the SaaSpocalypse. It&#8217;s all going away.&nbsp;</p>
+
+<p class="wp-block-paragraph"><strong>You cancel your Trello contract and you&#8217;re done.</strong></p>
+
+<p class="wp-block-paragraph">Some of this internal tooling is amazing. We also produced this report out of Semafor World Economy where it was a five-day event with three simultaneous stages and 300 interviews.&nbsp;</p>
+
+<p class="wp-block-paragraph">On Saturday morning, I texted the team, &#8220;Hey, I know you&#8217;re all tired, but could everybody write a little like ‘what I learned at Semafor World Economy’?&#8221; And everyone said, &#8220;Ugh.&#8221; And then Reed Albergotti, our great tech editor, said, &#8220;Give me a couple of hours.&#8221; He dropped all the transcripts into Codex or Cowork and then produced something that said, &#8220;Here are the most commonly made statements. Here are some disagreements.”</p>
+
+<p class="wp-block-paragraph">We then spent a week hammering through that and actually wound up creating a lot more work for humans. But the notion of, &#8220;What&#8217;s the takeaway from these 300 conversations?&#8221; That&#8217;s a job for AI basically. It&#8217;s a very hard thing, because no one was in all of them. They were simultaneous.</p>
+
+<p class="wp-block-paragraph">That was a great product that we then released and will continue to build on. I&#8217;m actually very bullish about AI, but fundamentally the best parts of reporting are gathering new information that isn&#8217;t on the internet and then communicating it with people. Everything in between is production and is very vulnerable to AI. Those things I think are pretty defensible.</p>
+
+<p class="wp-block-paragraph"><strong>It&#8217;s a good argument. I&#8217;m going to come around to it, I promise. I&#8217;m going to come around to it. This very much was a conversation exactly like the conversation we have over beers all the time.</strong></p>
+
+<p class="wp-block-paragraph">Okay. I have an AI question for you.</p>
+
+<p class="wp-block-paragraph">There&#8217;s a tool that allows you, on a podcast — if you screwed something up, if you&#8217;ve mispronounced somebody&#8217;s name — to drop it in with your own voice so you don&#8217;t have to go back into the studio and rerecord that sentence. Is that okay or not? This is an argument we&#8217;re having internally.</p>
+
+<p class="wp-block-paragraph"><strong>It depends on exactly how misleading you think you&#8217;re going to be.</strong></p>
+
+<p class="wp-block-paragraph">No, just like you mispronounced my name in the intro, and your producer said, &#8220;Hey, can you come back into the studio?&#8221; It&#8217;s Saturday morning.</p>
+
+<p class="wp-block-paragraph"><strong>So if I mispronounced your name to you on air?</strong></p>
+
+<p class="wp-block-paragraph">No, in your intro.</p>
+
+<p class="wp-block-paragraph"><strong>No, because then that&#8217;s just an edit. I would just pick it up.</strong></p>
+
+<p class="wp-block-paragraph">No, I know, but you have to go into the studio and rerecord that. But you&#8217;re on a boat doing whatever it is you do. And your producer can just take your voice and redo it.</p>
+
+<p class="wp-block-paragraph"><strong>That&#8217;s fine. I honestly think that&#8217;s fine.</strong></p>
+
+<p class="wp-block-paragraph">I think that&#8217;s fine too. Okay, good.</p>
+
+<p class="wp-block-paragraph"><strong>The deception comes if I mispronounce your name to you here, and then you leave, and then I make it better. If I&#8217;ve done something misleading. If I&#8217;m just picking up audio that you would have never heard and we&#8217;re just going to do an edit, we&#8217;re editing that anyway.</strong></p>
+
+<p class="wp-block-paragraph">Okay, good. I feel the same way.</p>
+
+<p class="wp-block-paragraph"><strong>To me, the line always comes down to who is being deceived. And if you&#8217;re literally going to deceive the guest and you&#8217;re going to create a moment that never happened, probably you&#8217;re way over the line.</strong></p>
+
+<p class="wp-block-paragraph">Although honestly, that&#8217;s a standard practice in television. They&#8217;ll recut the questions.</p>
+
+<p class="wp-block-paragraph"><strong>I&#8217;ve heard this. Although, now they&#8217;re all getting in trouble and I have to publish the full transcript, or the </strong><a href="https://www.nytimes.com/2025/07/02/business/media/paramount-trump-60-minutes-lawsuit.html"><strong>Trump administration sues them</strong></a><strong>.</strong></p>
+
+<p class="wp-block-paragraph"><strong>Ben, this has been great. Like I said, this is very much like many of the conversations we&#8217;ve had in private. I hope the audience can feel it. Thank you so much.</strong></p>
+
+<p class="wp-block-paragraph">I really enjoyed it. I love the show, and thank you for having me on.</p>
+
+<p class="wp-block-paragraph"><em><sub>Questions or comments? Hit us up at decoder@theverge.com. We really do read every email!</sub></em></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Dominic Preston</name>
+			</author>
+			
+			<title type="html"><![CDATA[How to take better photos of your pets]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/tech/970021/how-to-take-better-pet-photos" />
+			<id>https://www.theverge.com/?p=970021</id>
+			<updated>2026-08-17T08:27:14-04:00</updated>
+			<published>2026-08-17T07:00:00-04:00</published>
+			<category scheme="https://www.theverge.com" term="Cameras" /><category scheme="https://www.theverge.com" term="Gadgets" /><category scheme="https://www.theverge.com" term="How to" /><category scheme="https://www.theverge.com" term="Mobile" /><category scheme="https://www.theverge.com" term="Phones" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[Like the pets of any self-respecting millennial, my cats have their own Instagram account. Noodle and Loaf - aka Carb Cats - aren't exactly celebrities. But they are used to having their photos taken a lot. Between their Instagram account, my regular need to test smartphone cameras, and the fact that they are two adorable [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Photo of two tortoiseshell cats on an iPhone screen on a background of tabby cat fur." data-caption="Meet Noodle and Loaf, aka Carb Cats. | Image: The Verge, Getty Images" data-portal-copyright="Image: The Verge, Getty Images " data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/268628_Pet_week_CVirginia_PHOTOS.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+	Meet Noodle and Loaf, aka Carb Cats. | Image: The Verge, Getty Images	</figcaption>
+</figure>
+<p class="wp-block-paragraph">Like the pets of any self-respecting millennial, my cats have their own Instagram account.</p>
+<p class="wp-block-paragraph">Noodle and Loaf - aka <a href="https://www.instagram.com/carb.cats/">Carb Cats</a> - aren't exactly celebrities. But they are used to having their photos taken a <em>lot</em>. Between their Instagram account, my regular need to test smartphone cameras, and the fact that they are two adorable idiots, I've taken on an unofficial household role as pet photographer. </p>
+<p class="wp-block-paragraph">I know I'm not the only one. It's become standard practice to maintain a camera roll full of blurry bleps and dozing dogs. But pets are rarely easy to photograph. They're usually small, fast, and don't take direction well. Here are a few ways to impr …</p>
+<p><a href="https://www.theverge.com/tech/970021/how-to-take-better-pet-photos">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Jennifer Pattison Tuohy</name>
+			</author>
+			
+			<title type="html"><![CDATA[Whisker’s AI-powered litter robot thinks my cats swapped bodies]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/tech/978323/whisker-litter-robot-5-pro-review" />
+			<id>https://www.theverge.com/?p=978323</id>
+			<updated>2026-08-17T07:50:21-04:00</updated>
+			<published>2026-08-17T07:00:00-04:00</published>
+			<category scheme="https://www.theverge.com" term="Reviews" /><category scheme="https://www.theverge.com" term="Robot" /><category scheme="https://www.theverge.com" term="Smart Home" /><category scheme="https://www.theverge.com" term="Smart Home Reviews" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[The greatest invention in pet tech in recent years is the litter robot. A machine that scoops your kitties' poop so you don't have to - what else could a cat owner possibly want? How about insights into your kitty's litter box usage that could flag health issues? Sign me up. But I have two [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Cat standing inside of Whisker’s AI powered litter robot." data-caption="" data-portal-copyright="Image: The Verge, Getty Images " data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/268628_Pet_week_CVirginia_LITTER_ROBOT.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="has-drop-cap wp-block-paragraph">The greatest invention in <a href="https://www.theverge.com/tech/765085/pet-gadgets-dog-cat-fish-favorites">pet tech</a> in recent years is the litter robot. A machine that scoops your kitties' poop so you don't have to - what else could a cat owner possibly want? How about insights into your kitty's litter box usage that could flag health issues? Sign me up. But I have two feline friends… No worries, kitty facial recognition can handle that. </p>
+<p class="wp-block-paragraph">At least, that is the idea behind the <a href="https://www.whisker.com/litter-robot-5-pro">Litter-Robot 5 Pro</a>, the highest-end model from the OG robotic pooper scooper company Whisker. Boasting a dual camera system and an array of sensors to literally sniff out your cat's deposits, all wrapped up with AI algorithms and machine learning,  …</p>
+<p><a href="https://www.theverge.com/tech/978323/whisker-litter-robot-5-pro-review">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Jess Weatherbed</name>
+			</author>
+			
+			<title type="html"><![CDATA[Anthropic explains how Claude&#8217;s invisible text watermarks will work]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/ai-artificial-intelligence/980869/anthropic-claude-watermarks-synthid-text-system" />
+			<id>https://www.theverge.com/?p=980869</id>
+			<updated>2026-08-17T07:40:52-04:00</updated>
+			<published>2026-08-17T06:57:13-04:00</published>
+			<category scheme="https://www.theverge.com" term="AI" /><category scheme="https://www.theverge.com" term="Anthropic" /><category scheme="https://www.theverge.com" term="News" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[Anthropic has clarified how it's planning to apply invisible watermarks to Claude-generated text in order to comply with Europe's AI transparency rules. On Friday, Anthropic announced that Claude's text marking system is "a version of the SynthID-Text approach" - an open-source watermarking technology developed by Google DeepMind that creates detectable patterns using wording probabilities. This [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Claude logo on robot’s face." data-caption="" data-portal-copyright="Image: Cath Virginia / The Verge, Getty Images" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/01/STKB364_CLAUDE_2_C_96d15c.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">Anthropic has clarified how it's planning to apply invisible watermarks to Claude-generated text in order to comply with Europe's AI transparency rules. On Friday, <a href="https://www.anthropic.com/news/claude-text-watermark">Anthropic announced</a> that Claude's text marking system is "a version of the SynthID-Text approach" - an open-source watermarking technology <a href="https://www.theverge.com/2024/10/23/24277873/google-artificial-intelligence-synthid-watermarking-open-source">developed by Google DeepMind</a> that creates detectable patterns using wording probabilities.</p>
+<p class="wp-block-paragraph">This watermarking feature, <a href="https://www.theverge.com/ai-artificial-intelligence/977823/anthropic-claude-ai-watermarks-c2pa-text-images">alongside C2PA support</a> for Claude-processed images, is being introduced to meet Anthropic's obligations under the <a href="https://www.theverge.com/ai-artificial-intelligence/974571/eu-ai-act-transparency-labels-rules-deepfakes">European Union's AI Act</a>, which requires synthetic audio, image, video, and text to include machine-readable marks …</p>
+<p><a href="https://www.theverge.com/ai-artificial-intelligence/980869/anthropic-claude-watermarks-synthid-text-system">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Thomas Ricker</name>
+			</author>
+			
+			<title type="html"><![CDATA[I’m hooked on Peak Design’s new City bags]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/tech/980137/peak-design-city-line-review" />
+			<id>https://www.theverge.com/?p=980137</id>
+			<updated>2026-08-14T08:01:52-04:00</updated>
+			<published>2026-08-17T03:00:00-04:00</published>
+			<category scheme="https://www.theverge.com" term="Bag Reviews" /><category scheme="https://www.theverge.com" term="Reviews" /><category scheme="https://www.theverge.com" term="Tech" /><category scheme="https://www.theverge.com" term="Work anywhere" />
+							<summary type="html"><![CDATA[It's just a hook, sewn into a bag, but I really, really like it. Peak Design is so proud of its clever integration that the San Francisco-based maker of camera gear gave it a name: BagLev, for its ability to keep its new City Line of bags levitated above the dirty ground. How many of [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Peak Design’s new crossbody bag and backpack hanging off a round table outside a bar. There are mountains in the distance and a glass of beer and wine sit on the table. A woman sits on a bench off to the side." data-caption="Integrated BagLev hooks keep Peak Design’s City Line crossbody bag and backpack off the dirty ground. | Photo by Thomas Ricker / The Verge" data-portal-copyright="Photo by Thomas Ricker / The Verge " data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/IMG_3791.jpeg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+	Integrated BagLev hooks keep Peak Design’s City Line crossbody bag and backpack off the dirty ground. | Photo by Thomas Ricker / The Verge	</figcaption>
+</figure>
+<p class="has-drop-cap wp-block-paragraph">It's just a hook, sewn into a bag, but I really, <em>really</em> like it. Peak Design is so proud of its clever integration that the San Francisco-based maker of camera gear gave it a name: BagLev, for its ability to keep its new City Line of bags levitated above the dirty ground.</p>
+<p class="wp-block-paragraph">How many of us are guilty of coming home and tossing a bag onto the kitchen table or counter to unload it? We pretend it's not a thing, despite the carryall having come into contact with unknown filth picked up from the floors of subways and dive bars, sidewalks, and parks. BagLev lets you hang your bag off a chair, ledge, tabletop, or counter as you go about your day, kee …</p>
+<p><a href="https://www.theverge.com/tech/980137/peak-design-city-line-review">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Terrence O’Brien</name>
+			</author>
+			
+			<title type="html"><![CDATA[OpenAI reportedly disbanded its preparedness team]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/ai-artificial-intelligence/980817/openai-disbands-preparedness-team" />
+			<id>https://www.theverge.com/?p=980817</id>
+			<updated>2026-08-17T05:21:20-04:00</updated>
+			<published>2026-08-16T17:32:56-04:00</published>
+			<category scheme="https://www.theverge.com" term="AI" /><category scheme="https://www.theverge.com" term="News" /><category scheme="https://www.theverge.com" term="OpenAI" /><category scheme="https://www.theverge.com" term="Security" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[According to the Financial Times, OpenAI disbanded its preparedness team at the end of last month. The job of the preparedness team was to assess if models posed serious risks and develop ways to mitigate those risks. (You know, like the possibility that it could go rogue and hack another company.) According to FT, responsibility [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="Maroon OpenAI logo on yellow background" data-caption="" data-portal-copyright="" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2025/08/STK149_AI_01.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">According to the <a href="https://www.ft.com/content/53082739-7714-4aae-9816-e55ab423cbee"><em>Financial Times</em></a>, OpenAI disbanded its preparedness team at the end of last month. The job of the preparedness team was to assess if models posed serious risks and develop ways to mitigate those risks. (You know, like the possibility that it could <a href="https://www.theverge.com/ai-artificial-intelligence/968988/openai-hugging-face-hack-ai">go rogue</a> and hack another company.) According to <em>FT</em>, responsibility has instead been divided up for specific areas like bio and cyber, then moved into existing teams.</p>
+<p class="wp-block-paragraph">This is the latest change at the company, which has been in upheaval as it heads toward what is expected to be a massive IPO. Over the last few years, it's slowly torn down its more reach-led model, dissolving its AGI …</p>
+<p><a href="https://www.theverge.com/ai-artificial-intelligence/980817/openai-disbands-preparedness-team">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Terrence O’Brien</name>
+			</author>
+			
+			<title type="html"><![CDATA[Open Mike Eagle and Kenny Segal crafted a hip-hop breakup masterpiece]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/entertainment/980799/open-mike-eagle-and-kenny-segal-doomed-review" />
+			<id>https://www.theverge.com/?p=980799</id>
+			<updated>2026-08-17T09:21:34-04:00</updated>
+			<published>2026-08-16T16:31:37-04:00</published>
+			<category scheme="https://www.theverge.com" term="Column" /><category scheme="https://www.theverge.com" term="Entertainment" /><category scheme="https://www.theverge.com" term="Music" />
+							<summary type="html"><![CDATA["Breakups are… tough." It's the opening lines of an interlude toward the end of DOOMED! Called "It Happens in Every Universe." It's also basically the thesis of the entire record. It's no grand revelation, but it's a well-trodden subject that Open Mike Eagle manages to mine for artistic gold. Eagle's subject matter is usually personal, [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="The cover of Open Mike Eagle and Kenny Segal’s Doomed!" data-caption="In every possible universe? | Image: Backwoodz Studioz" data-portal-copyright="Image: Backwoodz Studioz" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/08/a4080481202_10.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+	In every possible universe? | Image: Backwoodz Studioz	</figcaption>
+</figure>
+<p class="wp-block-paragraph">"Breakups are… tough."</p>
+<p class="wp-block-paragraph">It's the opening lines of an interlude toward the end of <a href="https://openmikeeagle.bandcamp.com/album/doomed"><em>DOOMED!</em></a> Called "It Happens in Every Universe." It's also basically the thesis of the entire record. It's no grand revelation, but it's a well-trodden subject that Open Mike Eagle manages to mine for artistic gold.</p>
+<p class="wp-block-paragraph">Eagle's subject matter is usually personal, and his productions tinged with nostalgia. But <em>DOOMED!</em> is his most intimate album yet. A lot of that is due to the production from Kenny Segal. The two have traveled in the same orbit and worked together before, but this is the first full-length album release from the two. </p>
+<p class="wp-block-paragraph">These are some of Segal's most co …</p>
+<p><a href="https://www.theverge.com/entertainment/980799/open-mike-eagle-and-kenny-segal-doomed-review">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+	</feed>

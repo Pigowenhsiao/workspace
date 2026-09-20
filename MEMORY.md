@@ -46,7 +46,7 @@
 - [P1][2026-04-29] llm-wiki 預設目的地改為 `00-Inbox/`，完成後再移至正式分類（Learning/articles/ 等）
 - [P1][2026-05-03] 新筆記落地規則（強制）：所有新筆記一律先寫入 `00-Inbox/`，完成整理分類後再搬至正式位置（`08-Learning/` 各子目錄或 `09-Article-Notes/`）；此規則已寫入 `llm-wiki` 與 `note-update` 兩個 skill 的 SKILL.md
 - [P1][2026-05-03] 任務日誌機制：建立 `memory/tasks/` 目錄，index.md 為首頁，每月一個 `.md` 檔；完成任務後同步更新 `memory/tasks/YYYY-MM.md` 和 `memory/tasks/index.md` 的待處理队列
-- [P1][2026-08-17] **RTK 累計效益**（每週 neat-freak 更新）：截至 2026-08-16（daily 08-10~08-16）—— 12,435 cmds / 429.8M in / 45.7M out / **省 384.1M tokens（89.4%）**；avg 1.4s/cmd。**Monthly（2026-08）**：2,530 cmds / 13.6M in / 4.3M out / 9.2M saved (68.0%)。**RTK SOP**：neat-freak 跑時自動跑 `rtk gain -a -H`，產出「RTK 效益」章節附在報告中
+- [P1][2026-08-18] **RTK 累計效益**（每週 neat-freak 更新）：截至 2026-08-17（weekly 08-10~08-17）—— 12,575 cmds / 430.0M in / 45.9M out / **省 384.2M tokens（89.3%）**；avg 1.4s/cmd。**Monthly（2026-08）**：2,670 cmds / 13.9M in / 4.5M out / 9.3M saved (67.4%)。**RTK SOP**：neat-freak 跑時自動跑 `rtk gain -a -H`，產出「RTK 效益」章節附在報告中
 - [P1][2026-04-29] Telegram groupPolicy 改為 mention-only（groupPolicy 受保護無法修改，但 requireMention 已設為 true）
 - [P0][2026-06-18] 當前模型：minimax/MiniMax-M3（openclaw.json primary = runtime，皆為 M3；**MEMORY 早期誤記 M2.7 已更正**；fallback M2.5；M2.7/M2.7-highspeed/M2.5 皆已定義但未啟用）；Node v22.22.3；openclaw-tavily-search 已替代 tavily-search
 - [P1][2026-06-20] **x-note 7.7.x 已 release**（commit `ac7bea369`+`e1bc4d5a2`，github.com/Pigowenhsiao/Agent.git）: Flow B Step 2 改為 fxtwitter API（`fetch_fxtwitter.py`，零認證零 CDP）；preflight `verify_score_scales.py` 改 score 1-5 vs 0-50 漂移；score threshold 固定 ≥3（1-5）。**未修復問題**：xnote2_curator.call_minimax_curator 仍 ~51s/call（`max_tokens=4000`+thinking enabled），target 7.7.3

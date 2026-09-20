@@ -1,0 +1,205 @@
+                                                                    Discriminative World Models for Web Agents
+
+                                            Kelvin Li1 * Dhruv Pendharkar1 * Anish Pahilajani2 Chuyi Shang1 Leon Oks3
+                                                   Leonid Karlinsky4 Rogerio Feris2 Trevor Darrell1 Roei Herzig1
+                                                             1
+                                                                 University of California, Berkeley 2 MIT-IBM Watson AI Lab
+                                                                               3
+                                                                                 Cal Poly San Luis Obispo 4 Xero
+
+
+
+                                                                    Abstract                       current page and interaction history, while reason-
+                                             Recent web agents use world models for test-
+                                                                                                   ing about how each action will affect future steps.
+                                             time action selection by sampling candidate           Most prior work relies on a reactive next-action
+arXiv:2609.02885v1 [cs.AI] 2 Sep 2026
+
+
+
+
+                                             actions, predicting the resulting web states, and     prediction paradigm, where agents directly select
+                                             ranking them with a ranker model or a Pro-            an action based on the current observation and his-
+                                             cess Reward Model (PRM). These world mod-             tory (Zheng et al., 2024; He et al., 2024; Qin et al.,
+                                             els are typically trained via supervised next-        2025; Gupta et al., 2026). Although straightfor-
+                                             state prediction to generate fixed representa-        ward, this approach does not explicitly compare
+                                             tions like HTML or AXTree snapshots. How-
+                                                                                                   alternative actions at a given state. To address this
+                                             ever, this objective is misaligned with the down-
+                                             stream ranker, which relies on predicted states       limitation, recent methods explore test-time action
+                                             being discriminative across candidates to accu-       selection: the agent proposes multiple possible next
+                                             rately score them. To address this, we intro-         actions, then uses a process reward model (PRM) or
+                                             duce predicted-state matching, a training ob-         ranker to choose among them (Chae et al., 2025b;
+                                             jective where the predicted representation must       Zhang et al., 2026). Model-based planning extends
+                                             distinguish the true resulting state from those       this paradigm by augmenting candidate actions
+                                             reached by alternative actions. We train these
+                                                                                                   with their predicted next states (Gu et al., 2025;
+                                             models using a branching web-agent dataset
+                                             derived from WebArena Go-Browse trajecto-
+                                                                                                   Chae et al., 2025a; Fang et al., 2025; Xiao et al.,
+                                             ries, where every decision point contains multi-      2026). This allows the agent to explicitly eval-
+                                             ple alternative actions and their resulting states.   uate and compare alternative paths through their
+                                             Experiments on our held-out predicted-state           expected consequences prior to execution.
+                                             matching benchmark show that our approach                This planning paradigm raises a basic question:
+                                             outperforms world models trained with super-          what should the predicted next state represent? Cur-
+                                             vised next-state prediction. We further show          rent web world models typically rely on supervised
+                                             that our approach improves PRM-style action
+                                                                                                   next-state prediction, training the model to gen-
+                                             ranking on WebPRMBench compared with
+                                             action-only PRMs and PRMs augmented with              erate predefined formats like textual summaries,
+                                             supervised-next-state world models. Finally,          HTML, or AXTree snapshots (Gu et al., 2025;
+                                             on WebArena-Lite, using our world model for           Chae et al., 2025a; Fang et al., 2025; Xiao et al.,
+                                             test-time action selection improves end-to-end        2026). This approach ties the training objective
+                                             task success. Our project page is available at:       to arbitrary choices of state format. However, as
+                                             https://dhruvpendharkar.github.io/dwm/.               illustrated in Figure 1, a representation optimized
+                                        1    Introduction                                          to match a fixed next-state target may still miss
+                                                                                                   the action-relevant differences that distinguish one
+                                        Recent advances in large language models have              action’s consequence from another. For example,
+                                        made it possible to build agents that interact with        textual-summary methods such as WebDreamer are
+                                        the web through natural-language instructions and          supervised to reproduce a particular compressed
+                                        browser actions (Zheng et al., 2024; He et al., 2024;      description of the next state, which may omit the
+                                        Qin et al., 2025; Gupta et al., 2026). However, web        specific change needed to distinguish the queried
+                                        navigation remains challenging because it is a par-        action from alternatives. In contrast, full structured-
+                                        tially observed, multi-step decision-making prob-          state methods such as WebWorld generate AXTree-
+                                        lem: an agent must choose actions based on the             style representations in which the relevant change
+                                            * Equal contribution.                                  can be buried among large amounts of unchanged
+Figure 1: Qualitative example of predicted next-state representations at a single decision point in the WebArena
+Reddit environment. Given the current state and queried action, our predicted-state-matching world model identifies
+the specific state change produced by the action. A textual-summary method, WebDreamer (Gu et al., 2025), instead
+describes the outcome of a different action, while a full structured-state method, WebWorld (Xiao et al., 2026),
+emits a long AXTree-style representation that largely repeats page structure unchanged by the queried action. The
+browser pane is rendered from the recorded accessibility tree.
+
+
+page structure. When the world model is used for           local decision points with multiple possible actions
+action selection, the predicted next state should          from the same state and their resulting next states.
+help distinguish the outcomes of competing actions         This structure provides the supervision needed to
+from the same state. We therefore argue that the           train world models to distinguish the effects of
+relevant objective is not to recreate a specific target    different actions, rather than imitate a single gold
+representation, but to produce predicted next-state        path or generate a fixed state format. It also en-
+representations that are discriminative among the          ables a held-out predicted-state matching bench-
+alternative outcomes induced by candidate actions.         mark for web world models: models are evaluated
+   We address this with predicted-state matching           by whether their predicted next-state representation
+(Figure 2). Given a current state and a candidate          matches the correct resulting state among alterna-
+action, the model generates a next-state represen-         tives from the same decision point.
+tation. Rather than forcing the model to generate             We evaluate our approach at three levels. First,
+a fixed target string, we train and evaluate this rep-     on our held-out predicted-state-matching bench-
+resentation through a matching task, where a fixed         mark, our model achieves higher matching accu-
+judge uses the generated representation to distin-         racy than existing web world models and a data-
+guish the true resulting state of the queried action       matched baseline trained with supervised next-
+from alternative resulting states reached at the same      state prediction. Second, we examine the down-
+decision point. This establishes a representation-         stream utility of these predictions for action rank-
+agnostic objective for world modeling: a predicted         ing on WebPRMBench (Zhang et al., 2026). In
+representation is valuable specifically because it         model-based test-time action selection, predicted
+preserves the features that distinguish one action’s       outcomes are useful only if they help a PRM or
+consequence from another. Because the output is            ranker choose among candidate actions before ex-
+not tied to a rigid target format, the model can dy-       ecution. WebPRMBench directly evaluates this
+namically adapt its level of detail and abstraction        ranking objective: holding the task context and
+across different tasks, pages, and actions.                candidate actions fixed, we compare action-only
+  To support this framework, we construct                  rankers with rankers augmented either with fixed-
+a branching web-agent dataset derived from                 format next-state predictions or with representa-
+Go-Browse trajectories in WebArena environ-                tions produced by our predicted-state-matching
+ments (Gandhi and Neubig, 2026; Zhou et al.,               world model. We evaluate both trained reward
+2024). Unlike existing web-agent datasets that are         models and frozen rankers. Third, we evaluate end-
+organized as linear trajectories, our data contains        to-end agent performance on WebArena-Lite (Liu
+Figure 2: Supervised next-state prediction trains a world model to generate a fixed target representation. Predicted-
+state matching instead trains the generated representation to distinguish the true resulting state of a queried action
+from alternative next states reached by other actions.
+
+
+et al., 2025; Zhou et al., 2024), showing that in-          2018), and live online websites (He et al., 2024;
+corporating our world model into test-time action           Wei et al., 2025; Xue et al., 2025; Pan et al., 2024).
+selection improves task success.                            These settings highlight the difficulty of web navi-
+    We summarize our contributions as follows:              gation as a partially observed, multi-step decision-
+(i) We formulate web world modeling as learn-               making problem. Much work addresses this prob-
+ing discriminative next-state representations that          lem with direct next-action prediction, where the
+distinguish the outcomes of competing actions               agent repeatedly selects one action given the task
+rather than generating fixed-format targets, intro-         instruction, interaction history, and current obser-
+ducing a representation-agnostic training objec-            vation until task completion (Zheng et al., 2024;
+tive called predicted-state matching. (ii) We intro-        He et al., 2024; Qin et al., 2025; Gupta et al., 2026).
+duce a branching web-agent dataset derived from             While widely used, this reactive formulation does
+Go-Browse trajectories, with local decision points          not explicitly compare plausible alternatives avail-
+containing alternative executable actions and their         able at the same state. Recent work therefore ex-
+resulting states. This dataset supports training            plores test-time action selection, where an agent
+predicted-state-matching world models and pro-              proposes multiple possible next actions and uses a
+vides a new representation-agnostic benchmark for           ranker or PRM to select the best one (Chae et al.,
+evaluating whether a predicted next-state represen-         2025b; Zhang et al., 2026). Model-based plan-
+tation is distinguishable from the states reached           ning extends this setup by using a world model to
+by alternative actions from the same decision point.        predict the next state that would result from each
+(iii) We show that our approach improves predicted-         proposed action, allowing the ranker to compare
+state matching over world models trained with su-           predicted outcomes before selecting which action
+pervised next-state prediction, that our predicted          to execute (Gu et al., 2025; Chae et al., 2025a; Fang
+next-state representations improve PRM-style ac-            et al., 2025; Xiao et al., 2026).
+tion ranking on WebPRMBench compared with
+action-only PRMs and supervised-next-state world            World models for web agents. Recent work
+model baselines, and that using our world model             in model-based planning uses world models for
+for test-time action selection improves end-to-end          test-time action selection by predicting the next
+task success on WebArena-Lite.                              state resulting from proposed actions and using
+                                                            these predictions to rank and select an action (Gu
+2   Related Work                                            et al., 2025; Chae et al., 2025a; Fang et al., 2025;
+                                                            Xiao et al., 2026). These methods define the pre-
+Web agents. Web agents aim to complete natural-             dicted state in fixed formats: natural-language state
+language tasks by interacting with websites through         changes or transition abstractions (Gu et al., 2025;
+browser actions. Existing benchmarks study this             Chae et al., 2025a), and structured web observa-
+problem across static offline examples (Deng et al.,        tions such as page states, HTML, or accessibility
+2023), self-hosted web environments (Zhou et al.,           trees (Fang et al., 2025; Xiao et al., 2026). These
+2024; Koh et al., 2024; Shi et al., 2017; Liu et al.,       approaches show that predicted next states can im-
+prove action selection, but they train world models       is crucial, because comparing actions requires un-
+with supervised next-state prediction to generate a       derstanding how different actions will change the
+chosen state format. We argue that, for action selec-     state differently. We build on Go-Browse (Gandhi
+tion, a predicted next state should help distinguish      and Neubig, 2026) by organizing web-agent data
+the outcomes of competing actions from the same           around local decision points: for each state, we
+current state, rather than only reproduce a chosen        include multiple possible actions and the corre-
+state format. Existing supervised next-state predic-      sponding next states reached by those actions. This
+tion objectives do not train or evaluate this property.   branching structure supports training and held-out
+We instead train and evaluate predicted next-state        evaluation through predicted-state matching, while
+representations by whether they make the correct          downstream action-ranking performance is evalu-
+resulting state distinguishable from alternatives at      ated on WebPRMBench (Zhang et al., 2026).
+the same decision point, and test whether these rep-
+resentations improve downstream action ranking.           3     Method
+
+Process reward models for web agents. PRMs                We train web world models to produce predicted
+provide step-level signals for test-time action se-       next-state representations that distinguish the out-
+lection in web navigation. Web-Shepherd trains            comes of competing actions. As illustrated in Fig-
+a web PRM from step-level preference pairs and            ure 2, instead of supervising the model to generate a
+checklist annotations, while WebArbiter formulates        fixed target such as a textual transition summary or
+WebPRM as structured reasoning with a preference          DOM/HTML/AXTree snapshot, we use predicted-
+verdict (Chae et al., 2025b; Zhang et al., 2026).         state matching: given a current state and a queried
+These methods improve action ranking, but they            action, the predicted next-state representation is
+score candidate actions from the task context, inter-     trained to be discriminative against the next states
+action history, current observation, and action itself,   reached by alternative actions from the same deci-
+without explicitly predicting the next state that each    sion point. We then evaluate these representations
+action would induce. Our work is complementary:           through predicted-state matching, PRM-style ac-
+we study whether PRMs can be improved by aug-             tion ranking, and end-to-end agent execution.
+menting candidate actions with predicted next-state       3.1   Problem setup and branching data
+representations, and whether world models trained
+                                                          We consider web navigation as a partially observed
+with predicted-state matching provide more use-
+                                                          decision-making problem. At each step t, the agent
+ful representations than world models trained with
+                                                          receives a task instruction I, has an interaction his-
+supervised next-state prediction.
+                                                          tory ht , observes the current web state st , executes
+Web-agent data and evaluation. Most web-                  an action at , and transitions to a next state st+1 .
+agent datasets are organized as linear trajectories,         Our method requires local decision points with
+where a task is paired with a sequence of observa-        multiple candidate actions from the same current
+tions and actions (Deng et al., 2023; Lù et al., 2024;    state. We represent a decision point as
+Pahuja et al., 2025; Gupta et al., 2026). This format
+                                                                         Dt = {(ait , sit+1 )}K
+                                                                                              i=1 ,
+supports both supervised fine-tuning of reactive
+web agents and supervised next-state prediction,          where ait denotes the i-th candidate action and sit+1
+but it records only the action taken along a single       is the next state reached after executing that action
+path. It therefore provides limited supervision for       from st . This branching structure exposes how
+local decision making: at a given state, an agent         different candidate actions from the same state lead
+must choose among several plausible actions, yet          to different next states.
+a linear trajectory does not show what would have            We construct such decision points from Go-
+happened under the alternatives. WebPRM datasets          Browse trajectories collected in WebArena envi-
+address part of this issue by providing scores or         ronments (Gandhi and Neubig, 2026; Zhou et al.,
+preference labels over candidate actions from the         2024). As shown in Figure 3(a), Go-Browse is orga-
+same state (Chae et al., 2025b; Zhang et al., 2026).      nized as linear trajectories, but different trajectories
+However, this supervision indicates which actions         can revisit the same browser states. We merge these
+are preferred, but not the state changes that make        repeated states into a state-action graph, where each
+one action preferable to another. For world models        node is a browser state represented by its accessibil-
+and world-aware ranking, this missing information         ity tree and each directed edge is an executed action
+

@@ -1,0 +1,110 @@
+=== finance cron started 2026-09-14 21:02:10 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2380.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 248.5 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 140.5 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 4560.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 148.5 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 112.5 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1620.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 167.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 72.1 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 28.7 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 59.0 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 68.1 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 234.0 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 52.5 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 81.9 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 277.5 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 106.9 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 18.8 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 30.4 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 333.08 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 505.41 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 349.39 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 253.54 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 665.6 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 210.96 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 358.97 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 80.32 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 144.79 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 173.31 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 418.01 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 835.03 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  OK: 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260914-210210-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260914-210210-review.json
+   OK=31 SUSPECT=33 ERROR=0
+   Criteria: 5/8 PASS, 3 FAIL, loop_write_allowed=False
+     ✅ C1: 覆蓋率 31/31 — total=31/31 (ok=31, suspect=33, error=0)
+     ❌ C2: 帶寬合規 (0 SUSPECT) — 1 ticker(s) out of band: ['1303']
+     ✅ C3: Baseline 可比 — all 7 tickers have baseline
+     ✅ C4: 產出檔案 — report_exists=True json_exists=True (this criterion is enforced by write_report.py, not here)
+     ❌ C5: 異常告警 — findings count=44, alert note exists=False
+     ❌ C6: 狀態更新 (LOOP-STATE) — 「當前市場線索」段含今天日期=False
+     ✅ C7: Baseline 完備 — new_tickers count=0 (heuristic; LOOP-STATE updated today=False)
+     ✅ C8: 錯誤率上限 (ERROR ≤ 2) — error_count=0 threshold=2
+  Review verdict: FAIL (score=0)
+  OK=31 SUSPECT=33 ERROR=0
+[3/4] Writing summary to vault 00-Inbox/...
+<stdin>:70: SyntaxWarning: invalid escape sequence '\`'
+<stdin>:70: SyntaxWarning: invalid escape sequence '\`'
+<stdin>:71: SyntaxWarning: invalid escape sequence '\`'
+<stdin>:71: SyntaxWarning: invalid escape sequence '\`'
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-14_finance-cron-summary.md (71 lines)
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-14_finance-cron-summary.md
+[4/4] Committing to vault...
+[main ce73f75de] finance-cron: 2026-09-14 stock quotes (31/31 tickers)
+ 1 file changed, 71 insertions(+)
+ create mode 100644 00-Inbox/2026-09-14_finance-cron-summary.md
+To github.com:Pigowenhsiao/Pigo_Obsidian.git
+ ! [rejected]            main -> main (fetch first)
+error: 推送一些引用到 'github.com:Pigowenhsiao/Pigo_Obsidian.git' 失敗
+提示：Updates were rejected because the remote contains work that you do not
+提示：have locally. This is usually caused by another repository pushing to
+提示：the same ref. If you want to integrate the remote changes, use
+提示：'git pull' before pushing again.
+提示：See the 'Note about fast-forwards' in 'git push --help' for details.
+  Push failed, commit stays local
+
+=== finance cron completed ===
+finance-cron: 31/31 ticker OK, score=0/100

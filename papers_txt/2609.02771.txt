@@ -1,0 +1,263 @@
+                                        F ROM R EWEIGHTING TO R EWRITING : U NLOCKING
+                                        THE I NTERVENTION E FFECTS OF I NFLUENTIAL S AM -
+                                        PLES IN T RAINING DATA ATTRIBUTION
+
+                                                  Yuzhang Luo1,* Chenpeng Wang2,* Jianhui Chen1,* Liangming Pan1,3,†
+                                                  1
+                                                    State Key Laboratory of Multimedia Information Processing, Peking University
+                                                                        2
+                                                                          YiXin-AILab, YIXIN, Beijing, China
+                                                             3
+                                                               Beijing Academy of Artificial Intelligence, Beijing, China
+                                                     luoyuzzhang@stu.pku.edu.cn liangmingpan@pku.edu.cn
+                                                      wangchenpeng@yxqiche.com jianhuichennlp@gmail.com
+arXiv:2609.02771v1 [cs.CL] 2 Sep 2026
+
+
+
+
+                                                                                       A BSTRACT
+
+                                                  Training data attribution (TDA) aims to identify training examples that shape
+                                                  model behavior, but its intervention value depends on both which examples are
+                                                  selected and how they are modified. Influence functions (IF) estimate behavioral
+                                                  changes under infinitesimal reweighting, yet IF-selected examples often show lim-
+                                                  ited advantages over random selection under conventional weight-based interven-
+                                                  tions. This raises the question of whether influential examples lack intervention
+                                                  value or whether reweighting fails to realize their behavioral leverage. We intro-
+                                                  duce influence-guided response rewriting, which uses IF to identify intervention
+                                                  targets and replaces their responses with behavior-aligned or behavior-opposed
+                                                  supervision while keeping instructions fixed. Across four open-weight LLMs,
+                                                  we compare rewriting and reweighting on the same influence-selected examples
+                                                  using epistemic abstention as our primary testbed. Response rewriting produces
+                                                  stronger, more persistent, and bidirectional behavioral shifts, while reweighting
+                                                  the same examples yields weak and inconsistent effects. Further analyses show
+                                                  that influence-selected examples provide greater rewriting leverage than alterna-
+                                                  tive selectors, with changes remaining concentrated on target-relevant behaviors.
+                                                  The same qualitative contrast extends to safety refusal. These results distinguish
+                                                  the local reweighting effects captured by influence estimates from the broader in-
+                                                  tervention leverage of the examples they identify, motivating intervention-aware
+                                                  evaluation of TDA methods.
+
+
+                                        1    I NTRODUCTION
+
+                                        Large language models (LLMs) acquire diverse capabilities and behaviors from their training data,
+                                        yet which training examples give rise to these behaviors remains poorly understood. Training data
+                                        attribution (TDA) addresses this question by assigning training examples scores that quantify their
+                                        contribution to a target model quantity (Koh & Liang, 2017; Pruthi et al., 2020; Guo et al., 2021).
+                                        Influence functions (IF) provide one such approach by estimating how that quantity would change if
+                                        a training example were infinitesimally reweighted, and have increasingly been applied to attribute
+                                        LLM predictions, capabilities, and behaviors (Grosse et al., 2023; Deng et al., 2025).
+                                        Beyond retrospective attribution, a central practical goal of TDA is to support actionable data inter-
+                                        ventions. A common approach is to use IF to identify training examples that strongly affect a target
+                                        behavior, and then upweight or remove those examples in training to steer the model. However,
+                                        recent studies find that IF-selected examples often provide little advantage over random selection
+                                        under such weight-based interventions in modern LLMs (Li et al., 2025; Lee et al., 2026a). Yet this
+                                        negative result conflates two distinct questions: whether IF identifies the right examples to intervene
+                                        on, and whether the intervention itself can effectively alter what those examples teach the model. It
+
+                                            * Equal contribution.   †
+                                                                        Corresponding author.
+
+
+                                                                                                1
+      A. Influence Function Scoring           B. Different Interventions          C. Retraining and Effect Inset
+
+                                                 Same Selected Set
+    Test sample
+     for target      SFT training set                                         Upweight Deletion Opposed Aligned
+                    select one training                                                         rewriting rewriting
+      behavior
+                         sample             Upweight              Deletion
+                                            increase              remove           Same Base Checkpoint
+                                          sample weight         the samples
+                                                                                       Same SFT Recipe
+    Calculate influence score for each
+             training sample                    Response Rewriting
+                                                  keep prompt fixed ·
+                                               rewrite only the response
+                                                                                        Insert rsult plot here
+     Rank all SFT samples by influence
+    1      z(1)       0.91     top：
+    2      z(2)       0.87     helpful
+    3      z(3)       0.84                   Behavior-         Behavior-
+    ⋯
+                                              aligned          opposed
+    ⋯
+                                              rewrite           rewrite
+    n-1    z(n-1)    -0.63     bottom：
+    n      z(n)      -0.72     harmful
+
+
+
+Figure 1: Overview of our framework. IF identifies training examples associated with a target
+behavior, which we intervene on through weight-based operations or response rewriting.
+
+
+therefore remains unclear whether IF-selected examples are intrinsically poor intervention targets,
+or whether weight-based interventions simply fail to realize their behavioral leverage.
+We study this problem in the supervised fine-tuning (SFT) setting, where intervention need not be
+limited to changing how much an example contributes during training. Instead, we can directly mod-
+ify what the example teaches the model by rewriting its response while keeping the instruction fixed.
+Motivated by this distinction, we propose influence-guided response rewriting, where IF determines
+where to intervene and response rewriting determines what behavioral signal to provide (Figure 1).
+By rewriting responses to either encourage or discourage a target behavior, this framework both pro-
+vides an actionable form of TDA and allows us to test whether influence-selected examples contain
+intervention leverage that is obscured by conventional weight-based interventions.
+To investigate whether influence-guided response rewriting can reveal such hidden intervention
+leverage, we compare it with conventional weight-based interventions and matched controls. This
+comparison allows us to disentangle the value of influence-guided example selection from the limita-
+tions of a particular intervention strategy. More broadly, our study reframes TDA intervention from
+asking whether influential examples respond to reweighting, to asking whether influence scores iden-
+tify training examples with actionable behavioral potential and how such potential can be effectively
+realized. To be specific, we make the following three contributions:
+
+       • Influence-guided response rewriting. We introduce a supervision-level intervention
+         framework for SFT that decouples example selection from intervention design. Specifi-
+         cally, influence functions identify high-leverage training examples, while response rewrit-
+         ing modifies the behavioral signal provided by these examples.
+       • Revealing hidden behavioral leverage of influential examples. We evaluate influence-
+         guided interventions across four open-weight LLMs, primarily on language-model absten-
+         tion (Zhang et al., 2024; Wen et al., 2025; Kirichenko et al., 2026). Compared with conven-
+         tional reweighting and matched controls, response rewriting consistently achieves stronger,
+         more stable, and bidirectional behavioral shifts across model families and training stages.
+         These results show that influential examples can contain substantial behavioral leverage
+         that is not effectively realized through weight-based interventions. We further observe sim-
+         ilar trends for safety-related refusal.
+       • Characterizing the source and scope of intervention leverage. Through controlled anal-
+         yses, we investigate why influence-guided rewriting is effective. We show that response
+         rewriting redirects the local supervision signal associated with influential examples, while
+         maintaining target specificity and avoiding degradation of model capabilities.
+
+
+                                                          2
+2     R ELATED W ORK
+
+2.1   T RAINING DATA ATTRIBUTION
+
+Training data attribution aims to quantify the influence of specific training examples on model be-
+havior, with influence functions (IF) providing a foundational approach in neural networks (Koh &
+Liang, 2017). Scalable curvature approximations such as EK-FAC (George et al., 2018) have en-
+abled IFs to trace the training origins of LLM behaviors and capabilities (Grosse et al., 2023; Kou
+et al., 2025). Influence-based attribution is commonly evaluated or applied through data reweighting
+and filtering (Chen et al., 2026; Kowal et al., 2026; Lee et al., 2026b), yet recent studies have found
+that influence estimates can correspond weakly to the effects of these interventions in LLMs (Bae
+et al., 2022; Li et al., 2025; Lee et al., 2026a). Prior work has also explored modifying influential
+training examples directly, for example through influence-guided relabeling in classification (Kong
+et al., 2022; Banerjee et al., 2024). Most closely related to our work, Infusion uses influence func-
+tions to select and perturb existing training examples for targeted data-poisoning attacks (Rosser
+et al., 2026). However, its reliable behavior changes are confined to vision settings and perturbation
+effects further diminish under longer training on transformers and language models. In contrast, we
+study semantic response rewriting in realistic LLM supervised fine-tuning, systematically compare
+deletion, upweighting, and rewriting on the same influence-selected examples, and track how their
+behavioral effects evolve throughout the training trajectory.
+
+
+2.2   L ANGUAGE M ODEL A BSTENTION
+
+Abstention refers to a model’s ability to refrain from providing a definitive answer when a query
+cannot be reliably resolved. Recent large-scale evaluations show that the abstention capabilities of
+modern LMs remain poor across diverse forms of unanswerability (Wen et al., 2025; Kirichenko
+et al., 2026). Existing approaches address this problem from several directions, including uncer-
+tainty estimation, calibration, probing internal representations, prompting, and abstention-aware
+post-training (Kadavath et al., 2022; Tomani et al., 2024; Lavi et al., 2026). In particular, refusal-
+aware instruction-tuning can shape abstention through constructing or replacing responses with
+abstention-aware targets (Yang et al., 2024; Zhang et al., 2024). More recent work improves refusal-
+aware tuning through knowledge-aware data modification and training-dynamics analysis (Zhu et al.,
+2025b), or gradient-based sample selection and adaptive weighting (Zhu et al., 2025a). However,
+prior work points out that instruction-tuning struggles to generalize abstention capability across do-
+mains and model settings (Feng et al., 2024) and fine-tuning can even erode abstention capabilities
+(Kirichenko et al., 2026). These findings leave the data-level mechanisms through which abstention
+evolves during realistic SFT underexplored. We study this problem from a training data attribution
+perspective, tracing abstention behavior to individual SFT examples and systematically comparing
+deletion, upweighting, and response rewriting as alternative interventions.
+
+
+3     M ETHODOLOGY
+
+Our goal is to determine whether influence-selected SFT examples possess behavioral interven-
+tion leverage beyond what is revealed by conventional weight-based interventions. To isolate these
+two factors, we keep the attribution rule fixed and vary how the selected examples are intervened
+on. Specifically, IFs determine which training examples are selected, while the intervention either
+changes the strength of their original supervision or rewrites the supervision they provide.
+
+
+3.1   I NFLUENCE F UNCTIONS FOR SFT
+
+Let Dtrain = {zi = (xi , yi )}N                                P xi is an instruction and yi its
+                                 i=1 denote an SFT dataset, where
+response. We use the standard response-only loss L(zi , θ) = − t log pθ (yi,t | xi , yi,<t ). Influence
+functions estimate how infinitesimally changing the training weight of an example affects the learned
+
+
+                                                  3
+model parameters (Koh & Liang, 2017). For a training example zi , consider
+                                                    
+                            N
+                         1 X                                       dθ(ϵ)
+        θ(ϵ) = arg min        L(zj , θ) + ϵL(zi , θ) ,                   = −Hθ−1 ∇θ L(zi , θ),      (1)
+                    θ    N j=1                                      dϵ ϵ=0
+                   df (θ(ϵ))
+      If (zi ) =                 = −∇θ f (θ)⊤ Hθ−1 ∇θ L(zi , θ),      for any differentiable f (θ).   (2)
+                       dϵ    ϵ=0
+
+Here Hθ denotes the Hessian of the SFT objective, with all quantities evaluated at the unperturbed
+solution θ = θ(0). Under this convention, a positive influence score If (zi ) > 0 predicts that locally
+upweighting zi increases f (θ), while downweighting it decreases f (θ). Conversely, a negative score
+If (zi ) < 0 predicts that upweighting zi decreases f (θ), while downweighting it increases f (θ).
+Following prior LLM-scale influence-function work (George et al., 2018; Grosse et al., 2023; Kou
+et al., 2025), we use EK-FAC to approximate the required inverse-curvature computation. Derivation
+and implementation details are provided in Appendix A.
+
+
+3.2     I NFLUENCE -G UIDED DATA I NTERVENTIONS
+
+3.2.1     B EHAVIOR ATTRIBUTION
+
+Given a query set Dtar = {(xqj , yjq )}M
+                                       j=1 representing a target behavior, we define its mean re-
+                                  PM 1 PTj                 q
+                               1
+sponse log-likelihood, f (θ) = M j=1 Tj t=1 log pθ (yj,t       | xqj , yj,<t
+                                                                        q
+                                                                             ), as a differentiable be-
+havioral proxy. We rank the SFT examples by If (zi ) and define Skhelpful = TopKi If (zi ) and
+Skharmful = BottomKi If (zi ). We refer to these sets as supposedly helpful and supposedly harmful,
+respectively, because the labels describe only the local effects predicted for their original supervision
+under infinitesimal reweighting.
+
+
+3.2.2     I NTERVENTION D ESIGN
+
+We apply two families of interventions to the same influence-selected examples. The first changes
+the strength of the original supervision and directly follows the local reweighting interpretation of
+influence functions. The second changes the content of the supervision by keeping the selected
+instruction fixed while rewriting its response. Comparing the two allows us to test whether the
+usefulness of influence-selected examples is limited to reweighting original supervision, or whether
+these examples exhibit broader behavioral leverage under changes to the supervision they provide.
+
+
+          P original supervision. For a selected set S, we optimize the weighted SFT objective
+Reweighting
+Lα (θ) = i wi (α)ℓi (θ), where wi (α) = α if i ∈ S and 1 otherwise. Here, α controls the relative
+contribution of selected examples: α > 1 corresponds to upweighting, while α = 0 corresponds to
+deletion. These interventions preserve the original responses of the selected examples and modify
+only how strongly their existing supervision contributes during training.
+
+
+Rewriting supervision. We next consider interventions that directly change what a selected ex-
+ample teaches the model. For each selected example zi = (xi , yi ), we keep its instruction xi
+fixed and replace its response according to Rd (xi , yi ) = (xi , yeid ), where d ∈ {align, opp} de-
+notes supervision that encourages the target behavior or its opposite. We refer to this intervention as
+influence-guided response rewriting.
+Unlike reweighting, response rewriting changes the gradient contributed by the selected example and
+therefore should not be interpreted as a finite realization of the local influence prediction in Eq. 2.
+Instead, influence is used only to determine which examples to modify. This distinction is central to
+our study: if rewriting influence-selected examples produces larger behavioral changes than apply-
+ing the same rewriting procedure to matched random examples, then the influence ranking identifies
+examples with intervention leverage that extends beyond reweighting their original supervision.
+
+
+                                                     4
+

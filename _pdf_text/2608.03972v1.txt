@@ -1,0 +1,1129 @@
+                                            ReflectRL: Learning from Golden Negative Trajectories
+                                            via Reflective-to-Direct Reasoning
+                                            Jinhe Bi1,2,6,9 , Chennan Zhou3 , Zengjie Jin2 , Aniri2,9 , Shuo Lu8 , Wenke Huang4 , Hu Cao7 , Xun
+                                            Xiao6 , Zhihong Zhu5 , Volker Tresp2 , Fei Shen1 , Yunpu Ma2,9,# , Tat-Seng Chua1
+                                            1
+                                             National University of Singapore, 2 Ludwig Maximilian University of Munich, 3 Technical
+                                            University of Munich, 4 Nanyang Technological University, 5 Peking University, 6 Huawei
+                                            Heisenberg Research Center, 7 Southeast University, 8 Institute of Automation, Chinese Academy
+                                            of Sciences, 9 Munich Center for Machine Learning
+                                            § GitHub     õ Dataset    ò Model
+
+                                            On-policy training has emerged as a powerful post-training paradigm for improving the reasoning
+                                            capabilities of large language models, and is often enhanced by golden trajectories from stronger
+                                            expert models. However, when the expert fails on harder problems, existing trajectory-guided methods
+                                            lose their main source of supervision, and these failed trajectories are typically discarded as negative
+                                            samples. We argue that such failures, which we call Golden Negative Trajectories, can still provide
+arXiv:2608.03972v1 [cs.AI] 4 Aug 2026
+
+
+
+
+                                            valuable reasoning signals when treated not as demonstrations to imitate, but as flawed trajectories to
+                                            reflect upon. We identify a Reflection Advantage: for hard problems, reflecting on a flawed trajectory
+                                            can be easier and more effective than solving the problem directly from scratch. Motivated by this,
+                                            we propose ReflectRL, a lightweight plug-and-play framework that learns from Golden Negative
+                                            Trajectories during on-policy training. ReflectRL first uses these trajectories to elicit Reflective
+                                            Reasoning, then applies Reflective-to-Direct Policy Transition to transfer the acquired reasoning
+                                            behavior back to Direct Reasoning. Experiments across 9 benchmarks, 4 LLM backbones, and 4
+                                            on-policy training methods show that ReflectRL consistently improves reasoning performance with
+                                            minimal overhead.
+
+                                            Date: August 2026
+                                            Correspondence: bijinhe@outlook.com
+
+
+
+
+                                        1       Introduction
+                                        On-policy training has become a central recipe for improving the reasoning capabilities of large language
+                                        models [1, 2, 3, 4, 5, 6]. In this paradigm, a model samples reasoning rollouts on training problems and
+                                        updates its policy using feedback from verifiers, reward models, or distributional objectives. Recent methods
+                                        such as Reinforcement Learning with Verifiable Rewards (RLVR) and On-Policy Distillation (OPD) show that
+                                        this training paradigm can substantially improve reasoning performance when the sampled rollouts provide
+                                        informative learning signals [7, 1]. This dependence on rollout quality becomes more critical on hard problems,
+                                        where direct sampling often produces sparse positive rewards and weak policy updates [8].
+                                        A common strategy for improving on-policy training is to incorporate golden reasoning trajectories from
+                                        stronger expert models, such as DeepSeek-R1 [1]. In RLVR, correct experts’ golden trajectories can guide
+                                        rollout generation toward more promising reasoning paths [9, 10]. In OPD, golden trajectories from expert
+                                        models can serve as privileged information for shaping the learning signal [11]. These trajectories are most
+                                        useful when the expert model solves the problem and provides a correct reasoning trajectory. When the
+                                        expert model fails on harder problems, existing trajectory-guided methods lose their main source of positive
+                                        supervision. The failed expert trajectories are then typically filtered out as negative samples, leaving a large
+                                        amount of structured reasoning from strong models unused. This deficiency in the prior art brings up an open
+                                        question:
+                                        Is it possible to leverage these discarded but still informative negative trajectories to continuously improve the
+                                        reasoning capability?
+                                                                               Understanding the Reflection Advantage: Behavioral, Descriptive, and Causal Evidence
+                                       (a) Reflection Gain over Training                                                        (b) Process Quality of Failure Sources                                                        (c) Impact of Trajectory Components
+                                                                                                                0.65
+                                                                                                                                                                                                                          Direct Baseline
+                            50       GNT (Ours)
+                                     Self-generated Failure                                                     0.60         GNT maintains a higher                                                    Full GNT                                                                  +12.2%
+                            40       Weak-model Failure                                                                      valid prefix of reasoning 0.4
+Reflection Gain Δref (%)
+
+
+
+
+                                     Mismatched GNT
+
+
+
+
+                                                                                                                                                   Metric
+                                                                                                                0.55
+
+
+
+
+                                                                                               PRM Step Score
+                            30       Direct (Baseline)                                                                                                                                               Valid Prefix                                                  +7.5%
+                                                         Reflective Reasoning on GNT                                                                        0.2
+                                                         provides high-quality structure
+                            20                                                                                  0.50
+                                                                                                                                                                                                    Error Region                                         +3.8%
+                                                                                                                                                            0.0
+                            10                                                                                  0.45                                              Valid      First      PRM                                                              Valid prefix & error clues
+                                                                                                                                                                  Prefix   Low Step     AUC                                                              both drive reflection success
+                                                                                                                                                                                                    Shuffled GNT                  -1.2%
+                             0                                                                                  0.40
+                                                                                                                                 GNT (Strong Teacher)
+                           −10                                                                                                   Self-generated Failure                                                                                                           Direct Reasoning
+                                                         Length-matched control                                                                                                                     Answer Only               -2.2%
+                                                                                                                0.35             Weak-model Failure                                                                                                               Reflection Gain / Loss
+                                                         shows negative gain
+                           −20
+                                 0      100           200           300           400                                  0.0           0.2           0.4               0.6          0.8         1.0                   0.0     2.5       5.0   7.5   10.0    12.5   15.0    17.5   20.0       22.5
+                                                     Training Step                                                                         Normalized Reasoning Progress                                                                     Task Accuracy (%)
+
+
+
+Figure 1 Understanding the Reflection Advantage through behavioral, descriptive, and intervention evidence on
+Qwen2.5-Math-7B. (a) Behavioral Evidence: Reflection Gain ∆ref = Eo∼π [r(q, o) | q, o− ] − Eo∼π [r(q, o) | q] over
+training steps. Reflecting on a GNT yields the largest gain, which steadily grows during training, whereas self-failures
+offer limited benefits, and weak-model failures or mismatched GNT (incase length bias) leads to negative gain. (b)
+Descriptive Evidence: Qwen2.5-Math-PRM-7B score profiles of failure sources and process metrics (inset). GNT
+maintains a higher valid prefix of reasoning compared to other failure sources before dropping at localized error points.
+(c) Intervention Evidence: Ablation of GNT trajectory components. Both the valid prefix and the error region
+causally drive the reflection gain, whereas removing these components (Shuffled GNT, Answer Only) reduces accuracy
+below the direct baseline.
+
+
+The Present Work: ReflectRL addresses this question by exploiting these valuable negative trajectories,
+which are typically discarded under existing training paradigms [10, 9]. However, incorporating negative
+samples into the current on-policy training paradigm is fundamentally challenging. Specifically, trajectory-
+guided RLVR variants rely on correct expert trajectories to yield positive rewards, establishing a relative
+advantage over self-generated negative rollouts. Because negative trajectories from expert models fail to
+produce positive rewards, these methods cannot exploit them. Consequently, standard advantage estimation
+cannot distinguish the structured, high-quality expert failures from the model’s own low-quality self-failures,
+preventing these negative trajectories from being leveraged to drive policy updates. Alternatively, when
+external trajectories are used as privileged information in OPD paradigms, they are typically designed as
+positive demonstrations to be imitated, which directly contradicts the flawed nature of negative trajectories.
+To address this gap, we first conduct an empirical analysis to locate where usable learning signals reside in
+expert-generated negative trajectories and investigate how the target model can leverage them. As shown in
+Figure 1(a), we identify a distinct behavioral pattern: compared to direct reasoning on hard questions without
+any external context—the default mode in on-policy training, the model achieves a substantial reasoning
+accuracy improvement (which we term Reflection Gain) when it is hinted with a negative trajectory and
+forced to reflect on the errors. We define this pattern as the Reflection Advantage. Importantly, we find that
+negative trajectories generated by expert models (which we refer to as Golden Negative Trajectories-GNTs)
+yield a far more pronounced Reflection Advantage than failure trajectories from the target model itself or a
+weaker model as shown in Figure 1(a). To understand why GNTs are uniquely beneficial, we utilize a Process
+Reward Model (PRM) [12] to profile the step-level quality of different negative trajectory sources. As shown
+in Figure 1(b), GNTs maintain higher process rewards and longer valid reasoning prefixes before encountering
+localized errors. To isolate this signal, we perform causal interventions on GNT components (Figure 1(c)),
+demonstrating that both the valid prefix and the localized error region jointly drive the Reflection Advantage.
+This suggests that the model not only benefits from continuing reasoning along a high-quality prefix but also
+learns to actively reflect on and recover from specific errors.
+Leveraging this Reflection Advantage, as shown in Figure 2, we propose ReflectRL, a lightweight framework
+for learning from GNTs during on-policy training. ReflectRL keeps the base training objective unchanged and
+only modifies how training rollouts are constructed. For RLVR, ReflectRL samples both Reflective Reasoning
+rollouts and Direct Reasoning rollouts, evaluates them with the same verifier, and applies the standard policy
+update. For OPD, ReflectRL incorporates GNTs as privileged context on the teacher-side, while keeping
+the student aligned with Direct Reasoning. This unified design allows ReflectRL to be easily integrated into
+various on-policy training paradigms.
+
+
+                                                                                                                                                            2
+     GNT from Expert Model                       Reflection Advantage over Direct Reasoning               Reflective-to-Direct Policy Transition
+
+                                                             Reflective Reasoning                    GRPO
+                  Expert failure is wrong                                                                                       Middle                Late
+                                                                                                           Early
+                overall, but still informative
+
+
+
+
+                                                  Question + GNT       Reflect, Repair, Solve         Mixed Rollout Groups Transition from    Reflective to Direct
+
+                                                                                                                             Training Stage
+                                                              Direct Reasoning                      More Reflective
+                                                                                       Default                                                      More Direct
+                                                                                        Mode
+                                                                                                      OPD
+                                                                                                                               Early                   Late
+                                                                                                     Teacher
+                                                                                                                          Question+ GNT           Question Only
+                                                                                                     Privileged
+
+
+
+                                                      Question Only         Solve Directly           Student
+     Valid Reasoning          Localized                                                                                             Distill                  Distill
+                                                                                                      Always
+          Prefix                Error                                                                 direct
+                                                 Reflecting and repairing leads to higher success
+                                                                                                    Teacher-side   Reflective context decays; Student remains Direct
+                                                           than solving from scratch.
+
+
+Figure 2 Overview of ReflectRL. A failed expert trajectory is used as a Golden Negative Trajectory to elicit
+Reflective Reasoning. ReflectRL combines Reflective Reasoning with Direct Reasoning during on-policy training
+and applies Reflective-to-Direct Policy Transition to transfer the acquired reasoning behavior back to the original
+problem setting.
+
+
+Reflective Reasoning enables the model to learn from GNTs during training, while Direct Reasoning remains
+the desired behavior at inference time. ReflectRL connects these two reasoning modes through Reflective-
+to-Direct Policy Transition. During training, the rollout distribution is gradually shifted from Reflective
+Reasoning toward Direct Reasoning. This transition encourages the model to preserve the reasoning behavior
+learned from GNTs while reducing its dependence on expert models.
+We evaluate ReflectRL in representative on-policy training settings covering 9 benchmarks, 4 LLM backbones,
+and 4 training methods, including both RLVR and OPD. The results show that ReflectRL consistently
+improves reasoning performance with minimal overhead. Further analysis supports the Reflection Advantage
+and shows that Reflective-to-Direct Policy Transition helps transfer the benefit of Golden Negative Trajectories
+back to Direct Reasoning.
+Our contributions are summarized as follows:
+ • We introduce Golden Negative Trajectories as a useful source of reasoning signal for on-policy training,
+   and release OpenR1-GNT-69k, a dataset consisting of 69k expert failure trajectories.
+ • We identify the Reflection Advantage, showing that hard problems can be easier and more effective to
+   solve through Reflective Reasoning than through Direct Reasoning.
+ • We propose ReflectRL, a lightweight framework that integrates Golden Negative Trajectories into
+   on-policy training through Reflective-to-Direct Policy Transition.
+ • We demonstrate consistent improvements across representative on-policy training settings covering RLVR
+   and OPD, with minimal additional overhead.
+
+
+2    Preliminaries
+This section establishes the notation used throughout the paper and briefly reviews the GRPO and OPD
+objectives. We also introduce a concise definition of Reflection Advantage, which is used to motivate our
+method and analysis.
+Notation Let q be an input query, and D represent a dataset of prompt-answer pairs (q, a), where a is the
+ground-truth answer. The likelihood of generating a response rollout o = (o1 , . . . , o|o| ) given q under policy πθ
+
+
+                                                                              3
+is factorized autoregressively as:
+
+                                                            |o|
+                                                            Y
+                                        πθ (o | q) =              πθ (os | q, o<s ) ,                           (1)
+                                                            s=1
+                                                                    def
+where πθ is the trainable policy parameterized by θ, o<s = (o1 , . . . , os−1 ) denotes the history prefix, and |o|
+denotes the response length.
+Group Relative Policy Optimization (GRPO) Group Relative Policy Optimization (GRPO) is widely
+used as a representative method for RLVR [1]. For a given prompt (q, a), the algorithm samples a group of
+N outputs {o(i) }N
+                 i=1 from the frozen rollout policy πθold . Each rollout o
+                                                                           (i)
+                                                                               is evaluated to obtain a verifiable
+reward ri . Rather than employing a separate critic network, GRPO calculates the relative advantage for each
+rollout by normalizing the rewards within the sampled group:
+                                                            ri − µr (q)
+                                                    Âi =               ,                                       (2)
+                                                               σr (q)
+             def                              def
+where µr (q) = mean({rj }N  j=1 ) and σr (q) = std({rj }j=1 ) are the mean and standard deviation of rewards
+                                                        N
+
+within the group for query q, and the advantage Âi is broadcast to each token position s in rollout o(i) .
+On-Policy Distillation (OPD) On-policy distillation [7] transfers knowledge from a fixed teacher policy
+πteacher to a trainable student policy πθ on student-generated trajectories. Given a query q, the student
+samples a rollout o ∼ πθ (· | q). At each token position s, OPD minimizes the reverse Kullback–Leibler (KL)
+divergence from the student’s predictive distribution to the teacher’s predictive distribution:
+                                                       h
+                           LOPD (θ) = Eq∼D, o∼πθ (·|q)
+                                        |o|
+                                        X                                                    i                  (3)
+                                              DKL (πθ (· | q, o<s ) ∥ πteacher (· | q, o<s )) .
+                                        s=1
+
+By training on student-generated states rather than offline expert demonstrations, OPD alleviates the exposure
+bias and distribution shift issues common in offline imitation learning.
+
+
+3     ReflectRL
+This section presents ReflectRL, a lightweight framework designed to leverage Golden Negative Trajectories
+(GNTs) during on-policy training, as overviewed in Figure 2. Crucially, ReflectRL introduces no auxiliary
+loss terms, requires no changes to the outcome reward or inference-time interfaces, and preserves the original
+RLVR/OPD objectives.
+
+3.1   Direct & Reflective Reasoning Interfaces
+To enable the policy to learn from expert failures, we define two reasoning interfaces based on distinct prompt
+templates. Specifically, Chat_TempD and Chat_TempR denote the prompt templates designed to activate
+Direct Reasoning and Reflective Reasoning, respectively.
+Direct Reasoning        The direct reasoning interface applies the direct prompt template Chat_TempD to the
+query q:
+                                           xD (q) = Chat_TempD (q).                                             (4)
+This interface provides only the original query and prompts the policy to solve the problem directly, without
+access to any external trajectory. It corresponds to the default reasoning mode in standard on-policy training.
+Reflective Reasoning The reflective reasoning interface applies the reflective prompt template Chat_TempR
+to the query q and a pre-generated Golden Negative Trajectory o− :
+
+                                       xR (q, o− ) = Chat_TempR (q, o− ).                                       (5)
+
+                                                              4
+This template presents the GNT as contextual information and prompts the policy to identify its errors,
+repair the reasoning process, and derive a corrected solution. The detailed formats of Chat_TempD and
+Chat_TempR are provided in Appendix A.
+Reflection Advantage Using these interfaces, we formalize the Reflection Advantage that motivates our
+framework. Let r(q, o) ∈ {0, 1} represent the binary outcome reward indicating the correctness of rollout o
+for query q. We define the Reflection Gain ∆ref of a policy πθ given query q and GNT o− as the expected
+correctness difference between reflective and direct reasoning:
+                                   ∆ref (θ; q, o− ) = Eo∼πθ (·|xR (q,o− )) [r(q, o)]
+                                                                                                              (6)
+                                                                 − Eo∼πθ (·|xD (q)) [r(q, o)] .
+The Reflection Advantage describes the empirical behavior where the policy achieves a positive Reflection
+Gain (∆ref > 0). Under this condition, identifying and correcting errors in a structured expert failure is easier
+than generating a correct path from scratch.
+
+3.2   Reflective-to-Direct Policy Transition
+To internalize the reflective reasoning capabilities (elicited by GNTs) into the model’s direct reasoning pathway
+for actual inference, we design a Reflective-to-Direct Policy Transition mechanism. Without this transition,
+a model trained exclusively on reflective inputs would suffer from exposure bias, becoming dependent on
+external expert failure trajectories that are unavailable during inference. Conversely, a smooth transition
+encourages the model to compile the error-correction and reasoning behaviors learned from GNTs into its own
+parameters, effectively transferring the reflection advantage back to the direct interface.
+Specifically, at training step t, we define a transition kernel g(t) to govern the target proportion of Reflective
+Reasoning. We default to cosine decay:
+                                                    ph − pl
+                                       g(t) = pl +          [1 + cos(πτ (t))] ,                                (7)
+                                                       2
+where ph and pl are the initial and terminal proportions, and τ (t) ∈ [0, 1] is the normalized transition
+progress after warm-up; Appendix C provides the exact schedule. The number of reflective rollouts is
+Kt = round(N g(t)), with the remaining N − Kt rollouts using Direct Reasoning. In our RLVR setting, the
+terminal allocation rounds to zero, yielding fully direct rollout groups.
+
+3.3   ReflectRL in RLVR
+We instantiate ReflectRL in the RLVR paradigm by optimizing a joint group-relative objective. For each
+                                                                           (i)                            (i)
+training query, we generate a mixed group of N rollouts o(i) ∼ πθold (· | xt ), where the prompt context xt is
+determined by the transition schedule Kt :
+                                        (
+                                    (i)    Chat_TempR (q, o− ), i ≤ Kt ,
+                                  xt =                                                                       (8)
+                                           Chat_TempD (q),          i > Kt .
+Rather than separating the direct and reflective reasoning modes, we jointly optimize the policy by maximizing
+the objective LReflectRL (θ):
+                                            (i)
+                               h1 XKt |o
+                                       X|                                    
+                              E           min wi,s (θ)Âi , clip(wi,s (θ))Âi
+                                N i=1 s=1
+                                                                                                              (9)
+                                        N         |o(i) |
+                                   1    X         X                                           i
+                               +                            min wi,s (θ)Âi , clip(wi,s (θ))Âi .
+                                   N
+                                       i=Kt +1 s=1
+
+Here, the advantage Âi is computed jointly over the mixed group according to Equation 2, with rewards
+evaluated by r(q, o(i) ) = MathVerify(a, o(i) ). The likelihood ratio wi,s (θ) is defined as:
+                                                                        
+                                                           (i)   (i) (i)
+                                                    πθ os | xt , o<s
+                                       wi,s (θ) =                         .                     (10)
+                                                             (i)   (i) (i)
+                                                   πθold os | xt , o<s
+
+
+                                                                    5
+Model / Method                                                               In-Distribution Performance                                                                   Out-of-Distribution Performance
+                                                 AIME24 AIME25 AMC MATH-500 Minerva Olympiad                                                          Avg.              ARC-c GPQA∗ MMLU-Pro                       Avg.
+Qwen2.5-Math-7B                                       11.4             4.9       31.3                          43.6         7.4         15.6           19.0               18.2       11.1         16.9             15.4
+Qwen2.5-Math-7B-Instruct                              12.9            10.2       48.5                          80.4        32.7         41.0           37.6               70.3       24.7         34.1             43.0
+                                                                                                           Previous Zero RLVR Methods
+PRIME-Zero [TMLR’25]                                  17.0            12.8       54.0                          81.4        39.0         40.3           40.7               73.3       18.2         32.7             41.4
+SimpleRL-Zero [CoLM’25]                               27.0            6.8        54.9                          76.0        25.0         34.7           37.4               30.2       23.2         34.5             29.3
+OpenReasoner [NeurIPS’25]                             16.5            15.0       52.1                          82.4        33.1         47.1           41.0               66.2       29.8         58.7             51.6
+                                                                                                           Supervised Learning Methods
+SFT                                                   17.2            15.1       49.8                          72.1        31.2         33.2           36.4               35.1       16.9         29.5             27.2
+SFT-KL                                                11.4            11.2       36.1                          52.9        21.4         27.5           26.8               30.1       15.2         21.1             22.1
+                                                                                                                RLVR with ReflectRL
+GRPO [Nature’25]                                      22.2           10.5      54.3                            77.2       19.1          38.5       37.0                   22.5       15.2         25.0          20.9
+ ,→ + EchoRL [ICML’26]                                23.4           11.1      55.2                            77.1       24.6          39.8       38.5                   33.8       15.8         27.9          25.8
+ ,→ + ReflectRL                                       25.5           12.8      58.7                            77.2       37.5          43.0     42.4(+5.4)               65.4       17.7         36.7       40.0(+19.1)
+DAPO [NeurIPS’25]                                     22.9           11.8      56.5                            76.4       22.4          40.2       38.4                   30.8       16.2         28.8          25.3
+ ,→ + EchoRL [ICML’26]                                25.3           11.8      57.3                            77.6       26.2          40.4       39.8                   37.2       15.9         31.3          28.1
+ ,→ + ReflectRL                                       31.0           12.1      59.8                            80.6       36.8          41.3     43.5(+5.1)               57.4       14.7         39.1       37.0(+11.7)
+                                                                   On-Policy Distillation with ReflectRL (Student: Qwen2.5-3B-Instruct)
+OPD                                                   6.2             2.8      34.0                            62.8       24.8          29.8       26.7                   22.5       0.8          41.6          21.6
+ ,→ + ReflectRL                                       8.1             4.5      36.5                            64.6       27.9          30.5     29.0(+2.3)               77.6       1.5          38.1       39.1(+17.5)
+
+
+Table 1 Overall in-distribution (ID) and out-of-distribution (OOD) performance comparison on Qwen2.5-Math-7B.
+ReflectRL consistently boosts existing on-policy post-training baselines (GRPO, DAPO, and OPD) in both ID and
+OOD scenarios, achieving competitive performance compared to previous zero-RL paradigms under a lightweight
+training recipe.
+
+                                                                                                                                                                         1.6
+                              Reflective-to-Direct Transition                                   1000                                    GRPO                                                               GRPO
+                  30                                                                                                                                                     1.2
+                                                                              Response Length
+
+
+
+
+                                                                                                                                        +ReflectRL
+Update Time (s)
+
+
+
+
+                                                                                                                                                                         0.8                               +ReflectRL
+                  25                                                                             800                                                          Entropy
+                                                                                                                                                                         0.4
+                  20                                                                             600                                                                     0.2
+                                                                                                                                                                         0.1
+                  15         GRPO                                                                                                                                       0.05
+                             +ReflectRL                                                          400
+                  10                                                                                                                                                     0.0
+                       0     100      200       300          400       500                             0         100     200      300     400        500                       0     50     100      150     200          250
+                                     Training Step                                                                      Training Step                                              Reflective-to-Direct Transition
+
+
+Figure 3 Training dynamics comparison on Qwen2.5-Math-7B. (a) ReflectRL shifts computation from expensive search
+to cheap context processing, achieving higher update efficiency than GRPO. (b) ReflectRL achieves higher performance
+with more concise reasoning lengths. (c) Compared to GRPO, ReflectRL maintains active policy exploration and
+prevents premature entropy collapse.
+
+
+This joint formulation compares direct and reflective rollouts within the same group. With binary rewards,
+group normalization changes only advantage magnitude: in every non-degenerate group, correct rollouts
+retain positive advantages and incorrect rollouts retain negative advantages regardless of interface, so Direct
+Reasoning is not systematically disadvantaged.
+
+3.4                        ReflectRL in OPD
+In On-Policy Distillation (OPD), ReflectRL utilizes the GNT as teacher-side privileged information to
+guide student training. OPD generates one rollout per query, so we apply g(t) across a batch of B queries
+and set Ktbatch = round(Bg(t)). For sample b, the student generates o(b) ∼ πθ (· | xD (q (b) )). The teacher
+          (b)                                                                                            (b)
+context x̃t is reflective for Ktbatch samples and direct otherwise. Let pstudent
+                                                                         b,s     = πθ (· | xD (q (b) ), o<s ) and
+                                                   (b)       (b)
+pteacher
+ b,s     = πteacher (· | x̃t , o<s ). Then
+                                                                                       (b)
+                                                                                                                    
+                                                                                  B |o
+                                                                                     X|
+                                                                                1 X
+                                                            LReflectRL                     DKL pstudent ∥ pteacher                                                                                                   (11)
+                                                                                                                   
+                                                             OPD       (θ) = E                 b,s        b,s
+                                                                                                                     ,
+                                                                                B    s=1                          b=1
+
+
+
+                                                                                                                          6
+                                                                                      Baseline      GRPO          +ReflectRL (ours)
+                                                                              75
+               60       (a) Qwen2.5 · 1.5B             OOD AVG                       (b) Qwen2.5 · 3B                 OOD AVG             32        (c) Llama-3.1 · 8B             OOD AVG
+                                                                 +ReflectRL                                                  +ReflectRL                                                      +ReflectRL
+                                                                              60
+                                                                     14.76                                                        20.86   24                                                     8.95
+Accuracy (%)
+
+
+
+
+               45
+                                                                              45                                                                                                       GRPO
+
+               30                                                                                                                         16                                              8.02
+                                                           GRPO               30
+                                                   Baseline                                                        BaselineGRPO                                                Baseline
+                                                              6.66
+               15                                                                                                                          8
+                                                    5.15                      15                                    14.24 14.43                                                 7.10
+
+
+                0                                                              0                                                           0
+
+                        E24 E25 MC 500 erva piad                                       24   25 MC 500 erva piad                                      24 E25 MC 500 erva piad
+                     IM      M  A    -
+                                   TH Min lym                                        ME IME    A    -
+                                                                                                  TH Min lym                                     ME      M  A    -
+                                                                                                                                                               TH Min lym
+                    A     AI                                                       AI   A                                                      AI     AI
+                                 MA       O                                                     MA       O                                                   MA       O
+
+
+Figure 4 Performance comparison of Baseline, GRPO, and ReflectRL (+ReflectRL) across Llama-3.1-8B-Instruct,
+Qwen2.5-1.5B-Instruct, and Qwen2.5-3B-Instruct on 9 ID and OOD benchmarks. ReflectRL consistently outperforms
+standard GRPO across various model sizes and families, showing strong generalization capabilities.
+
+
+where the reflective context is xR (q (b) , o−(b) ) and the direct context is xD (q (b) ). The GNT o−(b) is provided
+strictly as teacher-side privileged context. This formulation ensures that the student model never observes the
+GNT, retaining the direct reasoning interface xD (q) throughout training. The teacher policy πteacher , guided
+by the GNT, provides a higher-quality target distribution pteacher b,s   by actively reflecting on the error prefix.
+By matching this distribution, the student distills the underlying error-avoidance and correction capabilities
+into its direct reasoning pathway, eliminating any GNT dependence during inference.
+
+3.5                     Computational Overhead
+ReflectRL is highly computationally efficient because Golden Negative Trajectories are pre-generated offline,
+requiring no online expert queries. It retains the original rollout and verifier budgets, maintaining the same
+policy update rate as baseline training. The only extra overhead is prefilling GNT tokens in the reflective
+prompt, which accounts for a negligible fraction of training time and decreases to zero as g(t) decays.
+
+
+4                       Experiments
+In this section, we conduct extensive experiments to address the following research questions: (RQ1: Overall
+Effectiveness) How does ReflectRL perform when integrated into existing on-policy post-training methods?
+(RQ2: Computational Efficiency) Does ReflectRL introduce significant computational overhead? (RQ3:
+Mechanistic Validity) How sensitive is ReflectRL to the proposed reflective mechanism and the choice of
+policy transition schedule?
+
+4.1                     Experiment Setup
+Datasets and Benchmarks We construct OpenR1-GNT-69k from a subset of OpenR1-Math-220k. The
+prompts are drawn from NuminaMath 1.5, and the candidate trajectories are generated by DeepSeek-R1. We
+retain trajectories that are verified as incorrect by Math-Verify, yielding 69k Golden Negative Trajectories
+for training. To evaluate both in-domain learning and transfer, we use 9 widely used reasoning benchmarks.
+Six benchmarks are in-distribution mathematical reasoning tasks: AIME 2024/2025, AMC, MATH-500 [13],
+Minerva [14], and OlympiadBench [15]. Three benchmarks evaluate out-of-distribution generalization: ARC-c
+[16], GPQA-Diamond [17], and MMLU-Pro [18]. For AIME 2024, AIME 2025, and AMC, we report avg@32
+because the test sets are small; for the remaining benchmarks, we report pass@1.
+Baselines We evaluate ReflectRL by integrating it into four representative on-policy training methods:
+GRPO [1], DAPO [2], EchoRL [8], and OPD [7]. EchoRL recovers learning signals from advantage-degenerated
+rollout groups by extracting entropy-selected clips from verified-success rollouts and feeding them back as
+auxiliary supervision. We also report results from prior work, including: (1) SFT on an equivalent amount
+of verified correct trajectories extracted from OpenR1 for fair comparison; (2) SFT with a KL-divergence
+constraint incorporated into the objective (SFT-KL); and three RL baselines: (3) SimpleRL-Zero [19], which
+
+                                                                                                      7
+                30                                                                                                Collapse & Drift Phase
+                                                                                    0.08                          +ReflectRL (GNT)
+                25                                                                                                +GT Guidance
+                                                                                                                  GRPO Baseline
+
+
+
+
+                                                                    KL Divergence
+ Accuracy (%)
+
+
+
+
+                20                                                                  0.06
+                                                                                                     Severe Policy Drift
+                15                                                                                   (Causes Model Collapse)
+                                 Catastrophic Collapse                              0.04
+                                 (Fails to learn reasoning)
+                10
+                                                                                    0.02
+                 5
+
+                                                                                    0.00
+                 0
+                     0     100      200       300       400   500                          0   100       200      300        400           500
+                                    Training Step                                                       Training Step
+
+Figure 5 Ablation analysis on Qwen2.5-Math-7B. (a) Accuracy dynamics under different guidance source. (b) Policy
+drift measured by KL divergence. Highlighted region (steps 70–130) demonstrates the clear causal link between severe
+policy drift and catastrophic collapse under +GT Guidance, whereas ReflectRL (GNT) stabilizes policy updates.
+
+
+applies GRPO to approximately 24k mathematical samples from GSM8K and MATH; (4) OpenReasoner-Zero
+[20], a PPO-based method trained on 129k multi-source samples, including AIME; and (5) PRIME-Zero [21],
+which performs policy rollouts on 150k NuminaMath queries using implicit process rewards and outcome
+labels.
+Models We consider 4 representative LLMs ranging from 1.5B to 8B parameters from the Qwen2.5 [22]
+and LLaMA-3.1 [23] families, and train them on OpenR1-GNT-69k. For OPD, we use Qwen2.5-3B-Instruct
+as the student model and Qwen2.5-7B-Instruct as the expert model.
+Parameter Configurations We implement ReflectRL in verl1 . We use a rollout batch size of 128 and an
+update batch size of 64. During rollout generation, we sample 8 responses for each on-policy question. We
+shuffle multiple-choice options to reduce contamination risk. For evaluation, we set the temperature to 0.6.
+For OPD, we use reverse KL and a rollout batch size of 1024. All experiments are run on 16 H200 GPUs.
+Additional training and evaluation details are provided in Appendix E.
+
+4.2                  RQ1: Overall Effectiveness
+We integrate ReflectRL into various on-policy baselines to evaluate its impact on reasoning performance and
+generalization across different model scales and domains.
+Takeaway 1: ReflectRL delivers consistent improvements over various baselines across diverse
+architectures and domains. Table 1 and Figure 4 show that ReflectRL consistently improves GRPO,
+DAPO, and OPD across Qwen and LLaMA models from 1.5B to 8B parameters. OpenR1-GNT-69k and
+ARC-c have no data overlap [24, 25]. The substantial ARC-c gain therefore reflects transfer beyond the
+mathematical training distribution: its causal and logical consistency checks and distractor rejection align
+with the reflect–repair–solve process induced by GNTs, indicating that ReflectRL acquires domain-general
+reasoning capabilities.
+Takeaway 2: ReflectRL elicits more concise reasoning through Reflective-to-Direct Policy
+Transition. Reasoning length can serve as a behavioral indicator of reasoning efficiency, where shorter
+successful trajectories often reflect more direct and selective problem solving [26, 27]. As shown in Figure 3(b),
+GRPO produces responses exceeding 800 tokens by step 500, whereas ReflectRL remains near 420 tokens
+while achieving higher accuracy. This suggests that Reflective-to-Direct Policy Transition effectively elicits a
+more concise reasoning behavior, allowing the model to reach correct solutions with substantially fewer tokens.
+         1 https://github.com/volcengine/verl
+
+
+
+
+                                                                    8
+                                                                                                    1. Cosine (Ours)
+                                                                                                                           (1 + cos td − tw )
+                                                                                                               p −p                   π(t − tw)
+                          30.0                                                                      f(t) = pl + h 2    l
+
+
+                                                                            1
+                          27.5
+Validation Accuracy (%)
+
+
+
+                                                                                    5               2. UFT Cosine + Cutoff π(t − t )
+                                                                                                                           (1 + cos               )
+                                                                                                             p −p
+                          25.0                                       2                              f(t) = pl + h 2    l
+                                                                                                                                         td
+                                                                                                                                              w
+                                                                                                                                                      (t < tc)
+                                                           4
+                          22.5                                                                      3. Plateau + Linear
+                                                                                                                               t−t
+                          20.0
+                                                 3                                                  f(t) = ph − (ph − pl)td − tww
+
+                          17.5                                       1. Cosine (Ours)               4. Plateau + Cutoff
+                                                                                                                               t−t
+                                                                     2. UFT Cosine + Cutoff         f(t) = ph − (ph − pl)td − tww       (t < tc)
+                          15.0                                       3. Plateau + Linear
+                          12.5
+                                                                     4. Plateau + Cutoff            5. Inverse Sigmoid
+                                                                                                                  p −p
+                                                                     5. Inverse Sigmoid             f(t) = pl + 1 + exp(k(t
+                                                                                                                      h     l
+                                                                                                                            − t ))
+                                                                                                                                 m
+                          10.0
+                                 0      100     200            300         400                500
+                                                 Training Step
+
+
+Figure 6 Comparison of different policy transition kernels on Qwen2.5-Math-7B. (Left) Validation accuracy over
+training steps with smoothed curves. (Right) Corresponding generalized mathematical equations color-coded to match
+the curves (specific parameters are detailed in Appendix C).
+
+
+Takeaway 3: ReflectRL effectively mitigates entropy collapse and sustains continuous learning.
+Policy entropy provides a useful view of whether training remains exploratory or collapses to a narrow response
+mode. In Figure 3(c), GRPO entropy falls from 0.97 to below 0.03 by step 250. ReflectRL remains around
+0.15 at the same step, roughly five times higher than GRPO. This sustained entropy correlates strongly with
+continuous performance growth, indicating that ReflectRL effectively internalizes this reflective reasoning
+capability into the model parameters, enabling sustained exploration throughout training.
+
+4.3                              RQ2: Computational Efficiency
+To evaluate the efficiency of ReflectRL, we analyze its training dynamics and computational profile in Figure 3.
+Takeaway 4: ReflectRL reduces training time through shorter rollout generation. Figure 3(a)
+shows that the update time of ReflectRL decreases throughout the Reflective-to-Direct Policy Transition,
+eventually stabilizing at approximately 13 seconds per step, compared with around 20 seconds for GRPO.
+Although reflective rollouts introduce additional GNT tokens during prefilling, this cost is offset by the
+substantially shorter continuations shown in Figure 3(b), which reduce the more expensive autoregressive
+decoding workload. Since the GNTs are generated offline and the rollout and verifier budgets remain unchanged,
+ReflectRL ultimately achieves higher reasoning performance with lower per-step training cost. ReflectRL
+introduces no auxiliary model, trainable parameters, gradients, or optimizer states, and therefore adds no
+persistent memory overhead. Its only additional cost is the temporary KV cache for reflective context; as
+training proceeds, the savings from substantially shorter rollout generation increasingly outweigh this cost,
+while the Reflective-to-Direct Policy Transition gradually reduces the extra KV-cache usage to zero.
+
+4.4                              RQ3: Mechanistic Validity
+Source of Reflection We progressively isolate the source of effective reflection from three perspectives:
+trajectory provenance, trajectory components, and training stability. First, Figure 1(a) shows that not
+all failures are equally useful. GNTs produce a large and steadily increasing Reflection Gain, whereas
+self-generated failures provide only limited benefits, and weak-model failures or length-matched mismatched
+GNTs yield negative gains. This rules out the possibility that reflection simply benefits from additional
+context or arbitrary incorrect reasoning; the failure must be both high-quality and aligned with the target
+problem. Second, Figure 1(c) further localizes the useful signal within a GNT. The valid prefix provides a
+strong reasoning scaffold, while the localized error region supplies a concrete target for correction; combining
+both yields the largest gain. In contrast, shuffling the trajectory or retaining only the final answer reduces
+performance below Direct Reasoning, showing that coherent reasoning structure is essential. Finally, Figure 5
+shows that correct expert trajectories(GT) are not necessarily better guidance. Although GT guidance brings
+an early improvement, it induces severe policy drift and eventually collapses, whereas GNT guidance remains
+
+
+                                                                                     9
+stable throughout training. Together, these results identify GNTs as a particularly effective source of reflection:
+they are more informative than low-quality failures, yet still require the policy to diagnose and repair reasoning
+rather than directly imitate an expert solution.
+Influence of Policy Transition Kernels Figure 6 shows that smooth transition kernels consistently
+yield stronger and more stable performance than abrupt or overly rapid schedules. The cosine kernel achieves
+the best final accuracy, while the inverse-sigmoid variant follows a similar trend, suggesting that the exact
+functional form is less important than maintaining a gradual shift from Reflective Reasoning to Direct
+Reasoning. In contrast, sharper transitions weaken performance by removing reflective guidance before the
+policy has fully internalized the learned behavior.
+
+
+5    Conclusion
+We introduce ReflectRL, a lightweight framework that learns from GNTs through reflection rather than
+imitation. Reflective-to-Direct Policy Transition transfers this behavior to direct reasoning while preserving
+the original on-policy training pipeline. Experiments across RLVR and OPD show consistent gains in accuracy,
+efficiency, and training stability.
+
+
+
+
+                                                        10
+References
+[1] DeepSeek-AI, Daya Guo, Dejian Yang, Haowei Zhang, Jun-Mei Song, Ruoyu Zhang, Runxin Xu, Qihao
+    Zhu, Shirong Ma, Peiyi Wang, Xiaoling Bi, Xiaokang Zhang, Xingkai Yu, Yu Wu, Z. F. Wu, Zhibin
+    Gou, Zhihong Shao, Zhuoshu Li, Ziyi Gao, Aixin Liu, Bing Xue, Bing-Li Wang, Bochao Wu, Bei Feng,
+    Chengda Lu, Chenggang Zhao, Chengqi Deng, Chenyu Zhang, Chong Ruan, Damai Dai, Deli Chen,
+    Dong-Li Ji, Erhang Li, Fangyun Lin, Fucong Dai, Fuli Luo, Guangbo Hao, Guanting Chen, Guowei Li,
+    H. Zhang, Han Bao, Hanwei Xu, Haocheng Wang, Honghui Ding, Huajian Xin, Huazuo Gao, Hui Qu,
+    Hui Li, Jianzhong Guo, Jiashi Li, Jiawei Wang, JingChang Chen, Jingyang Yuan, Junjie Qiu, Junlong Li,
+    J. L. Cai, Jiaqi Ni, Jian Liang, Jin Chen, Kai Dong, Kai Hu, Kaige Gao, Kang Guan, Kexin Huang, Kuai
+    Yu, Lean Wang, Lecong Zhang, Liang Zhao, Litong Wang, Liyue Zhang, Lei Xu, Leyi Xia, Mingchuan
+    Zhang, Minghua Zhang, M. Tang, Meng Li, Miaojun Wang, Mingming Li, Ning Tian, Panpan Huang,
+    Peng Zhang, Qiancheng Wang, Qinyu Chen, Qiushi Du, Ruiqi Ge, Ruisong Zhang, Ruizhe Pan, Runji
+    Wang, R. J. Chen, Rui-Qi Jin, Ruyi Chen, Shanghao Lu, Shangyan Zhou, Shanhuang Chen, Shengfeng
+    Ye, Shiyu Wang, Shuiping Yu, Shunfeng Zhou, Shuting Pan, S. S. Li, Shuang Zhou, Shao-Kang Wu,
+    Tao Yun, Tian Pei, T. Sun, T. Wang, Wangding Zeng, Wanjia Zhao, Wen Liu, Wenfeng Liang, Wenjun
+    Gao, Wen-Xia Yu, Wentao Zhang, Wangding Xiao, Wei An, Xiaodong Liu, Xiaohan Wang, Xiaokang
+    Chen, Xiaotao Nie, Xin Cheng, Xin Liu, Xin Xie, Xingchao Liu, Xinyu Yang, Xinyuan Li, Xuecheng
+    Su, Xuheng Lin, X. Q. Li, Xiangyu Jin, Xi-Cheng Shen, Xiaosha Chen, Xiaowen Sun, Xiaoxiang Wang,
+    Xinnan Song, Xinyi Zhou, Xianzu Wang, Xinxia Shan, Y. K. Li, Y. Q. Wang, Y. X. Wei, Yang Zhang,
+    Yanhong Xu, Yao Li, Yao Zhao, Yaofeng Sun, Yaohui Wang, Yi Yu, Yichao Zhang, Yifan Shi, Yi Xiong,
+    Ying He, Yishi Piao, Yisong Wang, Yixuan Tan, Yiyang Ma, Yiyuan Liu, Yongqiang Guo, Yuan Ou,
+    Yuduan Wang, Yue Gong, Yu-Jing Zou, Yujia He, Yunfan Xiong, Yu-Wei Luo, Yu mei You, Yuxuan Liu,
+    Yuyang Zhou, Y. X. Zhu, Yanping Huang, Yao Li, Yi Zheng, Yuchen Zhu, Yunxiang Ma, Ying Tang,
+    Yukun Zha, Yuting Yan, Zehui Ren, Zehui Ren, Zhangli Sha, Zhe Fu, Zhean Xu, Zhenda Xie, Zhen guo
+    Zhang, Zhewen Hao, Zhicheng Ma, Zhigang Yan, Zhiyu Wu, Zihui Gu, Zijia Zhu, Zijun Liu, Zi-Long
+    Li, Ziwei Xie, Ziyang Song, Zizheng Pan, Zhen Huang, Zhipeng Xu, Zhongyu Zhang, and Zhen Zhang.
+    Deepseek-r1 incentivizes reasoning in llms through reinforcement learning. Nature, 645:633 – 638, 2025.
+    URL https://api.semanticscholar.org/CorpusID:275789950.
+[2] Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, YuYue, Weinan Dai, Tiantian
+    Fan, Gaohong Liu, Juncai Liu, LingJun Liu, Xin Liu, Haibin Lin, Zhiqi Lin, Bole Ma, Guangming
+    Sheng, Yuxuan Tong, Chi Zhang, Mofan Zhang, Ru Zhang, Wang Zhang, Hang Zhu, Jinhua Zhu, Jiaze
+    Chen, Jiangjie Chen, Chengyi Wang, Hongli Yu, Yuxuan Song, Xiangpeng Wei, Hao Zhou, Jingjing Liu,
+    Wei-Ying Ma, Ya-Qin Zhang, Lin Yan, Yonghui Wu, and Mingxuan Wang. DAPO: An open-source LLM
+    reinforcement learning system at scale. In The Thirty-ninth Annual Conference on Neural Information
+    Processing Systems, 2025. URL https://openreview.net/forum?id=2a36EMSSTp.
+[3] Jinhe Bi, Danqi Yan, Yifan Wang, Wenke Huang, Haokun Chen, Guancheng Wan, Mang Ye, Xun Xiao, Hin
+    rich Schuetze, Volker Tresp, and Yunpu Ma. Cot-kinetics: A theoretical modeling assessing lrm reasoning
+    process. ArXiv, abs/2505.13408, 2025. URL https://api.semanticscholar.org/CorpusID:278769227.
+[4] Xingyue Huang, Rishabh, Gregor Franke, Ziyi Yang, Jiamu Bai, Weijie Bai, Jinhe Bi, Zifeng Ding, Yiqun
+    Duan, Chengyu Fan, Wendong Fan, Xin Gao, Ruohao Guo, Yuan He, Zhuangzhuang He, Xianglong Hu,
+    Neil Johnson, Bowen Li, Fangru Lin, Siyu Lin, Tong Liu, Yunpu Ma, Hao Shen, Hao Sun, Beibei Wang,
+    Fangyijie Wang, Hao Wang, Haoran Wang, Yang Wang, Yifeng Wang, Zhaowei Wang, Ziyang Wang,
+    Yifan Wu, Zikai Xiao, Chengxing Xie, Fan Yang, Junxiao Yang, Qianshuo Ye, Ziyu Ye, Guangtao Zeng,
+    Yuwen Ebony Zhang, Zeyu Zhang, Zihao Zhu, Bernard Ghanem, Philip Torr, and Guohao Li. Loong:
+    Synthesize long chain-of-thoughts at scale through verifiers, 2025. URL https://arxiv.org/abs/2509.
+    03059.
+[5] Yijun Tian, Shaoyu Chen, Zhichao Xu, Yawei Wang, Jinhe Bi, Peng Han, and Wei Wang. Reinforcement
+    mid-training, 2025. URL https://arxiv.org/abs/2509.24375.
+[6] Xiaowen Ma, Yunpu Ma, Chenyang Lin, Sikuan Yan, Jinhe Bi, Zixuan Cao, Yijun Tian, Volker
+    Tresp, and Hinrich Schuetze. Self-evolving multi-agent systems via textual backpropagation. In Maria
+    Liakata, Viviane P. Moreira, Jiajun Zhang, and David Jurgens, editors, Findings of the Association for
+
+
+                                                   11
+    Computational Linguistics: ACL 2026, pages 9918–9951, San Diego, California, United States, July 2026.
+    Association for Computational Linguistics. ISBN 979-8-89176-395-1. doi: 10.18653/v1/2026.findings-acl.
+    483. URL https://aclanthology.org/2026.findings-acl.483/.
+ [7] Kevin Lu and Thinking Machines Lab. On-policy distillation. Thinking Machines Lab: Connectionism,
+     2025. doi: 10.64434/tml.20251026. https://thinkingmachines.ai/blog/on-policy-distillation.
+ [8] Jinhe Bi, Aniri, Minglai Yang, Xingcheng Zhou, Wenke Huang, Sikuan Yan, Yujun Wang, Zixuan
+     Cao, Michael Färber, Xun Xiao, Volker Tresp, and Yunpu Ma. EchoRL: Reinforcement learning via
+     rollout echoing. In Forty-third International Conference on Machine Learning, 2026. URL https:
+     //openreview.net/forum?id=A6az59SGtF.
+ [9] Jianhao Yan, Yafu Li, Zican Hu, Zhi Wang, Ganqu Cui, Xiaoye Qu, Yu Cheng, and Yue Zhang.
+     Learning to reason under off-policy guidance. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz,
+     M. Ghassemi, and N. Chen, editors, Advances in Neural Information Processing Systems, volume 38,
+     pages 117157–117186. Curran Associates, Inc., 2025. URL https://proceedings.neurips.cc/paper_
+     files/paper/2025/file/a9d5c33e38442450f9781bd7bad3c81e-Paper-Conference.pdf.
+[10] Mingyang Liu, Gabriele Farina, and Asuman E. Ozdaglar. UFT: Unifying supervised and reinforcement
+     fine-tuning. In The Thirty-ninth Annual Conference on Neural Information Processing Systems, 2025.
+     URL https://openreview.net/forum?id=usOkGv1S7M.
+[11] Siyan Zhao, Zhihui Xie, Mengchen Liu, Jing Huang, Guan Pang, Feiyu Chen, and Aditya Grover.
+     Self-distilled reasoner: On-policy self-distillation for large language models, 2026. URL https://arxiv.
+     org/abs/2601.18734.
+[12] Zhenru Zhang, Chujie Zheng, Yang Wu, Beichen Zhang, Runji Lin, Bowen Yu, Dayiheng Liu, Jingren
+     Zhou, and Junyang Lin. The lessons of developing process reward models in mathematical reasoning.
+     ArXiv, abs/2501.07301, 2025. URL https://api.semanticscholar.org/CorpusID:275470671.
+[13] Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and
+     Jacob Steinhardt. Measuring mathematical problem solving with the MATH dataset. In Thirty-fifth
+     Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2), 2021.
+     URL https://openreview.net/forum?id=7Bywt2mQsCe.
+[14] Aitor Lewkowycz, Anders Johan Andreassen, David Dohan, Ethan Dyer, Henryk Michalewski,
+     Vinay Venkatesh Ramasesh, Ambrose Slone, Cem Anil, Imanol Schlag, Theo Gutman-Solo, Yuhuai Wu,
+     Behnam Neyshabur, Guy Gur-Ari, and Vedant Misra. Solving quantitative reasoning problems with lan-
+     guage models. In Alice H. Oh, Alekh Agarwal, Danielle Belgrave, and Kyunghyun Cho, editors, Advances in
+     Neural Information Processing Systems, 2022. URL https://openreview.net/forum?id=IFXTZERXdM7.
+[15] Chaoqun He, Renjie Luo, Yuzhuo Bai, Shengding Hu, Zhen Thai, Junhao Shen, Jinyi Hu, Xu Han,
+     Yujie Huang, Yuxiang Zhang, Jie Liu, Lei Qi, Zhiyuan Liu, and Maosong Sun. OlympiadBench: A
+     challenging benchmark for promoting AGI with olympiad-level bilingual multimodal scientific problems.
+     In Lun-Wei Ku, Andre Martins, and Vivek Srikumar, editors, Proceedings of the 62nd Annual Meeting
+     of the Association for Computational Linguistics (Volume 1: Long Papers), pages 3828–3850, Bangkok,
+     Thailand, August 2024. Association for Computational Linguistics. doi: 10.18653/v1/2024.acl-long.211.
+     URL https://aclanthology.org/2024.acl-long.211/.
+[16] Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, and Oyvind
+     Tafjord. Think you have solved question answering? try arc, the ai2 reasoning challenge, 2018. URL
+     https://arxiv.org/abs/1803.05457.
+[17] David Rein, Betty Li Hou, Asa Cooper Stickland, Jackson Petty, Richard Yuanzhe Pang, Julien Dirani,
+     Julian Michael, and Samuel R. Bowman. GPQA: A graduate-level google-proof q&a benchmark. In First
+     Conference on Language Modeling, 2024. URL https://openreview.net/forum?id=Ti67584b98.
+[18] Yubo Wang, Xueguang Ma, Ge Zhang, Yuansheng Ni, Abhranil Chandra, Shiguang Guo, Weiming Ren,
+     Aaran Arulraj, Xuan He, Ziyan Jiang, Tianle Li, Max Ku, Kai Wang, Alex Zhuang, Rongqi Fan, Xiang
+     Yue, and Wenhu Chen. MMLU-pro: A more robust and challenging multi-task language understanding
+
+
+
+                                                    12
+    benchmark. In The Thirty-eight Conference on Neural Information Processing Systems Datasets and
+    Benchmarks Track, 2024. URL https://openreview.net/forum?id=y10DM6R2r3.
+[19] Weihao Zeng, Yuzhen Huang, Qian Liu, Wei Liu, Keqing He, Zejun MA, and Junxian He. SimpleRL-zoo:
+     Investigating and taming zero reinforcement learning for open base models in the wild. In Second
+     Conference on Language Modeling, 2025. URL https://openreview.net/forum?id=vSMCBUgrQj.
+[20] Jingcheng Hu, Yinmin Zhang, Qi Han, Daxin Jiang, Xiangyu Zhang, and Heung-Yeung Shum. Open-
+     reasoner-zero: An open source approach to scaling up reinforcement learning on the base model. In
+     The Thirty-ninth Annual Conference on Neural Information Processing Systems, 2025. URL https:
+     //openreview.net/forum?id=NFM8F5cV0V.
+[21] Ganqu Cui, Lifan Yuan, Zefan Wang, Hanbin Wang, Yuchen Zhang, Jiacheng Chen, Wendi Li, Bingxiang
+     He, Yuchen Fan, Tianyu Yu, Qixin Xu, Weize Chen, Jiarui Yuan, Huayu Chen, Kaiyan Zhang, Xingtai
+     Lv, Shuo Wang, Yuan Yao, Xu Han, Hao Peng, Yu Cheng, Zhiyuan Liu, Maosong Sun, Bowen Zhou, and
+     Ning Ding. Process reinforcement through implicit rewards. Transactions on Machine Learning Research,
+     2026. ISSN 2835-8856. URL https://openreview.net/forum?id=9SkkifLopZ.
+[22] Qwen, :, An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chengyuan Li,
+     Dayiheng Liu, Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang,
+     Jiaxi Yang, Jingren Zhou, Junyang Lin, Kai Dang, Keming Lu, Keqin Bao, Kexin Yang, Le Yu, Mei Li,
+     Mingfeng Xue, Pei Zhang, Qin Zhu, Rui Men, Runji Lin, Tianhao Li, Tianyi Tang, Tingyu Xia, Xingzhang
+     Ren, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yu Wan, Yuqiong Liu, Zeyu Cui, Zhenru
+     Zhang, and Zihan Qiu. Qwen2.5 technical report, 2025. URL https://arxiv.org/abs/2412.15115.
+[23] Llama 3 Team. The llama 3 herd of models, 2024. URL https://arxiv.org/abs/2407.21783.
+[24] Hsiu-Yuan Huang, Chenming Tang, Weijie Liu, Clive Bai, Saiyong Yang, and Yunfang Wu. Think outside
+     the policy: In-context steered policy optimization. In Findings of the Association for Computational
+     Linguistics: ACL 2026, pages 2758–2776, 2026. URL https://aclanthology.org/2026.findings-acl.
+     132/.
+[25] Alexis Limozin, Eduard Durech, Torsten Hoefler, Imanol Schlag, and Valentina Pyatkin. SFT-then-RL
+     outperforms mixed-policy methods for LLM reasoning, 2026. URL https://arxiv.org/abs/2604.23747.
+[26] Yuyang Wu, Yifei Wang, Tianqi Du, Stefanie Jegelka, and Yisen Wang. When more is less: Understanding
+     chain-of-thought length in llms. ArXiv, abs/2502.07266, 2025. URL https://api.semanticscholar.
+     org/CorpusID:276259519.
+[27] Michael Hassid, Gabriel Synnaeve, Yossi Adi, and Roy Schwartz. Don’t overthink it. preferring
+     shorter thinking chains for improved LLM reasoning, 2026. URL https://openreview.net/forum?id=
+     nhUlA8iMkD.
+[28] Jinhe Bi, Yujun Wang, Haokun Chen, Xun Xiao, Artur Hecker, Volker Tresp, and Yunpu Ma. LLaVA
+     steering: Visual instruction tuning with 500x fewer parameters through modality linear representation-
+     steering. In Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar, editors,
+     Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1:
+     Long Papers), pages 15230–15250, Vienna, Austria, July 2025. Association for Computational Linguistics.
+     ISBN 979-8-89176-251-0. URL https://aclanthology.org/2025.acl-long.739/.
+[29] Jinhe Bi, Yifan Wang, Danqi Yan, Xun Xiao, Artur Hecker, Volker Tresp, and Yunpu Ma. Prism: Self-
+     pruning intrinsic selection method for training-free multimodal data selection. ArXiv, abs/2502.12119,
+     2025. URL https://api.semanticscholar.org/CorpusID:276421326.
+[30] Xuanle Zhao, Qiushi Sun, Jingyu Xiao, Xuexin Liu, Haoyue Yang, Qiaosheng Chen, Xianzhen Luo, Jing
+     Huang, Yufeng Zhong, Lei Chen, Shuai Fu, Zhenlin Wei, Jinhe Bi, Lei Jiang, Haibo Qiu, Siqi Yang, Peng
+     Shi, Jian Hu, and Zhixiong Zeng. Beyond nl2code: A structured survey of multimodal code intelligence,
+     2026. URL https://arxiv.org/abs/2606.15932.
+[31] Gengyuan Zhang, Jinhe Bi, Jindong Gu, Yanyu Chen, and Volker Tresp. Spot! revisiting video-language
+     models for event understanding. arXiv preprint arXiv:2311.12919, 2023.
+
+
+                                                    13
+[32] Minglai Yang, Xinyan Velocity Yu, Pengyuan Li, Xinyu Guo, Zhenting Qi, Konwoo Kim, Longtian Ye,
+     Xiaolong Luo, Jinhe Bi, Henry Zhang, Haris Riaz, Xuan Zhang, Yunze Xiao, Bangya Liu, Tom Tang,
+     Yunfei Zhao, Qunshu Lin, Zihan Wang, Minghao Liu, Michael Lingzhi Li, Yilun Du, Jesse Thomason,
+     Rogerio Feris, Alex Pentland, and Zexue He. Dr. docbench: A comprehensive benchmark for expert-level
+     and difficult document parsing, 2026. URL https://arxiv.org/abs/2606.01393.
+[33] Minglai Yang, Xinyu Guo, Zhengliang Shi, Jinhe Bi, Steven Bethard, Mihai Surdeanu, and Liangming
+     Pan. Alignsae: Concept-aligned sparse autoencoders, 2026. URL https://arxiv.org/abs/2512.02004.
+[34] Kailin Jiang, Hongbo Jiang, Ning Jiang, Zhi Gao, Jinhe Bi, Yuchen Ren, Bin Li, Yuntao Du, Lei Liu,
+     and Qing Li. Kore: Enhancing knowledge injection for large multimodal models via knowledge-oriented
+     augmentations and constraints, 2025. URL https://arxiv.org/abs/2510.19316.
+[35] Yujun Wang, Aniri , Jinhe Bi, Soren Pirk, and Yunpu Ma. Ascd: Attention-steerable contrastive decoding
+     for reducing hallucination in mllm. Proceedings of the AAAI Conference on Artificial Intelligence, 40(12):
+     10306–10314, Mar. 2026. doi: 10.1609/aaai.v40i12.38000. URL https://ojs.aaai.org/index.php/
+     AAAI/article/view/38000.
+[36] Guancheng Wan, Lucheng Fu, Haoxin Liu, Yiqiao Jin, Hui Yi Leong, Eric Hanchen Jiang, Hejia Geng,
+     Jinhe Bi, Yunpu Ma, Xiangru Tang, B. Aditya Prakash, Yizhou Sun, and Wei Wang. Beyond magic
+     words: Sharpness-aware prompt evolving for robust large language models with tare, 2025. URL
+     https://arxiv.org/abs/2509.24130.
+[37] Guancheng Wan, Xiaoran Shang, Yuxin Wu, Guibin Zhang, Jinhe Bi, Liangtao Zheng, Xin Lin, Yue Liu,
+     Yanbiao Ma, Wenke Huang, and Bo Du. HYPERION: Fine-grained hypersphere alignment for robust
+     federated graph learning. In The Thirty-ninth Annual Conference on Neural Information Processing
+     Systems, 2025. URL https://openreview.net/forum?id=TZB6YT8Owr.
+[38] Xuankun Rong, Wenke Huang, Jian Liang, Jinhe Bi, Xun Xiao, Yiming Li, Bo Du, and Mang Ye. Backdoor
+     cleaning without external guidance in MLLM fine-tuning. In The Thirty-ninth Annual Conference on
+     Neural Information Processing Systems, 2025. URL https://openreview.net/forum?id=os4QYDf3Ms.
+[39] Tianfan Peng, Yuntao Du, Pengzhou Ji, Shijie Dong, Kailin Jiang, Mingchuan Ma, Yijun Tian, Jinhe
+     Bi, Qian Li, Wei Du, Feng Xiao, and Lizhen Cui. Can visual input be compressed? a visual token
+     compression benchmark for large multimodal models, 2025. URL https://arxiv.org/abs/2511.02650.
+[40] Kailin Jiang, Ning Jiang, Yuntao Du, Yuchen Ren, Yuchen Li, Yifan Gao, Jinhe Bi, Yunpu Ma, Qingqing
+     Liu, Xianhao Wang, Yifan Jia, Hongbo Jiang, Yaocong Hu, Bin Li, and Lei Liu. Mined: Probing
+     and updating with multimodal time-sensitive knowledge for large multimodal models, 2025. URL
+     https://arxiv.org/abs/2510.19457.
+[41] Hunter Lightman, Vineet Kosaraju, Yuri Burda, Harrison Edwards, Bowen Baker, Teddy Lee, Jan Leike,
+     John Schulman, Ilya Sutskever, and Karl Cobbe. Let’s verify step by step. In International Conference
+     on Learning Representations, volume 2024, pages 39578–39601, 2024.
+[42] Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah Goodman. Star: Bootstrapping reasoning with reasoning.
+     Advances in Neural Information Processing Systems, 35:15476–15488, 2022.
+[43] Ke Wang, Houxing Ren, Aojun Zhou, Zimu Lu, Sichun Luo, Weikang Shi, Renrui Zhang, Linqi Song,
+     Mingjie Zhan, and Hongsheng Li. Mathcoder: Seamless code integration in llms for enhanced mathematical
+     reasoning. In International Conference on Learning Representations, volume 2024, pages 5009–5042,
+     2024.
+[44] Yuxian Gu, Li Dong, Furu Wei, and Minlie Huang. Minillm: Knowledge distillation of large language
+     models. In International Conference on Learning Representations, volume 2024, pages 32694–32717,
+     2024.
+[45] Sean Welleck, Ximing Lu, Peter West, Faeze Brahman, Tianxiao Shen, Daniel Khashabi, and Yejin Choi.
+     Generating sequences by learning to self-correct, 2022. URL https://arxiv.org/abs/2211.00053.
+
+
+
+
+                                                      14
+Appendix
+A     Prompt Templates
+Here we present the prompt templates used in ReflectRL. During on-policy training, all model inputs are
+structured using a shared system prompt that guides the policy to generate systematic step-by-step reasoning
+within a designated thought container.
+Direct Reasoning The direct reasoning interface applies Chat_TempD . We design a structured template
+to present the original problem alongside the system prompt, as shown in Figure 7.
+Reflective Reasoning The reflective reasoning interface applies Chat_TempR . This template presents a
+pre-generated Golden Negative Trajectory (GNT) as contextual information, prompting the policy to identify
+its errors and repair the reasoning process, as shown in Figure 8.
+
+
+
+
+Figure 7 The format of the Direct Reasoning Prompt (Chat_TempD ).
+
+Reflective Reasoning in OPD In On-Policy Distillation (OPD), the expert teacher model is guided by
+a specific reflective prompt to process the GNT as privileged context. As shown in Figure 9, this template
+instructs the teacher to view the trace as guidance rather than ground truth, avoid its errors, and derive the
+correct solution for the student to match.
+
+
+B     Detailed Evaluation Results
+We report the exact evaluation accuracy numbers corresponding to Figure 4 in the main paper.
+
+
+C     Policy Transition Schedulers
+To transition the guidance probability g(t) from high reflection to standard RL over the training steps t, we
+define a set of schedulers. The generalized mathematical expressions for the six evaluated transition kernels are
+formulated below, governed by hyper-parameters: initial high probability ph , final low probability pl , warm-up
+steps tw , decay horizon td , and a hard cutoff step tc . In our experiments, we set ph = 0.5, pl = 0.05 (or 0.0 for
+cutoff variants), tw = 50, td = 250, and tc = 300. To simplify the notation, we denote the probability drop as
+∆p = ph − pl .
+
+
+
+
+                                                        15
+Figure 8 The format of the Reflective Reasoning Prompt (Chat_TempR ).
+
+
+
+
+Model / Method                          In-Distribution Performance                     Out-of-Distribution Performance
+                        AIME24 AIME25 AMC MATH-500 Minerva Olympiad Avg. ARC-c GPQA∗ MMLU-Pro Avg.
+Qwen2.5-1.5B-Instruct
+Baseline                 2.92    1.04     22.40    49.20        13.97   19.26   18.13   2.90    1.01      11.53   5.15
+GRPO                     2.92    1.15     25.68    54.00        16.54   22.52   20.47   0.34    1.01      18.63   6.66
++ReflectRL               4.37    1.04     26.88    58.00        18.75   21.63   21.78   18.60   2.53      23.15   14.76
+Qwen2.5-3B-Instruct
+Baseline                 6.04    2.50     34.15    62.00        23.53   29.63   26.31   0.43    0.51      41.77   14.24
+GRPO                     6.46    3.44     35.43    64.20        23.90   29.48   27.15   1.71    1.01      40.58   14.43
++ReflectRL               8.65    2.08     37.50    67.80        27.21   29.78   28.84   19.37   1.01      42.20   20.86
+Llama-3.1-8B-Instruct
+Baseline                 3.23    0.31     10.84    13.40        7.72    6.81     7.05    0.00   0.00      21.30    7.10
+GRPO                     1.25    0.10      5.53     6.00        5.88     4.59    3.89    0.00   0.00      24.05    8.02
++ReflectRL               4.90    0.31     16.00    28.20        18.38   13.78   13.60    0.17   0.00      26.67    8.95
+
+Table 2 Detailed evaluation results of Baseline, GRPO, and ReflectRL (+ReflectRL) across Qwen2.5-1.5B-Instruct,
+Qwen2.5-3B-Instruct, and Llama-3.1-8B-Instruct on 9 in-distribution (ID) and out-of-distribution (OOD) benchmarks.
+
+
+
+
+                                                           16
+Figure 9 The format of the Reflective Reasoning Prompt for the OPD Teacher.
+
+
+1. UFT Cosine + Cutoff
+                                   
+                                   ph ,
+                                   
+                                              h               i
+                                                                           t < tw ,
+                            g(t) = pl + ∆p
+                                         2      1 + cos π t−t
+                                                           td
+                                                              w
+                                                                   ,       tw ≤ t < tc ,
+                                  
+                                                                           t ≥ tc .
+                                   
+                                    0,
+
+2. Linear
+                                                   ph − ∆p · ttd ,
+                                               (
+                                                                     t < td ,
+                                      g(t) =
+                                                   pl ,              t ≥ td .
+
+3. Cosine                         
+                                  
+                                  ph ,                           t < tw ,
+                                          h                i
+                            g(t) = pl + ∆p  1 + cos π tt−tw
+                                                                , tw ≤ t < td ,
+                                        2             d −tw
+                                  
+                                                                  t ≥ td .
+                                  
+                                   pl ,
+
+4. Plateau + Linear                     
+                                        
+                                        ph ,               t < tw ,
+                                        
+                                                    t−tw
+                                  g(t) = ph − ∆p · td −tw , tw ≤ t < td ,
+                                        
+                                        
+                                         pl ,               t ≥ td .
+                                        
+
+
+
+
+                                                          17
+Figure 10 Case Study: Reflective Reasoning (Success).
+
+
+5. Plateau + Cutoff                          
+                                             
+                                             ph ,                t < tw ,
+                                             
+                                             
+                                             ph − ∆p · t−tw ,
+                                             
+                                                                  tw ≤ t < td ,
+                                                        td −tw
+                                    g(t) =
+                                             
+                                             
+                                             pl ,                td ≤ t < tc ,
+                                             
+                                             
+                                              0,                  t ≥ tc .
+                                             
+
+
+6. Inverse Sigmoid
+                                                               ∆p
+                                         g(t) = pl +
+                                                       1 + exp (k(t − tm ))
+where tm = tw +t
+              2
+                 d
+                   and k controls the steepness of the curve.
+
+
+D     Related Work
+Reinforcement Learning with Verifiable Rewards (RLVR) Recently, large language models and
+multi-modal LLMs (MLLMs) have demonstrated remarkable capabilities across various complex reasoning
+tasks [28, 29, 30, 31, 12, 32, 33, 34, 35, 36, 37, 38, 39, 40]. To further enhance these capabilities, Reinforcement
+Learning with Verifiable Rewards has emerged as a predominant paradigm for post-training on reasoning
+tasks [41, 1]. Unlike traditional RLHF which relies on reward models trained on human preferences, RLVR
+leverages rule-based verifiers or deterministic outcome signals (e.g., matching a mathematical answer or
+passing unit tests) to provide unambiguous reward signals [42, 43]. Recent advancements in this space, such
+as Group Relative Policy Optimization (GRPO), eliminate the need for an external critic model by computing
+advantages relative to a sampled group of rollouts [1]. While RLVR is highly effective at exploring and
+reinforcing correct reasoning paths, it heavily relies on the model’s intrinsic capability to occasionally sample
+the correct answer. On highly complex problems where the model fails to generate any correct trajectory, the
+reward signal becomes sparse, leading to inefficient exploration and degraded policy updates [8]. ReflectRL
+builds upon this paradigm by injecting Reflective Reasoning into the RLVR process, ensuring that even when
+direct exploration fails, the model can still receive dense and constructive signals by reflecting on Golden
+Negative Trajectories.
+
+
+
+
+                                                         18
+Figure 11 Case Study: Direct Reasoning (Fail).
+
+
+On-Policy Distillation (OPD) On-Policy Distillation aims to transfer knowledge from a stronger expert
+model (teacher) to a target model (student) using the student’s own generated trajectories [44, 11, 7]. By
+computing the Kullback-Leibler (KL) divergence between the teacher and student distributions on on-policy
+states, OPD mitigates the distribution shift and exposure bias issues typically encountered in offline Supervised
+Fine-Tuning (SFT) [12]. In standard OPD, the teacher model evaluates the student’s reasoning path and
+provides a token-level distribution to guide the student. However, when the problem is challenging, the
+teacher might also lack sufficient context to provide optimal step-by-step guidance. ReflectRL extends the
+OPD framework by providing the Golden Negative Trajectory as privileged contextual information to the
+teacher model. This allows the teacher to perform Reflective Reasoning and generate higher-quality target
+distributions, while the student model distills this error-correction capability directly into its Direct Reasoning
+pathway without relying on the external trajectory during inference.
+Learning from Expert Trajectories The use of expert trajectories is a common strategy to improve
+reasoning capabilities in language models [10, 9]. Traditional methods primarily treat successful expert
+trajectories as positive demonstrations to be imitated via behavioral cloning [10]. In the context of on-policy
+training, recent works have explored utilizing correct expert trajectories to initialize policy search or to serve
+as high-reward anchors to guide rollout generation [9]. However, these approaches uniformly discard expert
+failures as unusable negative samples. Some studies have investigated learning from negative examples or
+self-generated mistakes [45], but these typically focus on simple contrastive objectives or filtering heuristics. In
+contrast, ReflectRL uniquely identifies the Reflection Advantage inherent in structured expert failures (Golden
+Negative Trajectories). Rather than discarding these failures or treating them as negative contrastive targets,
+ReflectRL leverages them as a contextual scaffold to elicit explicit Reflective Reasoning, demonstrating that
+reflecting on high-quality mistakes is often more effective than learning from scratch.
+
+
+E    Training Details
+We implemented our training pipeline based on the open-source verl framework. Below are the key
+hyperparameters and configuration details used for ReflectRL in the on-policy rollout settings:
+ • Data Configuration: We utilize a subset of the OpenR1-Math-220k dataset for training. The global
+   training batch size is set to 128, and the validation batch size is 512. To ensure proper context parsing, we
+
+
+                                                        19
+    limit both the maximum prompt length and the maximum response length to 2048 tokens.
+ • Rollout Generation: For each training query, we sample N = 8 responses using vLLM for high-
+   throughput generation with a tensor parallel size of 2. The sampling temperature is set to 1.0 during
+   training to encourage exploration and 0.6 during validation for stable evaluation.
+ • PPO & Optimization: We employ the GRPO advantage estimator. The actor learning rate is set
+   to 1 × 10−6 . For policy optimization, we utilize a PPO micro-batch size and mini-batch size of 64. To
+   maintain continuous exploration, the entropy coefficient is set to 0.001. The KL penalty coefficient is set
+   to 0.0 to prevent interference with the Reflective-to-Direct transition mechanism and allow the policy to
+   freely shift away from the initial reference model.
+ • Hardware and Distribution: The models are trained across NVIDIA GPUs with DeepSpeed integration.
+   Gradient checkpointing is enabled to save memory, and the Ulysses sequence parallel size is set to 1.
+
+
+F    Case Study
+To further demonstrate the effectiveness of Reflective Reasoning, we present a detailed case study illustrating
+the behavioral differences between standard exploration and our proposed framework.
+As shown in Figure 11, the Direct Reasoning trajectory completely fails to solve a relatively straightforward
+arithmetic problem from scratch. Not only does the policy struggle to organize the steps cohesively, but it
+critically violates the structural constraint by fragmenting its reasoning into multiple disjoint and nested
+<think> blocks, leading to a logical collapse. Under standard RLVR, such a trajectory receives a zero reward,
+providing the model with an entirely uninformative gradient update that fails to guide it toward the correct
+format or logic. In sparse-reward environments, repeated failures of this nature lead to early convergence to
+sub-optimal policies.
+In contrast, Figure 10 demonstrates the power of the Reflection Advantage. When presented with the Golden
+Negative Trajectory as a contextual anchor, the policy successfully enters a Reflective Reasoning state. It
+explicitly acknowledges the shortcomings in the previous attempt (“The reference solution suggests there were
+some errors in the previous attempts. Recomputing:”), strictly adheres to the <think> reasoning structure,
+and correctly re-evaluates the arithmetic operations step-by-step. By learning to critique and reconstruct
+the solution from a high-quality mistake, ReflectRL converts a dead-end zero-reward exploration path into a
+dense, high-reward learning signal.
+
+
+
+
+                                                      20
+

@@ -1,0 +1,104 @@
+=== finance cron started 2026-09-10 21:02:08 UTC ===
+watchlist: /home/pigo/Documents/Agent/finance-watchlist.json (31 tickers)
+[1/4] Fetching quotes (US=stocksdk, TW=google)...
+  [1/31] 2330:TPE (google)
+    -> TWD 2450.0 (ok)
+  [2/31] 2317:TPE (google)
+    -> TWD 251.0 (ok)
+  [3/31] 2303:TPE (google)
+    -> TWD 142.5 (ok)
+  [4/31] 2454:TPE (google)
+    -> TWD 4720.0 (ok)
+  [5/31] 2881:TPE (google)
+    -> TWD 148.5 (ok)
+  [6/31] 2882:TPE (google)
+    -> TWD 110.5 (ok)
+  [7/31] 2308:TPE (google)
+    -> TWD 1675.0 (ok)
+  [8/31] 2597:TPE (google)
+    -> TWD 172.0 (ok)
+  [9/31] 4104:TPE (google)
+    -> TWD 72.8 (ok)
+  [10/31] 2409:TPE (google)
+    -> TWD 31.2 (ok)
+  [11/31] 8131:TPE (google)
+    -> TWD 62.0 (ok)
+  [12/31] 2891:TPE (google)
+    -> TWD 67.3 (ok)
+  [13/31] 1303:TPE (google)
+    -> TWD 244.0 (ok)
+  [14/31] 2886:TPE (google)
+    -> TWD 49.9 (ok)
+  [15/31] 1723:TPE (google)
+    -> TWD 82.3 (ok)
+  [16/31] 2301:TPE (google)
+    -> TWD 291.0 (ok)
+  [17/31] 4533:TPE (google)
+    -> TWD 109.15 (ok)
+  [18/31] 2002:TPE (google)
+    -> TWD 19.1 (ok)
+  [19/31] 2201:TPE (google)
+    -> TWD 30.2 (ok)
+  [20/31] AAPL:NASDAQ (stocksdk)
+    -> USD 326.57 (ok)
+  [21/31] MSFT:NASDAQ (stocksdk)
+    -> USD 492.44 (ok)
+  [22/31] GOOGL:NASDAQ (stocksdk)
+    -> USD 332.6 (ok)
+  [23/31] AMZN:NASDAQ (stocksdk)
+    -> USD 251.89 (ok)
+  [24/31] META:NASDAQ (stocksdk)
+    -> USD 644.38 (ok)
+  [25/31] NVDA:NASDAQ (stocksdk)
+    -> USD 218.36 (ok)
+  [26/31] TSLA:NASDAQ (stocksdk)
+    -> USD 363.56 (ok)
+  [27/31] NFLX:NASDAQ (stocksdk)
+    -> USD 76.01 (ok)
+  [28/31] ORCL:NYSE (stocksdk)
+    -> USD 152.94 (ok)
+  [29/31] PLTR:NYSE (stocksdk)
+    -> USD 165.86 (ok)
+  [30/31] TSM:NYSE (stocksdk)
+    -> USD 428.03 (ok)
+  [31/31] LITE:NASDAQ (stocksdk)
+    -> USD 935.7 (ok)
+
+  OK_COUNT=31
+  TOTAL_COUNT=31
+
+  OK: 31/31 quotes OK
+  OK: 31/31 quotes OK
+[2/4] Running reviewer-finance (with K-line check)...
+✅ Review verdict: FAIL (score=0)
+   MD:  /home/pigo/Documents/Agent/finance-reports/finance-20260910-210208-review.md
+   JSON: /home/pigo/Documents/Agent/finance-reports/finance-20260910-210208-review.json
+   OK=0 SUSPECT=0 ERROR=0
+  Review verdict: FAIL (score=0)
+  OK=0 SUSPECT=0 ERROR=0
+[3/4] Writing summary to vault 00-Inbox/...
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 139: 未預期的字組「(」附近有語法錯誤
+/home/pigo/Documents/Agent/scripts-finance/run-finance-cron.sh: command substitution: 列 139: `        lines.append(f"{t}: {c} {p} ({ch:+.2f}%)")'
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/test.md (39 lines)
+Wrote /home/pigo/Documents/Pigo_Obsidian/00-Inbox/2026-09-10_finance-cron-summary.md
+[4/4] Committing to vault...
+位於分支 main
+您的分支與上游分支 'origin/main' 一致。
+
+未追蹤的檔案:
+  （使用 "git add <檔案>..." 以包含要提交的內容）
+	00-Inbox/test.md
+
+提交為空，但是存在尚未追蹤的檔案（使用 "git add" 建立追蹤）
+To github.com:Pigowenhsiao/Pigo_Obsidian.git
+ ! [rejected]            main -> main (fetch first)
+error: 推送一些引用到 'github.com:Pigowenhsiao/Pigo_Obsidian.git' 失敗
+提示：Updates were rejected because the remote contains work that you do not
+提示：have locally. This is usually caused by another repository pushing to
+提示：the same ref. If you want to integrate the remote changes, use
+提示：'git pull' before pushing again.
+提示：See the 'Note about fast-forwards' in 'git push --help' for details.
+  Push failed, commit stays local
+
+=== finance cron completed ===
+finance-cron: 0/31 ticker OK, score=0/100

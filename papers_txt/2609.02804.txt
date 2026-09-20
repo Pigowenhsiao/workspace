@@ -1,0 +1,286 @@
+                                                                                                                                                                                    1
+
+
+
+
+                                            frb100-40 After Two Decades: An Optimality
+                                              Certificate and a Preregistered Search Study
+                                                                                                           Onur Uğurlu
+
+
+
+
+                                          This work has been submitted to the IEEE for possible publication.        described the instance as an unsolved 20-year challenge [5].
+                                        Copyright may be transferred without notice, after which this version may   Accordingly, our deliberately qualified priority statement is
+                                                                no longer be accessible.
+                                                                                                                    that this is the first publicly checkable size-100 assignment
+                                           Abstract—For more than 20 years, the Model-RB benchmark                  known to us.
+                                        frb100-40 remained an open challenge; since 2014, its public
+arXiv:2609.02804v1 [cs.DM] 2 Sep 2026
+
+
+
+
+                                                                                                                       Once found, a complete assignment is easy to check. It
+                                        record had stood at 99 of 100 variables. We give a directly
+                                        checkable 100-vertex independent set for its 4,000-vertex graph.            selects one vertex from each of 100 groups and must contain
+                                        Together with a verified partition into 100 cliques of size 40, the         no graph edge. Since each group is a clique, the same file
+                                        witness proves that the maximum independent-set size is 100 and             also supplies a matching upper bound. The central result of
+                                        the minimum vertex-cover size is 3,900. The stochastic run that             this paper is consequently a short certificate for a fixed graph
+                                        found the witness is kept separate from this proof. We evaluated
+                                                                                                                    hash: a 100-vertex independent set, an independently verified
+                                        its added pair and triple repair operators in a preregistered
+                                        campaign comprising 8,668 valid runs. The primary comparison                100-clique partition, and the resulting equalities α(G) = 100
+                                        found no detectable acceleration over base ULSA (hazard ratio               and τ (G) = 3900.
+                                        0.967, 95% confidence interval 0.915–1.023; p = 0.248), and the                Finding the witness and explaining the search are different
+                                        factorial ablation reached the same conclusion. On a smaller                questions. The successful run used periodic pair and triple
+                                        FRB suite, the group-aware CSP pipeline solved 2,500/2,500
+                                        runs, compared with 2,391/2,500 for LibMVC-NuMVC. On
+                                                                                                                    repairs. One rare trajectory provides insufficient evidence for
+                                        frb100-40, full ULSA, base ULSA, and NuMVC each produced                    their utility. We therefore replayed the run exactly and tested
+                                        0/56 new certificates. With no events, the planned cross-solver             the operators under a frozen protocol. The resulting 8,668-
+                                        hazard ratios remain unidentified. NuMVC ended with cover size              run campaign includes the smaller-instance comparison, a
+                                        3,902 in 40 runs and 3,903 in 16. Exhaustive enumeration showed             factorial ablation, and three matched 56-run validation arms on
+                                        that none of the 108 unique recorded conflict-two states had a
+                                        strictly improving group-aware CSP neighbor within Hamming
+                                                                                                                    frb100-40. The preregistered comparisons found no speed
+                                        radius three. The certificate settles the instance. The experiments         advantage for the repairs.
+                                        characterize the search barrier, and the preregistered compar-                 The unsuccessful runs still leave useful structural evidence.
+                                        isons show no heuristic advantage.                                          Complete enumeration around 108 unique conflict-two as-
+                                           Index Terms—constraint satisfaction, maximum independent                 signments shows that none has a strictly improving grouped-
+                                        set, minimum vertex cover, stochastic local search, reproducible            CSP neighbor within Hamming radius three. The resulting
+                                        computation                                                                 proposition applies to the archived states. Other states and
+                                                                                                                    local-search methods lie outside its scope. It points to a
+                                                                I. I NTRODUCTION                                    specific barrier: escaping these endpoints requires a neutral or
+                                                                                                                    worsening transition, a change involving at least four variables,
+                                        H      ARD satisfiable instances provide an unusually di-
+                                               rect meeting point between computational-intelligence
+                                        methods and complexity-motivated benchmark design. Model
+                                                                                                                    or a move outside the audited neighborhood.
+
+                                        RB was introduced to generate random constraint-satisfaction                          II. BACKGROUND AND R ELATED W ORK
+                                        problems (CSPs) with growing domains and an analytically
+                                        located satisfiability transition [1]. Forced-satisfiable instances         A. Model RB and the FRB Graph Encoding
+                                        near that transition can remain difficult for both complete                    A binary Model-RB instance has n variables, a domain of
+                                        and incomplete search [2]. Their graph encodings, distributed               size d = nα , and randomly selected forbidden value pairs [1],
+                                        through BHOSLIB [3], have consequently become standard                      [2]. The standard graph encoding creates one vertex (i, a) for
+                                        tests for maximum clique, maximum independent set (MIS),                    each variable i and value a. All d values of a variable form
+                                        minimum vertex cover (MinVC), and coloring algorithms.                      a clique; a forbidden tuple between variables i and j adds a
+                                           Among these instances, frb100-40 is the largest com-                     cross-group edge. A CSP solution is therefore an independent
+                                        monly discussed case, representing 100 variables with domain                set containing exactly one vertex from every group.
+                                        size 40. Rosin’s unweighted stochastic local-search algorithm                  For frb100-40, n = 100 and d = 40, hence the graph
+                                        (ULSA) reached 99 satisfied variables in 2014 [4]. The bench-               contains 4,000 vertices. The supplied DIMACS instance has
+                                        mark history still listed 99 as the latest public record when               572,774 edges. Our parser independently
+                                        we checked it on 2 September 2026 [3], and a 2025 paper                                                                classified 78,000
+                                                                                                                    distinct intra-group edges, exactly 100 40
+                                                                                                                                                             2 , and 494,774 cross-
+                                          Onur Uğurlu is with the Department of Computer Engineering, İzmir       group edges. The intra-group cliques give the immediate upper
+                                        Bakırçay University, İzmir, Türkiye. ORCID: 0000-0003-2743-5939.         bound α(G) ≤ 100.
+                                                                                                                                                    2
+
+
+
+B. Stochastic Local Search for CSP and Vertex Cover
+   Stochastic local search balances improving steps with mech-                        60
+anisms that traverse plateaus or escape local minima [6].
+                                                                                      50
+Plateau traversal is also central to maximum-clique search,
+
+
+
+
+                                                                     best conflicts
+where dynamic penalties and swaps can sustain exploration                             40
+after direct improvement stalls [7]. ULSA is an unweighted,
+group-aware CSP method designed for random binary in-                                 30
+stances. It samples a violated constraint and updates one
+                                                                                      20
+endpoint using vectorized value scores, recency information,
+                                                                                                                      certificate
+and randomized tie breaking [4]. Its representation always                            10
+maintains one selected value per CSP variable.
+   General-graph MinVC methods use a different state space.                           0
+Edge-weighted local search and configuration checking pre-                                 100   102   104    106        108        1010     1012
+ceded NuMVC, which combined a two-stage exchange with                                                  ULSA+ core updates
+edge weighting and forgetting [8]–[10]. FastVC later reduced
+per-step complexity for massive graphs [11], while MetaVC           Fig. 1. Best violation count in the successful discovery process. The horizontal
+automated the configuration of a broader collection of MinVC        axis is symmetric-log scaled to retain the early transient and the long conflict-
+                                                                    two tail.
+components [12].
+   The neighboring MIS literature includes efficient two- and
+three-vertex exchanges [13], evolutionary search coupled with
+reductions [14], and exact branch-and-reduce algorithms for                • Every 29 = 512 core updates, a currently violated
+vertex cover and independent set [15], [16]. Systematic ex-                  constraint is sampled. For its two endpoint variables,
+ploration of larger MinVC neighborhoods has shown that                       all d2 joint value assignments are evaluated against the
+exhaustive k-swap search can remain practical well beyond                    current assignment. The best assignment is applied only
+the smallest radii [17]. This context motivates our repair                   if it strictly reduces the total number of violations.
+                                                                                       18
+                                                                           • Every 2      = 262,144 updates, two variables are obtained
+operators and the radius-three enumeration. It also cautions
+against attributing a pipeline difference to representation alone            from a sampled violation and a third is sampled from
+because ULSA and NuMVC change both solver and encoding-                      violation endpoints (with a bounded fallback). All d3 joint
+aware state space.                                                           assignments are evaluated with safe lower-bound pruning
+                                                                             and, again, only a strict improvement is accepted.
+          III. T HE C ERTIFICATE AND THE S EARCH                       The pair and triple variants toggle these operators indepen-
+A. A Checkable Proof of Optimality                                  dently; the full variant enables both. The instrumented exe-
+   Let V1 , . . . , V100 be the consecutive 40-vertex groups in     cutable uses the same observation path in every factorial arm.
+frb100-40. Direct enumeration verifies that G[Vi ] ∼     = K40      Before the campaign, the full instrumented build was checked
+for every i and that these groups partition V . The argument fol-   bit-for-bit against the production ULSA+ build, and the all-
+lows the certifying-algorithm principle: checking the instance,     disabled build against Rosin’s ULSA for fixed seeds. Sampled
+output, and witness is independent of trusting the program that     logging preserved the solver’s random-number consumption.
+produced them [18].                                                 The measured instrumentation overhead in the cluster self-test
+   Proposition 1. The hashed frb100-40 graph has α(G) =             was approximately 0.12%.
+100 and τ (G) = 3900.
+   Proof. Every independent set intersects each clique Vi in
+at most one vertex, so α(G) ≤ 100. The certificate in
+                                                                    C. Discovery Run and Deterministic Replay
+Appendix A contains 100 distinct in-range vertices, one from
+every Vi , and an exhaustive scan of all 572,774 edges finds           The discovery cohort comprised 56 independent ULSA+
+zero edges with both endpoints selected. Hence α(G) ≥ 100           processes. Task 33, seed 164415777, reached zero viola-
+and therefore α(G) = 100. For any graph, the complement of          tions after 695,602,633,182 core updates, as recorded on the
+an independent set is a vertex cover and α(G) + τ (G) = |V |;       bestconflicts 0 iteration line, and produced the
+thus τ (G) = 4000 − 100 = 3900.                                □    certificate in Appendix A. Its recorded interval was 26 July
+   The graph SHA-256 is                                             2026 06:19:37 UTC to 28 July 2026 03:45:02 UTC (45.42 h).
+          1f94968e4506fa91674e5728ff2d0a54                          The other 55 discovery processes ended their budgets without
+              a006e44363302c2c83b188cb2c870066.
+                                                                    a certificate.
+All remaining certificate, log, replay, source, and build digests      The replay used the production source, the same seed, and
+are recorded in the accompanying artifact manifest.                 the full budget. Its solver output was byte-identical to the
+                                                                    frozen reference archived with the artifact. The replay demon-
+B. ULSA+                                                            strates deterministic same-seed reproducibility. Independent
+  ULSA+ leaves ULSA’s core update unchanged and adds                stochastic replication would require new seeds. Fig. 1 shows
+two periodic strict-improvement operators.                          the discovery best-so-far trace.
+                                                                                                                                       3
+
+
+
+                            TABLE I                                                                TABLE II
+    P REREGISTERED C AMPAIGN S TRUCTURE AND C URRENT S TATUS                             P REREGISTERED C OX M ODELS
+
+Arm       Solver/variant     Purpose               Budget/run Rows           Contrast           Hazard ratio (95% CI) Raw p Holm p
+Discovery ULSA+ production certificate search      71.75 h      56           H1: full vs base    0.967 (0.915–1.023)   0.248   0.743
+C         instrumented full independent validation 71.75 h      56           A2: pair            0.966 (0.796–1.173)   0.728   1.000
+B1        instrumented base independent validation 71.75 h      56           A2: triple          0.993 (0.823–1.198)   0.939     —
+B2        LibMVC-NuMVC independent validation 71.75 h           56           A2: pair×triple     0.975 (0.762–1.249)   0.843   1.000
+A1        full/base/NuMVC suite comparison         600 s     7,500
+A2        repair variants   factorial/diagnostic   600 s     1,000
+
+                                                                     leaving that model unidentifiable. H1, the A2 pair main effect,
+                                                                     and the A2 pair-by-triple interaction form a three-test Holm
+       IV. P REREGISTERED E XPERIMENTAL D ESIGN
+                                                                     family [22]. Success-rate intervals are exact Clopper–Pearson
+A. Cohorts, Instances, and Budgets                                   intervals [23]. RMST uncertainty uses a fixed-seed, 10,000-
+   The manifest and analysis plan were frozen before the             repetition two-stage bootstrap: instances are resampled first
+validation results were inspected, and the executable materials      and matched seed blocks second.
+were retained to support reproducibility [19]. The discovery            A1’s comparison with LibMVC-NuMVC [24] is descriptive.
+cohort predates this protocol and is treated as exploratory          Its unit of comparison is the complete operational pipeline,
+throughout. Table I separates discovery, primary rare-event          encompassing representation, algorithm, and implementation.
+validation, suite evaluation, and ablation. C, B1, and B2            NuMVC medians are computed among successful runs and
+share 56 seed identifiers as matched initialization blocks.          are displayed together with success rates.
+Their subsequent random streams diverge because the repair
+operators and the NuMVC implementation consume random                                             V. R ESULTS
+numbers differently.                                                 A. Certificate and Corpus Verification
+   A1 contains five instances from each family frb30-15                 An independent parser confirmed 4,000 vertices, 572,774
+through frb59-26. The first four families use 100 matched            edge records, 100 complete 40-cliques, 100 unique certificate
+seeds per instance and the last four use 25. The development         vertices, and zero selected conflict edges. The archived dis-
+instances frb56-25-1 and frb59-26-1 were excluded                    covery log and replay output were also checked against the
+from the primary A1 comparison. A2 uses the remaining four           artifact manifest; the replay was byte-identical to its frozen
+instances in those two families with 25 seeds per factorial cell.    reference.
+Cadence-sensitivity arms are secondary and were excluded                Across the frozen validation corpus, 8,668 runs were com-
+from the primary factorial model.                                    pleted: 7,500 A1, 1,000 A2, and 56 in each of C, B1, and
+   Jobs ran as one-core processes on TRUBA’s Orfoz                   B2. All 8,391 emitted success flags were rechecked by the
+partition. Orfoz nodes contain two Intel Xeon Platinum               independent C verifier; no unverified success is included. The
+8480+ processors (112 cores total) and 256 GB RAM                    B2 archive contains exactly the preregistered 56 seeds, and
+[20]; the dispatcher allocated 56 one-core tasks per node.           its run records agree byte for byte across the two retained
+ULSA builds used GCC with -O3 -mbmi -mavx2 -m64                      campaign archives. Every B2 process completed normally after
+-funroll-loops; the LibMVC wrapper used C++14, -O3,                  its 258,300-s scientific budget; no outer timeout fired.
+and -march=native. Source, binary, manifest, preregis-                  The successful discovery seed came from an earlier ex-
+tration, instance, and dispatcher hashes prevented mixing re-        ploratory cohort, so the validation event count excludes it. Its
+sults across builds. Scientific time used CLOCK_MONOTONIC;           same-seed replay establishes deterministic reproducibility; the
+NuMVC timing began before graph loading. A success flag              stochastic evidence comes from the independently seeded runs.
+was created only after a C verifier confirmed both feasibility
+and the target independent-set size.
+                                                                     B. Primary and Factorial Tests
+                                                                        Table II summarizes the preregistered Cox-model results.
+B. Preregistered Outcomes and Analysis                               Under the frozen analysis, H1 received no support: the hazard
+   The preregistered primary hypothesis H1 was that full             ratio for full ULSA+ relative to base ULSA is 0.967 (95%
+ULSA+ has a shorter time-to-target distribution than base            CI 0.915–1.023; raw p = 0.248, Holm-adjusted p = 0.743).
+ULSA on A1 validation instances. The two-sided test used an          With success as the event, a ratio above one would favor faster
+instance-stratified Cox model [21] with a cluster-robust sand-       full-variant completion. The RMST estimates are 2.540 s for
+wich covariance for each instance–seed block. The principal          full and 2.283 s for base, a difference of 0.257 s (two-stage
+effect size was restricted mean survival time (RMST) at the          bootstrap 95% CI −0.367 to 1.134 s) and a ratio of 1.112
+family cutoff; because every A1 CSP run succeeded, RMST              (95% CI 0.836–1.460).
+equals the observed mean time.                                          Repair effects were likewise unsupported in A2: the pair,
+   The A2 2 × 2 model included pair, triple, and pair-by-            triple, and interaction estimates are all close to one with wide
+triple terms, again using instance-stratified Cox regression with    intervals. Mean completion times for base, pair, triple, and
+seed-block clustering. Success was to be modeled by clustered        full were 19.291, 18.219, 16.277, and 16.839 s, respectively.
+logistic regression. All 800 validation observations succeeded,      The preregistered stratified model gives no evidence that these
+                                                                                                                                        4
+
+
+
+                              TABLE III                                                          TABLE IV
+                   A1 P IPELINE R ESULTS BY FAMILY                       E XPLORATORY PAIR -R EPAIR ACCEPTANCE BY C ONFLICT L EVEL
+
+                   CSP / full ULSA+ Graph / LibMVC-NuMVC                       Family      Conflicts   Accepted/attempted   Rate
+          Family   Success     Med. s Success        Med. s
+                                                                               frb56-25           1              0/8,039      0%
+          frb30-15 500/500    0.008 466/500            0.033                                      2        9,989/209,415 4.770%
+          frb35-17 500/500    0.018 468/500            0.164
+                                                                               frb59-26           1             0/33,188      0%
+          frb40-19 500/500    0.060 494/500            1.075
+          frb45-21 500/500    0.186 500/500            3.215                                      2       30,992/254,928 12.157%
+          frb50-23 125/125    0.551 125/125           25.435                   frb100-40          2          0/9,426,240      0%
+          frb53-24 125/125    1.161 92/125            67.213                                      3 4,762,255/52,693,991 9.038%
+          frb56-25 125/125    3.148 122/125           52.454
+          frb59-26 125/125   11.085 124/125          367.312
+
+
+                                                                     verified every derived set. The C and B1 +1/+2 values are
+marginal differences represent repair effects. All 1,000 A2          reconstructed from archived assignments. The NuMVC +2/+3
+runs, including the 200 cadence-sensitivity runs, attributed the     values come directly from its native cover objective. Their
+final successful transition to ULSA’s core update; no pair or        visual agreement at +2 is suggestive. Its post-hoc origin
+triple repair supplied that step.                                    and the simultaneous solver changes preclude a confirmatory
+                                                                     cross-solver interpretation.
+C. Pipeline Performance on the Smaller FRB Suite
+   On the A1 suite, full ULSA+ produced 2,500/2,500 verified
+                                                                     E. Radius-Three Structure of the Recorded Endpoints
+solutions (100%; 95% CI 99.85–100%), while the LibMVC
+implementation of NuMVC produced 2,391/2,500 (95.64%;                   Every C and B1 run recorded a terminal assignment
+95% CI 94.76–96.41%). Table III and Fig. 2 break this                with two violated cross-group constraints. The 112 records
+down by family. The medians use target time among verified           contained 108 unique assignments. For an assignment x ∈
+successes and exclude censored NuMVC runs. The descriptive           {1, . . . , 40}100 , let f (x) be its number of violated constraints
+family totals include the two development instances excluded         and dH the number of variables assigned different values.
+from H1. On frb59-26, for example, the full group-aware                 Proposition 2 (computer-assisted, recorded-state scope).
+pipeline solved 125/125 runs with a successful-run median of         For every unique recorded conflict-two assignment x and every
+11.085 s; LibMVC-NuMVC solved 124/125 with a successful-             grouped-CSP assignment y with 1 ≤ dH (x, y) ≤ 3, f (y) ≥ 2.
+run median target time of 367.312 s.                                    The audit first recomputed f (x) = 2 from the graph. Com-
+   For a practitioner who begins with the original CSP groups,       plete pair evaluation covered 887,040,000 joint value assign-
+this difference matters: the group-aware pipeline was more           ments over the 112 run records. For triples, any variable triple
+reliable and reached its targets sooner on this suite. The com-      disjoint from all endpoints of the two current violated edges
+parison covers complete operational pipelines. The general-          cannot remove either violation and was eliminated safely. The
+graph solver searches a broader cover space and also differs in      remaining 2,085,040 variable triples required 133,442,560,000
+its moves, weighting, initialization, and stopping rule. Isolating   joint assignments; none improved on two violations. A second
+representation would require the same search logic under both        implementation independently reproduced both counts and the
+encodings or a factorial solver-by-representation design.            zero-improvement result. Delta accounting agreed with full
+                                                                     conflict recounting on 10,000 deterministic spot checks.
+D. Validation Outcomes on frb100-40                                     Proposition 2 applies only to the audited conflict-two states
+   No validation arm produced a new certificate: C, B1, and          and to strict improvements within radius three. Equal-cost,
+B2 each returned 0/56. The exact two-sided 95% interval is 0–        worsening, and larger-radius moves remain possible; indeed,
+6.38% for every arm. The absence of events leaves the planned        the successful discovery trajectory ultimately escaped this
+Cox contrasts and hazard ratios unidentified and provides no         objective level.
+basis for equivalence or a ranking of the three solvers on              The operator logs provide a complementary, exploratory
+frb100-40.                                                           view. Table IV uses pair attempts consistently across conflict
+   Those event-free runs still provide useful endpoint informa-      levels. In each of three families, acceptance was zero at the
+tion. All 112 C and B1 runs stopped with two violated CSP            lowest conflict level reached in these trajectories. Positive
+constraints. NuMVC reported a best cover size of 3,902 in            acceptance remained one level above. The estimand is con-
+40 runs and 3,903 in 16, corresponding to objective gaps of          ditional acceptance along the observed trajectories; uniform
++2 and +3 from the certified optimum. It never reported the          state-space density would require a different sampling design.
+target, either within or after the scientific budget.                   The 112 conflict-two records had mean Hamming distance
+   To compare terminal objective quality in Fig. 3, we per-          95.991 (range 89–100) from the particular optimum certificate
+formed a post-hoc conversion of the C and B1 assignments.            in Appendix A. Two independent uniform assignments over 40
+Each selected one vertex per group and induced exactly two           values differ in expectation on 97.5 of 100 variables. Thus, the
+conflict edges. Removing a minimum vertex cover of those             terminal records are far from this particular witness despite
+two edges yields a valid independent set of size 99 for five         having objective value two. Their distance to the nearest
+records and 98 for the remaining 107; an all-edge rescan             optimum remains unknown because other optima may exist.
+
