@@ -48,6 +48,109 @@ NODE_BRIDGE = SKILL_DIR / "lib" / "node-bridge" / "stock-sdk-bridge.mjs"
 US_EXCHANGES = {"NASDAQ", "NYSE", "NYSEARCA", "NYMEX", "COMEX", "OTC", "BATS", "AMEX"}
 HK_EXCHANGES = {"HKG", "HKEX", "SEHK"}
 CN_EXCHANGES = {"SSE", "SZSE", "SH", "SZ"}
+TW_EXCHANGES = {"TPE", "TWSE", "TPEX"}
+
+# Yahoo Finance chart API (no geo-block, reliable for TW/HK/CN/US)
+YAHOO_CHART = "https://query1.finance.yahoo.com/v8/finance/chart/{code}?range=1d&interval=1d"
+
+
+def _yahoo_code(ticker: str, exchange: str) -> str:
+    """Map (ticker, exchange) to a Yahoo Finance symbol."""
+    ex = (exchange or "").upper()
+    t = (ticker or "").strip()
+    if ex in TW_EXCHANGES and not t.upper().endswith((".TW", ".TWO")):
+        return f"{t}.TW"
+    return t
+
+
+async def _fetch_yahoo(ticker: str, exchange: str) -> dict:
+    """Fetch via Yahoo Finance chart API (fast, no geo-block, good for TPE).
+
+    Chosen as the TPE source because Google Finance hard-blocks this host
+    with HTTP 403 ("Google 財經目前不支援你所在的地區"), so the Playwright
+    parser never sees a rendered price for Taiwan tickers.
+    """
+    import urllib.request
+
+    code = _yahoo_code(ticker, exchange)
+    codes = [code]
+    # Older TWSE/TPEX listings are indexed by Yahoo under the ".TWO" suffix
+    # (e.g. 4533 -> 4533.TWO), while ".TW" returns HTTP 404 / "symbol may be
+    # delisted". Fall back to ".TWO" only after the primary symbol fails, so
+    # working tickers keep their existing single-request path.
+    if code.upper().endswith(".TW"):
+        codes.append(code[:-3] + ".TWO")
+
+    def _build(code: str) -> urllib.request.Request:
+        url = YAHOO_CHART.format(code=code)
+        return urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+
+    def _get(req: urllib.request.Request):
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+
+    def _parse(data):
+        """Return (payload, error_message). error_message is None on success."""
+        chart = (data or {}).get("chart") or {}
+        if chart.get("error"):
+            return None, str(chart["error"])[:200]
+        results = chart.get("result") or []
+        if not results:
+            return None, "empty chart result"
+        meta = results[0].get("meta") or {}
+        price = meta.get("regularMarketPrice")
+        if price is None:
+            return None, "no regularMarketPrice in meta"
+        return (chart, meta), None
+
+    parsed = None
+    last_err = None
+    for attempt_code in codes:
+        try:
+            data = await asyncio.to_thread(_get, _build(attempt_code))
+        except Exception as e:
+            last_err = f"{type(e).__name__}: {e}"
+            continue
+        parsed, perr = _parse(data)
+        if parsed is not None:
+            last_err = perr
+            break
+        last_err = perr
+
+    if parsed is None:
+        return _error_result(ticker, exchange, "yahoo", str(last_err))
+
+    chart, meta = parsed
+    price = meta.get("regularMarketPrice")
+
+    prev_close = meta.get("chartPreviousClose") or meta.get("previousClose")
+    change_pct = None
+    if price is not None and prev_close:
+        change_pct = round((price - prev_close) / prev_close * 100, 4)
+
+    return {
+        "ticker": ticker,
+        "exchange": exchange,
+        "price": price,
+        "currency": meta.get("currency"),
+        "change_pct": change_pct,
+        "prev_close": prev_close,
+        "open": meta.get("regularMarketOpen"),
+        "high": meta.get("regularMarketDayHigh"),
+        "low": meta.get("regularMarketDayLow"),
+        "volume": meta.get("regularMarketVolume"),
+        "amount": None,
+        "turnover_rate": None,
+        "pe": None,
+        "pb": None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source": "yahoo",
+        "source_native": "yahoo_chart_api",
+        "source_ts": None,
+        "status": "ok",
+        "error": None,
+        "yahoo_symbol": code,
+    }
 
 
 def _exchange_to_stocksdk_market(exchange: str) -> str:
@@ -224,7 +327,17 @@ async def fetch_quote_unified(ticker: str, exchange: str, source: str = "auto") 
         return await _fetch_stocksdk(ticker, exchange)
     if source == "google":
         return await _fetch_google(ticker, exchange)
+    if source == "yahoo":
+        return await _fetch_yahoo(ticker, exchange)
     if source == "auto":
+        # Google Finance is HTTP 403 geo-blocked on this host, so for
+        # Taiwan tickers go straight to Yahoo and never pay the ~20s
+        # Playwright cost for a guaranteed failure.
+        if (exchange or "").upper() in TW_EXCHANGES:
+            yahoo_result = await _fetch_yahoo(ticker, exchange)
+            if yahoo_result["status"] == "ok":
+                return yahoo_result
+            return yahoo_result
         google_result = await _fetch_google(ticker, exchange)
         if google_result["status"] == "ok":
             return google_result
@@ -266,7 +379,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("ticker")
     ap.add_argument("exchange")
-    ap.add_argument("--source", choices=["auto", "google", "stocksdk"], default="auto")
+    ap.add_argument("--source", choices=["auto", "google", "stocksdk", "yahoo"], default="auto")
     args = ap.parse_args()
     
     result = asyncio.run(fetch_quote_unified(args.ticker, args.exchange, source=args.source))

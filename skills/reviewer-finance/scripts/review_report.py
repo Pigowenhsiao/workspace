@@ -59,7 +59,7 @@ KNOWN_TICKER_BANDS = {
     "2330": (1500.0, 3500.0),  # TSMC ~2400
     "2317": (100.0, 350.0),    # Hon Hai ~235 (was NT$15 false-positive)
     "2303": (10.0, 300.0),     # UMC — surged to 37-year high ~160 in 2026
-    "2454": (2500.0, 5000.0),  # MediaTek ~3990
+    "2454": (4000.0, 7000.0),  # MediaTek ~5185 TWD (2026-09-23 update: surged past 5000)
     "2881": (50.0, 200.0),     # Fubon ~125
     "2882": (40.0, 150.0),     # Cathay Fin Holdings ~96
     "2308": (1000.0, 2500.0),  # Delta ~1880
@@ -68,11 +68,16 @@ KNOWN_TICKER_BANDS = {
     "2409": (10.0, 50.0),      # AUO
     "8131": (30.0, 150.0),     # Sigmatech
     "2891": (20.0, 100.0),     # CTBC Fin Holdings
-    "1303": (40.0, 200.0),     # NPC — 2026-07-10 actual=181.5, widened from 150
+    # 1303 NPC: 1y range 41.0-349.0 (Yahoo 2026-10-23); current regime 296-349.
+    # Upper bound raised 300 -> 400 on 2026-10-23 (close 301.0 was flagged by a
+    # hairline margin against the stale 300 cap).
+    "1303": (150.0, 400.0),
     "2886": (15.0, 80.0),      # Mega Fin Holdings
     "1723": (40.0, 150.0),     # CTCI
     "2301": (80.0, 350.0),     # Liteon
-    "4533": (40.0, 200.0),     # Sanyang
+    # 4533 Chwang Electric: 1y range 19.35-41.25 (Yahoo 2026-10-23, via 4533.TWO);
+    # current close 28.65 was below the stale 40 floor.
+    "4533": (15.0, 45.0),
     "2002": (5.0, 50.0),       # China Steel
     "2201": (10.0, 60.0),      # Yulon
     # US large caps
@@ -85,7 +90,7 @@ KNOWN_TICKER_BANDS = {
     "TSLA": (100.0, 600.0),
     "NFLX": (50.0, 200.0),    # dropped significantly in 2026 to ~$76
     "ORCL": (80.0, 250.0),
-    "PLTR": (20.0, 200.0),
+    "AMD":  (100.0, 700.0),   # AMD ~624 USD (2026-09-23, replaced PLTR)
     "TSM": (100.0, 600.0),
     "LITE": (300.0, 1000.0),
 }
@@ -101,7 +106,7 @@ EXCHANGE_CURRENCY = {
 
 
 ERROR_THRESHOLD = 2  # criteria 8: ERROR count > 2 → FAIL
-REQUIRED_BASELINE_TICKERS = ["LITE", "2330", "NVDA", "TSM", "PLTR", "ORCL", "2454"]
+REQUIRED_BASELINE_TICKERS = ["LITE", "2330", "NVDA", "TSM", "AMD", "ORCL", "2454"]
 EXPECTED_TOTAL_TICKERS = 31
 
 
@@ -425,8 +430,8 @@ def review(report_path: str, loop_state_path: str = None, enable_kline: bool = F
             })
             suspect_count += 1
         
-        # Check 4: URL well-formed (upgrade WARN → SUSPECT)
-        if not re.match(r'https://www\.google\.com/finance/quote/[^:]+:[A-Z]+$', url):
+        # Check 4: URL well-formed (only for google-finance TW tickers; stock-sdk URLs differ)
+        if exchange in ("TPE", "TPEX") and url and not re.match(r'https://www\.google\.com/finance/quote/[^:]+:[A-Z]+$', url):
             findings.append({
                 "severity": "SUSPECT",
                 "ticker": ticker,
