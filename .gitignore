@@ -21,6 +21,15 @@ arxiv_papers/
 arxiv_text/
 tmp_papers/
 tmp_papers_txt/
+# 2026-10-24: arxiv cron 的另一種 cache 目錄名稱（281M，未被上方規則涵蓋）
+arxiv_papers_tmp/
+# 2026-10-24: arxiv 抽取結果的单檔暫存（abs_*.txt / abstract_*.txt / p*_text.txt）
+abs_*.txt
+abstract_*.txt
+p*_text.txt
+
+# 2026-10-24: cron 本地 log（任務輸出，非 source of truth）
+memory/logs/
 
 # ── 3. 一次性工作目錄 ──
 tmp/
