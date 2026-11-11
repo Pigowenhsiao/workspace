@@ -1,13 +1,13 @@
-# Agent 記憶與設定路徑速查
+# 各 Agent 平台的記憶與設定路徑速查
 
-不同 agent 平台的記憶系統和專案設定檔位置不一樣。執行第一步盤點時按你正在使用的平台查這張表。
+不同 Agent 平台的記憶系統和專案設定檔位置不一樣。執行第一步盤點時，按你正在使用的平台查這張表。
 
 ## Claude Code
 
 | 用途 | 路徑 |
-|---|---|
+|------|------|
 | 跨會話記憶（全域） | `~/.claude/projects/<encoded-project-path>/memory/` |
-| 記憶索引檔案 | `~/.claude/projects/<...>/memory/MEMORY.md` |
+| 記憶索引檔 | `~/.claude/projects/<...>/memory/MEMORY.md` |
 | 全域指令 | `~/.claude/CLAUDE.md` |
 | 專案級指令 | 專案根 `CLAUDE.md`（可階層巢狀） |
 | Skills 目錄 | `~/.claude/skills/<name>/SKILL.md` |
@@ -17,40 +17,46 @@
 ## OpenAI Codex
 
 | 用途 | 路徑 |
-|---|---|
+|------|------|
 | 跨會話指令（全域） | `~/.codex/AGENTS.md` 或 `$CODEX_HOME/AGENTS.md` |
 | 專案級指令 | 專案根 `AGENTS.md`（可階層巢狀） |
-| 專案級 override | `AGENTS.override.md`（若存在，覆蓋同目錄 AGENTS.md） |
-| Skills 目錄 | `~/.codex/skills/<name>/SKILL.md` 或專案內 `.codex/skills/<name>/` |
+| 專案級 override | `AGENTS.override.md`（若存在，覆寫同目錄 AGENTS.md） |
+| Skills 目錄 | `~/.agents/skills/<name>/SKILL.md` 或專案內 `.agents/skills/<name>/` |
 
-Codex 沒有獨立的「記憶檔案 + 索引」機制，所有跨會話資訊都直接寫在 `AGENTS.md` 裡。同步時把「專案情事」那部分內容統一放 AGENTS.md。
+Codex 沒有獨立的「記憶檔案 + 索引」機制，所有跨會話資訊都直接寫在 `AGENTS.md` 裡。
+同步時把「專案事實」那部分內容統一放在 AGENTS.md。
 
 發現專案裡有 `TEAM_GUIDE.md` 或 `.agents.md` 也要看——這是 Codex 的 fallback 檔名。
 
 ## OpenClaw
 
 | 用途 | 路徑 |
-|---|---|
+|------|------|
 | 使用者級 skills | `~/.openclaw/skills/<name>/SKILL.md`（首次執行自動建立） |
 | 專案級 skills | `.openclaw/skills/<name>/SKILL.md`（倉庫根目錄下） |
 | Workspace skills | 目前 workspace 的 `skills/` 目錄 |
 
-**載入優先順序**：workspace > project-agent > personal-agent > managed/local > bundled > extra dirs。同名 skill 高優先順序覆蓋低優先順序。
+**載入優先順序**：workspace > project-agent > personal-agent > managed/local > bundled > extra dirs。
+同名 skill 高優先順序覆寫低優先順序。
 
-OpenClaw 沒有獨立的「記憶檔案 + 索引」機制，跨會話資訊可放在專案根的 markdown（CLAUDE.md / AGENTS.md / 等價檔案）裡，參照 Codex 的做法。frontmatter 支援 `metadata.openclaw` 欄位做載入時的 gating（按 OS、環境變數、二進位相依篩選），但不是 neat-freak 必需的。
+OpenClaw 沒有獨立的「記憶檔案 + 索引」機制，跨會話資訊可放在專案根的 markdown
+（CLAUDE.md / AGENTS.md / 等價檔案）裡，参照 Codex 的做法。
+frontmatter 支援 `metadata.openclaw` 欄位做載入時的 gating（按 OS、環境變數、二進位相依篩選），
+但不是 neat-freak 必需的。
 
 ## OpenCode
 
 | 用途 | 路徑 |
-|---|---|
+|------|------|
 | 全域設定 | `~/.config/opencode/` |
 | 專案設定 | `.opencode/` |
-| Skills 目錄（專案） | `.opencode/skills/`、`.claude/skills/`、`.codex/skills/` 都會被掃描 |
-| Skills 目錄（全域） | `~/.config/opencode/skills/`、`~/.claude/skills/`、`~/.codex/skills/` |
+| Skills 目錄（專案） | `.opencode/skills/`、`.claude/skills/`、`.agents/skills/` 都會被掃描 |
+| Skills 目錄（全域） | `~/.config/opencode/skills/`、`~/.claude/skills/`、`~/.agents/skills/` |
 
-OpenCode 同時讀取 Claude Code 和 Codex 的目錄，所以同一個 skill 裝在 `~/.claude/skills/` 下的話三家都能識別。OpenClaw 走自己的 `~/.openclaw/skills/`，需要单独装一份（或用符號連結）。
+OpenCode 同時讀取 Claude Code 和 Codex 的目錄，所以同一個 skill 裝在 `~/.claude/skills/` 下的話
+三家都能識別。OpenClaw 走自己的 `~/.openclaw/skills/`，需要單獨裝一份（或用符號連結）。
 
-## 如果目前 agent 沒有獨立記憶系統
+## 如果目前 Agent 沒有獨立記憶系統
 
 跳過「記憶」那一層，把功夫全花在：
 - 專案根 markdown（CLAUDE.md / AGENTS.md / 本平台等價檔案）
