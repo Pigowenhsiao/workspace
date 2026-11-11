@@ -9,7 +9,9 @@
 # 這些是 cron 跑的「交付物」，留著作為 history 但太佔空間
 # MEMORY 是 source of truth，handover 重新跑就會重生
 memory/handoffs/
-memory/handovers/
+# 2026-11-11: memory/handovers/ 與 memory/handoovers/ 兩個拼字錯誤目錄已整併至
+# memory/handoffs/（41 檔搬移、零內容遺失）並刪除空目錄，不再需要 ignore 規則。
+# 保留這行是為了防呆：若未來 cron 又寫錯拼字，不要讓它混進 git。
 
 # 當月任務 log（已被 MEMORY + handover 結構取代）
 memory/tasks/*.md

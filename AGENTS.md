@@ -12,12 +12,11 @@ This folder is home. Treat it that way.
 - 當 Pigo 要你「閱讀 AGENTS.md、USER.md 等檔案了解現況」時，先讀：
   - `AGENTS.md`
   - `USER.md`
-  - `TOOLS.md`
   - `SOUL.md`
   - `IDENTITY.md`
-  - `HEARTBEAT.md`
   - `MEMORY.md`
   - `memory/index.md`
+  - （`TOOLS.md`、`HEARTBEAT.md` 已於 2026-09-20 併入 AGENTS.md，不再存在）
 - 然後列出 workspace 檔案清單，再按相關性擴充閱讀。不要在單一回合無差別聲稱已讀完整個 workspace。
 - 當 Pigo 要你「同步一下」、「整理一下」、「收尾」或說 `/neat` 時，執行 `neat-freak` skill 的同步流程，對專案文件和記憶進行潔癖級審查與同步。
 - 當使用者要你抓新聞標題或今日新聞時，不要只直連新聞站首頁。
@@ -42,18 +41,14 @@ This folder is home. Treat it that way.
 - 進行規劃：「載入 gstack。執行 /autoplan，執行計畫」
 
 ## 新增外部閱讀與連結
-- Agent docs/Skill_Index.md（604 active skills 索引，Agent repo 內）：~/Documents/Agent/docs/Skill_Index.md
-- Deep Agents 評估體系構建指南：memory/learning/Deep_Agents_Evaluation_Guide.md
-- Deep Agents 評估摘要：memory/learning/Deep_Agents_Evaluation_Summary.md
+- Agent docs/Skill_Index.md（761 active skills 索引，Agent repo 內）：~/Documents/Agent/docs/Skill_Index.md
 - OPC_9_Agent_Skills_Minimalist_Entrepreneur.md（OPC 的 9 技能）
 - Advanced_OpenClaw.md（OpenClaw 高級篇骨架）
 - OpenClaw_Gstack_Link.md（OpenClaw 與 gstack 連結）
-- Claude_Workflows_10_Hours_Saved.md
 - Claude_Code_Workflows_Summary.md
 - Home_Household_OpenClaw.md
 - Family_OpenClaw_Scenarios.md
 - Build_AI_Agent_Complete_Guide.md
-- Build_AI_Agent_Complete_Guide_Skeletons.md
 - memory/index.md 的導覽補充段落
 
 ## 其他更新提醒
@@ -108,7 +103,7 @@ Add whatever helps you do your job. This is your cheat sheet.
 ## Agent Repo
 
 - Path: `/home/pigo/Documents/Agent/`
-- Skill Index: `docs/Skill_Index.md`（604 skills）
+- Skill Index: `docs/Skill_Index.md`（761 skills）
 - Git repo，sync with remote
 
 ## News Fetch Notes
