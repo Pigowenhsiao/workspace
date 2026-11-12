@@ -2549,3 +2549,43 @@ copy B       ~/Documents/Agent/neat-freak/SKILL.md         ← 沒有任何檢�
 ## 附：2026-11-05 run 新增參考
 
 - **[references/skill-index-2026-11-05-session.md](references/skill-index-2026-11-05-session.md)** — Pattern RRR-2 新增（purpose cell 語意不同步由 upstream 事件持續引入：frontmatter 改寫 3 檔 + 新增 row 手寫摘要 1 檔；RRR 補測必須每次 run 重跑、merge upstream 後立即重跑）；四檔 purpose cell 已同步並 push（761 三口徑一致、雙向比對 761=761、兩樹 frontmatter invalid 0）
+
+## Pattern EEEE（2026-11-12 初發現）：watchdog 用 `pipe + grep -q` 判斷存在性 → pipefail 讓 SIGPIPE 翻轉成 false negative
+
+**症狀**：`neat-freak-hourly.sh` 對 Vault repo 回報「✅ Vault git status clean」，但 `git status --short` 實際有 **483 筆**變更。Agent repo 的 clean 是真的，所以整體看起來正常。
+
+**根因**：
+```bash
+set -uo pipefail
+if git -C "$path" status --short | grep -q .; then
+    echo "有未 commit 的變更"
+else
+    echo "git status clean"     # ← 錯誤分支
+fi
+```
+`grep -q .` 找到第一個 match 就 exit(0) 並關管 → 上游 `git status` 收到 **SIGPIPE (141)**。`set -o pipefail` 規則是「pipeline exit code 取最右邊非零碼」，git 的 141 是非零 → pipeline 整體非零 → `if` 走 **else** → **有變更卻報 clean**。
+
+實測：`set -uo pipefail; git status --short | grep -q .; echo $?` → **141**。
+把輸出收進變數再判斷 → 正確回報 NONEMPTY。
+
+**修法**：
+```bash
+CHANGES=$(git -C "$path" status --short)
+CHANGE_COUNT=$(printf '%s\n' "$CHANGES" | grep -c . || true)
+if [ "$CHANGE_COUNT" -gt 0 ]; then ... fi
+```
+
+**為什麼是重要 Pattern**：
+1. 這與 **Pattern CCCC**（假雙目標）同源——watchdog 看似在檢查，檢查邏輯實際是壞的。**「watchdog 報綠燈」≠「被監控對象正常」**。
+2. 與 **Pattern EEE / FFF** 同屬「量測方法本身會說謊」的類別。
+3. 這個 watchdog 是 cron job `33f50df6ac6b` 的執行體，連續回報 ok，**Vault 真實狀態從未被看見**。
+
+**預防**：
+1. **不要用 pipe 做存在性判斷**：`cmd | grep -q .` 在 `pipefail` 下不可靠。要收進變數或用 `grep -c` 取數。
+2. **watchdog 必須做負向測試**：故意製造一次異常，確認 watchdog 真的會紅。本次：先量到 Vault 483 筆變更 → 看 watchdog 報 clean → 修完 → 報 520 筆。**沒有負向測試的 watchdog 等於沒有 watchdog**（同 Pattern DDDD 的「修完必做負向測試」原則）。
+3. 新寫帶 `set -o pipefail` 的 shell script 時，逐一支查 `grep -q` 用法（本次全庫確認 `~/.hermes/scripts/` 只有 `neat-freak-hourly.sh` 命中）。
+4. **Summary 語意要區分警告與全綠**：有未 commit 變更時不該印「✅ 檢查通過」，否則 cron 交付文字會讀起來一切正常。
+
+## 附：2026-11-12 run 新增參考
+
+- **[references/skill-index-2026-11-12-session.md](references/skill-index-2026-11-12-session.md)** — Pattern EEEE 新增（watchdog pipefail+SIGPIPE false negative：Vault 483 筆變更卻報 clean，修完正確報 520 筆）；Vault 內 218 筆 ` D` 經逐檔比對確認為 Inbox→08-Learning 搬移（211 檔全等 + 7 檔僅 frontmatter/link 路徑差異，零內容遺失）；Agent repo 與 origin/main 已 0/0 同步（推翻前次「落後 3 commits」結論）；Hermes 備份 `20261112_041319 (2.0G)`；cron output retention 移除 12 檔
