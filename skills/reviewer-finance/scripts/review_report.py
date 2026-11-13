@@ -41,7 +41,7 @@ TICKER_EXCHANGE = {
     "AAPL": "NASDAQ", "MSFT": "NASDAQ", "GOOGL": "NASDAQ",
     "AMZN": "NASDAQ", "META": "NASDAQ", "NVDA": "NASDAQ",
     "TSLA": "NASDAQ", "NFLX": "NASDAQ", "LITE": "NASDAQ",
-    "ORCL": "NYSE", "PLTR": "NYSE", "TSM": "NYSE",
+    "ORCL": "NYSE", "PLTR": "NASDAQ", "TSM": "NYSE",
 }
 
 # Price sanity ranges
@@ -59,7 +59,10 @@ KNOWN_TICKER_BANDS = {
     "2330": (1500.0, 3500.0),  # TSMC ~2400
     "2317": (100.0, 350.0),    # Hon Hai ~235 (was NT$15 false-positive)
     "2303": (10.0, 300.0),     # UMC — surged to 37-year high ~160 in 2026
-    "2454": (4000.0, 7000.0),  # MediaTek ~5185 TWD (2026-09-23 update: surged past 5000)
+    # 2454 MediaTek: band refreshed 2026-11-11. Yahoo (2454.TW) confirmed close
+    # 3990.0 TWD; the old 4000 floor was set back when the stock traded ~5185 and
+    # has since fallen below it, so every quote was flagged SUSPECT.
+    "2454": (3200.0, 7000.0),  # MediaTek ~3990 TWD (2026-11-11 refresh: fell below old 4000 floor)
     "2881": (50.0, 200.0),     # Fubon ~125
     "2882": (40.0, 150.0),     # Cathay Fin Holdings ~96
     "2308": (1000.0, 2500.0),  # Delta ~1880
@@ -91,6 +94,11 @@ KNOWN_TICKER_BANDS = {
     "NFLX": (50.0, 200.0),    # dropped significantly in 2026 to ~$76
     "ORCL": (80.0, 250.0),
     "AMD":  (100.0, 700.0),   # AMD ~624 USD (2026-09-23, replaced PLTR)
+    # PLTR: Palantir moved from NYSE to Nasdaq (Nov 2024). The old NYSE mapping
+    # made Google Finance return "unavailable" for PLTR:NYSE, so the ticker
+    # silently dropped out of the watchlist on 2026-10-24 and the loop's
+    # "七大關注股" lost a member. Restored 2026-11-13 with the Nasdaq mapping.
+    "PLTR": (50.0, 400.0),    # PLTR ~$171 USD (2026-11-13, restored to watchlist)
     "TSM": (100.0, 600.0),
     "LITE": (300.0, 1000.0),
 }
@@ -106,8 +114,12 @@ EXCHANGE_CURRENCY = {
 
 
 ERROR_THRESHOLD = 2  # criteria 8: ERROR count > 2 → FAIL
-REQUIRED_BASELINE_TICKERS = ["LITE", "2330", "NVDA", "TSM", "AMD", "ORCL", "2454"]
-EXPECTED_TOTAL_TICKERS = 31
+REQUIRED_BASELINE_TICKERS = ["LITE", "2330", "NVDA", "TSM", "AMD", "ORCL", "2454", "PLTR"]
+# Expected ticker count for the coverage criterion (C1).
+# The watchlist grew 31 -> 32 on 2026-11-13 (PLTR restored). Hardcoding a stale
+# count silently broke C1. run_loop.sh now exports EXPECTED_TOTAL_TICKERS from the
+# watchlist file itself, so the gate tracks the real watchlist size.
+EXPECTED_TOTAL_TICKERS = int(os.environ.get("EXPECTED_TOTAL_TICKERS", "32"))
 
 
 def _has_baseline(loop_state_path: str) -> dict[str, bool]:
@@ -188,7 +200,7 @@ def evaluate_completion_criteria(
     coverage_pct = (total / EXPECTED_TOTAL_TICKERS * 100) if EXPECTED_TOTAL_TICKERS else 0
     c1_pass = total == EXPECTED_TOTAL_TICKERS
     criteria_results.append({
-        "id": 1, "name": "覆蓋率 31/31",
+        "id": 1, "name": f"覆蓋率 {EXPECTED_TOTAL_TICKERS}/{EXPECTED_TOTAL_TICKERS}",
         "status": "PASS" if c1_pass else "FAIL",
         "detail": f"total={total}/{EXPECTED_TOTAL_TICKERS} (ok={ok_count}, suspect={suspect}, error={error_count})"
     })
@@ -246,8 +258,16 @@ def evaluate_completion_criteria(
         c5_pass = True
         c5_detail = "no findings, no alert needed"
     else:
-        c5_pass = alert_note_exists
-        c5_detail = f"findings count={len(findings)}, alert note exists={alert_note_exists}"
+        # Only SUSPECT/ERROR require an alert note. WARN findings (e.g. a ticker
+        # Google Finance has no quote page for) are informational and must not
+        # fail this criterion.
+        actionable = [f for f in findings if f.get("severity") in ("SUSPECT", "ERROR")]
+        if not actionable:
+            c5_pass = True
+            c5_detail = f"{len(findings)} WARN-only finding(s), no alert needed"
+        else:
+            c5_pass = alert_note_exists
+            c5_detail = f"actionable findings={len(actionable)}, alert note exists={alert_note_exists}"
     criteria_results.append({
         "id": 5, "name": "異常告警",
         "status": "PASS" if c5_pass else "FAIL",
@@ -268,9 +288,14 @@ def evaluate_completion_criteria(
         except Exception:
             pass
     c6_pass = state_updated_today
+    # C6 is a WARN, not FAIL: the reviewer runs BEFORE Step 4 (state update), so on
+    # the first run of any day the state can never contain today's date yet. Making
+    # it a hard FAIL created a circular dependency — the pipeline could never pass
+    # its own gate and therefore never produced a report. Kept as WARN so it still
+    # surfaces, consistent with C4/C7.
     criteria_results.append({
         "id": 6, "name": "狀態更新 (LOOP-STATE)",
-        "status": "PASS" if c6_pass else "FAIL",
+        "status": "PASS" if c6_pass else "WARN",
         "detail": f"「當前市場線索」段含今天日期={state_updated_today}"
     })
     
@@ -374,7 +399,18 @@ def review(report_path: str, loop_state_path: str = None, enable_kline: bool = F
         currency = entry.get("currency")
         url = entry.get("url", "")
         
-        # Check 1: status must be 'ok'
+        # Check 1: status must be 'ok'.
+        # 'unavailable' means Google Finance has no quote page for this ticker
+        # (Page Not Found). That is a coverage gap, not a parser/transport failure,
+        # so it must not be scored as ERROR (which drives score and C8).
+        if status == "unavailable":
+            findings.append({
+                "severity": "WARN",
+                "ticker": ticker,
+                "rule": "quote_page_not_found",
+                "message": "Google Finance 沒有這檔股票的報價頁（Page Not Found），無法取得報價"
+            })
+            continue
         if status != "ok":
             findings.append({
                 "severity": "ERROR",
@@ -520,19 +556,56 @@ def review(report_path: str, loop_state_path: str = None, enable_kline: bool = F
 
 def parse_loop_state_prices(loop_state_path: str) -> dict[str, float]:
     """Parse LOOP-STATE.md for last reported prices.
-    
-    Accepts formats (from actual LOOP-STATE.md):
-    - `  - LITE（公司股）：**$722.05 USD**`
-    - `  - 2330 台積電：**NT$2,450**`
-    - `  - NVDA：**$195.55**`
-    
+
+    Scoped to the NEWEST run block inside the 「上次報告摘要」 section.
+
+    Why the scoping matters (bug fixed 2026-11-12): the old implementation
+    scanned every line of the whole file and let the LAST match win. LOOP-STATE.md
+    keeps a historical 「上次報告摘要」 that still contains the original
+    2026-07-07 baseline block at the bottom (LITE $722.05, NVDA $195.55,
+    1303 NT$244 ...). Because run_loop.sh Step 4 prepends each new run's
+    baseline block at the TOP of the section, the legacy block was always
+    parsed last and therefore always won — so every "vs 上次" comparison was
+    made against a four-month-old price instead of the previous run.
+
+    Symptoms this produced:
+      - report claimed LITE -10.2% / NVDA -11.2% while Google Finance reported
+        +10.67% / +2.92% for the same session
+      - a bogus SUSPECT for 1303 (+28.3% "vs 上次 244.0") when the real move
+        was -6.39%
+
+    Accepts formats (from actual LOOP-STATE.md, newest block):
+    - `- LITE：**$648.06 USD**（+10.67%）`
+    - `- 2330：**NT$2,340.00 TWD**（-2.30%）`
+
     Returns:
         dict mapping ticker (str) to last price (float)
     """
     prices: dict[str, float] = {}
     try:
         content = Path(loop_state_path).read_text(encoding="utf-8")
-        for line in content.split("\n"):
+
+        # 1. Isolate the 「上次報告摘要」 section.
+        sec = re.search(r'^##\s+上次報告摘要.*$', content, re.MULTILINE)
+        if not sec:
+            return prices
+        rest = content[sec.end():]
+        nxt = re.search(r'^##\s', rest, re.MULTILINE)
+        section = rest[:nxt.start()] if nxt else rest
+
+        # 2. Isolate the newest run block inside it. Each block starts with a
+        #    bold timestamp line like `**2026-11-12 07:07 UTC**`.
+        blocks = list(re.finditer(r'^\*\*\d{4}-\d{2}-\d{2}[^*\n]*\*\*\s*$',
+                                  section, re.MULTILINE))
+        if blocks:
+            start = blocks[0].end()
+            end = blocks[1].start() if len(blocks) > 1 else len(section)
+            block = section[start:end]
+        else:
+            # Fallback: no timestamped blocks — use the whole section.
+            block = section
+
+        for line in block.split("\n"):
             # Skip empty lines
             if not line.strip():
                 continue

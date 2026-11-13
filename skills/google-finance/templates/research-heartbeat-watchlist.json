@@ -48,6 +48,10 @@
     "exchange": "NASDAQ"
   },
   {
+    "ticker": "PLTR",
+    "exchange": "NASDAQ"
+  },
+  {
     "ticker": "2330",
     "exchange": "TPE"
   },

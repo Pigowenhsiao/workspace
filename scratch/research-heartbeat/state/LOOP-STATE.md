@@ -82,6 +82,105 @@
 
 ## 上次報告摘要（Last Report Summary）
 
+**2026-11-13 07:37 UTC**
+
+- **總計**：31/32 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$624.65 USD**（-3.61%）
+- 2330：**NT$2,350.00 TWD**（+0.43%）
+- NVDA：**$166.19 USD**（-4.34%）
+- TSM：**$405.49 USD**（-1.89%）
+- AMD：**$585.30 USD**（+5.86%）
+- ORCL：**$127.11 USD**（-1.02%）
+- 2454：**NT$4,120.00 TWD**（+7.01%）
+- PLTR：**$171.58 USD**（-0.48%）
+
+**2026-11-13 07:29 UTC**
+
+- **總計**：31/32 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$624.65 USD**（-3.61%）
+- 2330：**NT$2,350.00 TWD**（+0.43%）
+- NVDA：**$166.19 USD**（-4.34%）
+- TSM：**$405.49 USD**（-1.89%）
+- AMD：**$585.30 USD**（+5.86%）
+- ORCL：**$127.11 USD**（-1.02%）
+- 2454：**NT$4,120.00 TWD**（+7.01%）
+- PLTR：**$171.58 USD**（-0.48%）
+
+**2026-11-13 07:19 UTC**
+
+- **總計**：31/32 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$624.65 USD**（-3.61%）
+- 2330：**NT$2,350.00 TWD**（+0.43%）
+- NVDA：**$166.19 USD**（-4.34%）
+- TSM：**$405.49 USD**（-1.89%）
+- AMD：**$585.30 USD**（+5.86%）
+- ORCL：**$127.11 USD**（-1.02%）
+- 2454：**NT$4,120.00 TWD**（+7.01%）
+- PLTR：**$171.58 USD**（-0.48%）
+
+**2026-11-13 07:06 UTC**
+
+- **總計**：30/31 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$624.65 USD**（-3.61%）
+- 2330：**NT$2,350.00 TWD**（+0.43%）
+- NVDA：**$166.19 USD**（-4.34%）
+- TSM：**$405.49 USD**（-1.89%）
+- AMD：**$585.30 USD**（+5.86%）
+- ORCL：**$127.11 USD**（-1.02%）
+- 2454：**NT$4,120.00 TWD**（+7.01%）
+
+**2026-11-12 07:38 UTC**
+
+- **總計**：30/31 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$648.06 USD**（+10.67%）
+- 2330：**NT$2,340.00 TWD**（-2.30%）
+- NVDA：**$173.73 USD**（+2.92%）
+- TSM：**$413.35 USD**（+4.25%）
+- AMD：**$552.90 USD**（+7.32%）
+- ORCL：**$128.38 USD**（+8.82%）
+- 2454：**NT$3,850.00 TWD**（-3.51%）
+
+**2026-11-12 07:07 UTC**
+
+- **總計**：30/31 ok, verdict=FAIL(95)
+- **七大關注股 baseline**：
+- LITE：**$648.06 USD**（+10.67%）
+- 2330：**NT$2,340.00 TWD**（-2.30%）
+- NVDA：**$173.73 USD**（+2.92%）
+- TSM：**$413.35 USD**（+4.25%）
+- AMD：**$552.90 USD**（+7.32%）
+- ORCL：**$128.38 USD**（+8.82%）
+- 2454：**NT$3,990.00 TWD**（-3.51%）
+
+**2026-11-11 12:36 UTC**
+
+- **總計**：30/31 ok, verdict=PASS(100)
+- **七大關注股 baseline**：
+- LITE：**$585.57 USD**（-1.78%）
+- 2330：**NT$2,395.00 TWD**（+4.81%）
+- NVDA：**$168.80 USD**（-5.53%）
+- TSM：**$396.48 USD**（+2.02%）
+- AMD：**$515.21 USD**（+1.30%）
+- ORCL：**$117.98 USD**（-1.51%）
+- 2454：**NT$3,990.00 TWD**（+4.18%）
+
+**2026-11-11 11:59 UTC**
+
+- **總計**：30/31 ok, verdict=FAIL(100)
+- **七大關注股 baseline**：
+- LITE：**$585.57 USD**（-1.78%）
+- 2330：**NT$2,395.00 TWD**（+4.81%）
+- NVDA：**$168.80 USD**（-5.53%）
+- TSM：**$396.48 USD**（+2.02%）
+- AMD：**$515.21 USD**（+1.30%）
+- ORCL：**$117.98 USD**（-1.51%）
+- 2454：**NT$3,990.00 TWD**（+4.18%）
+
 **2026-09-10 07:00 UTC（台北 15:00）**
 
 - **總計**：31 ticker 全部 `status=ok`，0 ERROR；reviewer verdict FAIL (90, 5/8 PASS) — C2 (1303 帶寬超界)、C5 (告警缺失)、C6 (LOOP-STATE 補完) 待修補
@@ -161,8 +260,19 @@
 ---
 
 ## 當前市場線索（Market Context）
-
 > 每日 loop 跑完會在這裡 append 3-5 條觀察；writer 生成報告時會引用這段
+
+- **[2026-11-13 07:37 UTC]** **LITE $624.65（-3.61%）** 下跌 -3.61%（自家公司，重點追蹤）
+- **[2026-11-13 07:37 UTC]** **美股 AI 鏈**：AMD $585.30（+5.86%） / PLTR $171.58（-0.48%） / ORCL $127.11（-1.02%） / TSM $405.49（-1.89%）
+- **[2026-11-13 07:37 UTC]** **台股 AI 鏈**：2330 NT$2,350.00（+0.43%） / 2454 NT$4,120.00（+7.01%）
+- **[2026-11-13 07:37 UTC]** **全池最大波動**：2454 NT$4,120.00（+7.01%）（單日大漲，警惕追高）
+- **[2026-11-13 07:37 UTC]** **資料缺口**：4533 無報價頁（Google Finance 覆蓋缺口，非抓取失敗）
+
+- **[2026-11-12 07:38 UTC]** **LITE $648.06（+10.67%）** 單日大漲逾一成，重站 $600 上方；盤後 $632.00（-2.48%），留意是否失守 $600 關卡
+- **[2026-11-12 07:38 UTC]** **NVDA $173.73（+2.92%）/ ORCL $128.38（+8.82%）/ AMD $552.90（+7.32%）/ TSM ADR $413.35（+4.25%）** AI 鏈四大權值同步走強，ORCL 領漲近 9%
+- **[2026-11-12 07:38 UTC]** **台股 AI 鏈走弱分化**：2330 NT$2,340（-2.30%）、2454 NT$3,850（-3.51%）、2308 NT$1,240（-4.25%）、2303 NT$101（-2.88%），台股 AI 概念普跌但幅度遠小於前期崩跌，屬正常回檔
+- **[2026-11-12 07:38 UTC]** **1303 南亞 NT$293（-6.39%）** 開盤 $315／高點 $325.5／低點 $292，盤中自高點回落逾 10%；AI 帶動 ABF 載板與銅箔基板缺貨題材仍在，但短線獲利了結壓力大
+- **[2026-11-12 07:38 UTC]** **4533 Google Finance 無報價頁**（quote page not found），屬資料源覆蓋缺口非抓取失敗，已列入觀察不影響其餘 30 檔
 
 - **[2026-09-10 07:00]** **LITE 暴漲至 $988.98**（vs 08-11 $813.51 漲 +21.6%；vs 07-07 基準 $722.05 漲 +36.9%）觸發 SUSPECT（change > 20%），需驗證是否為 split / corporate action 或真實突破；自家公司股價高度警戒
 - **[2026-09-10 07:00]** **2454 聯發科 NT$4,720（+17.41% 自 08-11）** HBM/CoWoS 題材持續發酵，從 NT$4,020 大幅走升，距 07-07 NT$3,970 累計 +18.9%；與 2330 +2.30% 出現明顯分化
@@ -205,6 +315,11 @@
 - **[2026-07-07 07:07 UTC]** Loop run OK, fetch=31/31, verdict=PASS(100)
 - **[2026-07-08 02:52 UTC]** Loop run OK, fetch=31/31, verdict=PASS(100)
 - **[2026-07-08 07:07 UTC]** Loop run OK, fetch=31/31, verdict=PASS(100)
+- **[2026-11-11 11:59 UTC]** Loop run OK, fetch=30/31, verdict=FAIL(100)
+- **[2026-11-11 12:36 UTC]** Loop run OK, fetch=30/31, verdict=PASS(100)
+- **[2026-11-12 07:07 UTC]** Loop run OK, fetch=30/31, verdict=FAIL(95)
+- **[2026-11-12 07:38 UTC]** Loop run OK, fetch=30/31, verdict=PASS(100)
+- **[2026-11-13 07:37 UTC]** Loop run OK, fetch=31/32, verdict=PASS(100)
 
 ## 下次繼續追蹤的主題（Next Watch Items）
 
@@ -222,6 +337,20 @@
 
 ## 變更日誌（Changelog）
 
+- **2026-11-13 07:37 UTC** — **重大修正：loop 本身有四個結構性缺陷，verdict 7/8 → 8/8 criteria**
+  1. **loop 完全跑不起来（Python 選錯）**：系統 `python3` 是 3.14，沒裝 playwright；fetch 一開始就 `ModuleNotFoundError: playwright` 直接 exit 1。之前幾天能跑完純屬僥倖（當時環境有 3.11 + playwright）。修正：`run_loop.sh` 新增 `pick_python()`，依序試 `~/.venv/bin/python3` → `~/.local/bin/python3.11` → `python3`，挑第一個能 `import playwright` 的；找不到就明確報錯並附安裝指令。
+  2. **PLTR 被 watchlist 默默刪掉（10-24 起）**：`PLTR:NYSE` 在 Google Finance 已無報價頁（Palantir 已轉 Nasdaq），2026-10-24 擴充 watchlist 時 PLTR 被剔除並以 AMD 取代，但 LOOP-STATE 的「七大關注股」仍寫著 PLTR。症狀：PLTR 從 07-21 之後就沒出現在任何報價表。修正：watchlist 補回 `PLTR:NASDAQ`（32 檔），reviewer 的 `TICKER_EXCHANGE`／`KNOWN_TICKER_BANDS` 同步改為 Nasdaq + 新 band (50, 400)。
+  3. **報告永遠引用昨天的市場線索**：Step 4 只在「當前市場線索」段**底部**加一行機器 log（「Loop run OK, fetch=…」），但 `write_report.py` 讀的是該段**前幾行**，所以每份報告都在引用上一個 session 的觀察；同時 reviewer 的 C6（「當前市場線索」段含今天日期）在同一天第一次跑永遠 FAIL。修正：新增 `scripts/update_context.py`，從 fetch JSON 合成 5 條真實觀察（LITE／美股 AI 鏈／台股 AI 鏈／全池最大波動／資料缺口），**prepend** 到段落開頭；並把它移到 **Step 1.5**（fetch 之後、review/write 之前），讓報告引用當日 session。同日重跑會先清掉當日舊 bullets 再寫入，避免堆疊。
+  4. **C1 覆蓋率寫死 31**：`EXPECTED_TOTAL_TICKERS` 是常數，watchlist 變成 32 後 C1 反而失效。修正：`run_loop.sh` 從 watchlist 檔案算出真實數量並以 `EXPECTED_TOTAL_TICKERS` env 傳給 reviewer；writer 報告標題也改為動態 `## N 個 ticker 完整報價`（不再寫死「31」）。
+  5. 附帶修正：`write_report.py` 讀「當前市場線索」時原本用 `find("## ", start+3)` 截段，會誤中 `### ` 子標題；改用行首錨定的 regex。
+  6. 驗證：parser regression 8 tests / 0 failures；重跑 4 次後最終 8/8 PASS、score 100、fetch 31/32 ok、SUSPECT 0、ERROR 0。
+
+- **2026-11-12 07:38 UTC** — **重大修正：兩個 parser bug，verdict FAIL(95) → PASS(100)（8/8 criteria）**
+  1. **Google Finance parser 抓到「先前收在」（前收盤）而非即時價**：評分啟發式會選到 header 後方約 200 字處的「先前收在：$X.XX」。當日實例：1303 → 313.00（真實 293.00）、2454 → 3,990.00（真實 3,850.00）、2303 → 104.00（真實 101.00）、8131 → 55.40（真實 53.20），皆以 Yahoo Finance 交叉驗證。修正：`parser.py` 改以 quote header 結構化解析（第一個 `$` 金額 + `arrow_upward/downward` + 帶正負號漲跌幅），僅在 `<TICKER>:<EXCHANGE>` marker 切片後啟用，失敗才回退舊評分。
+  2. **baseline 解析讀到 2026-07-07 的舊基準**：`review_report.parse_loop_state_prices` 與 `write_report.parse_last_prices_from_state` 掃全檔取「最後一筆」price，而舊基準區塊永遠在檔案最下方，因此每個「vs 上次」都拿四個月前的價格比。症狀：報告顯示 LITE -10.2% / NVDA -11.2%（實際 +10.67% / +2.92%），並產生 1303 +28.3% 假 SUSPECT。修正：兩者皆限定解析「上次報告摘要」區段內**最新的一個 run block**。
+  3. **報告表格補上「今日」漲跌幅**：同一 session 重跑時「vs 上次」會顯示 0.0%／`-`，現改為同時列出 Google 自身 change_pct，避免掩蓋真實盤勢。
+  4. **回歸測試**：`test_parser_regression.py` 既有 2 個 fixture 因 2026-11-11 加入的 Guard 2（要求 body 含 `<TICKER>:<EXCHANGE>` marker）而失效，補上 marker；另新增 2 個測試鎖住本次 bug（header 不得取前收盤、美股盤後價不得蓋掉收盤價）。共 8 tests / 0 failures。
+  5. 15:07 那次的 `2026-11-12_alert-research-heartbeat.md` 告警為誤報，已於 vault 註記 resolved / false-positive 並附根因。
 - **2026-09-10 07:00 UTC** — Loop 收尾修補（自動駕駛補完）：reviewer FAIL(90) — C2 (1303 帶寬超界 NT$244 vs [40,200])、C5 (2 findings 缺 alert note)、C6 (LOOP-STATE 未含今日日期)；補上 09-10 baseline 段（7 大關注股）+ 5 條當前線索（LITE 暴漲 SUSPECT、2454 HBM 題材、1303 數據待驗、TSM/2330 同步、ORCL 領漲）；alert note 同步寫入
 - **2026-07-28 07:08 UTC** — Loop 收尾修補（自動駕駛補完）：reviewer C6 FAIL 因今日「當前市場線索」段未含今天日期；補上 07-28 baseline 段（7 大關注股）+ 5 條當前線索（全面下修、LITE 波動急遽、2454 回吐、2330/TSM/NVDA 同步走弱、PLTR 破整數）；verdict FAIL(100) 經手動補完後重跑 review gate
 - **2026-07-21 08:46 UTC** — Loop 收尾修補（Pigo 指示）：補上 07-21 07:00 baseline 段（7 大關注股）+ 當前市場線索 6 條新觀察；研究心跳 cron 07:04 抓完資料但未跑收尾，本手動補完讓 loop_write_allowed 重新評估

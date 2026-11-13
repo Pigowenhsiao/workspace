@@ -26,10 +26,38 @@ def load_inputs(fetch_json_path: str, review_json_path: str, state_path: str) ->
 
 
 def parse_last_prices_from_state(state_text: str) -> dict[str, float]:
-    """Parse last prices from LOOP-STATE.md."""
+    """Parse last prices from LOOP-STATE.md.
+
+    Scoped to the NEWEST run block inside the 「上次報告摘要」 section.
+
+    Bug fixed 2026-11-12: the old version scanned the whole file and let the
+    LAST match win, so the legacy 2026-07-07 baseline block at the bottom of
+    the section always overrode the previous run's prices. The 2026-11-12
+    report consequently showed LITE -10.2% / NVDA -11.2% when Google Finance
+    reported +10.67% / +2.92% for the same session.
+    """
     import re
     prices = {}
-    for line in state_text.split("\n"):
+
+    # 1. Isolate the 「上次報告摘要」 section.
+    sec = re.search(r'^##\s+上次報告摘要.*$', state_text, re.MULTILINE)
+    if not sec:
+        return prices
+    rest = state_text[sec.end():]
+    nxt = re.search(r'^##\s', rest, re.MULTILINE)
+    section = rest[:nxt.start()] if nxt else rest
+
+    # 2. Isolate the newest run block inside it.
+    blocks = list(re.finditer(r'^\*\*\d{4}-\d{2}-\d{2}[^*\n]*\*\*\s*$',
+                              section, re.MULTILINE))
+    if blocks:
+        start = blocks[0].end()
+        end = blocks[1].start() if len(blocks) > 1 else len(section)
+        block = section[start:end]
+    else:
+        block = section
+
+    for line in block.split("\n"):
         if not line.strip():
             continue
         m = re.search(r'- ([A-Z]{1,5}|\d{4})[^0-9]*\$?\*?\*?([0-9,]+\.?\d*)', line)
@@ -45,6 +73,19 @@ def parse_last_prices_from_state(state_text: str) -> dict[str, float]:
             except ValueError:
                 pass
     return prices
+
+
+def _session_change_suffix(entry: dict) -> str:
+    """Render Google's own session change (change_pct) as a suffix.
+
+    Used when the "vs 上次" delta is unavailable or ~0 (same-session re-run),
+    so the reader still sees the real daily move. Returns "" when the fetch
+    carries no daily change.
+    """
+    chg = entry.get("change_pct")
+    if not isinstance(chg, (int, float)):
+        return ""
+    return f" ({chg:+.2f}% 今日)"
 
 
 def generate_report(data: dict, output_path: str) -> dict:
@@ -74,7 +115,7 @@ def generate_report(data: dict, output_path: str) -> dict:
     lines.append("")
     
     # Get top 5 by importance (LITE + key tickers first)
-    priority = ["LITE", "2330", "NVDA", "TSM", "PLTR", "ORCL", "MSFT", "AAPL", "GOOGL", "AMZN", "META"]
+    priority = ["LITE", "2330", "NVDA", "TSM", "PLTR", "ORCL", "AMD", "MSFT", "AAPL", "GOOGL", "AMZN", "META"]
     fetch_by_ticker = {t["ticker"]: t for t in fetch}
     tldr = []
     for ticker in priority:
@@ -89,7 +130,16 @@ def generate_report(data: dict, output_path: str) -> dict:
                     last = last_prices[ticker]
                     pct = (price - last) / last * 100
                     pct_str = f"+{pct:.1f}%" if pct > 0 else f"{pct:.1f}%"
-                    change = f" ({pct_str} vs 上次)"
+                    # When the previous run already covered the same session the
+                    # delta is ~0, which reads as "0.0% vs 上次" and hides the
+                    # actual session move. Fall back to Google's own daily
+                    # change in that case.
+                    if abs(pct) < 0.1:
+                        change = _session_change_suffix(t)
+                    else:
+                        change = f" ({pct_str} vs 上次)"
+                else:
+                    change = _session_change_suffix(t)
                 tldr.append(f"- **{ticker}**: {currency} {price:,.2f}{change}")
     
     # Add any remaining
@@ -135,10 +185,10 @@ def generate_report(data: dict, output_path: str) -> dict:
         lines.append("")
     
     # Full ticker table
-    lines.append("## 31 個 ticker 完整報價")
+    lines.append(f"## {len(fetch)} 個 ticker 完整報價")
     lines.append("")
-    lines.append("| Ticker | Exchange | Price | Currency | vs 上次 |")
-    lines.append("|--------|----------|-------|----------|---------|")
+    lines.append("| Ticker | Exchange | Price | Currency | vs 上次 (今日) |")
+    lines.append("|--------|----------|-------|----------|----------------|")
     
     for t in fetch:
         ticker = t.get("ticker", "?")
@@ -148,6 +198,8 @@ def generate_report(data: dict, output_path: str) -> dict:
         
         if price:
             # Compute change vs last
+            session_chg = t.get("change_pct")
+            session_str = f"{session_chg:+.2f}%" if isinstance(session_chg, (int, float)) else "-"
             if ticker in last_prices:
                 last = last_prices[ticker]
                 pct = (price - last) / last * 100
@@ -158,8 +210,8 @@ def generate_report(data: dict, output_path: str) -> dict:
                     change = "-"
             else:
                 change = "NEW"
-            
-            lines.append(f"| {ticker} | {exchange} | {price:,.2f} | {currency} | {change} |")
+
+            lines.append(f"| {ticker} | {exchange} | {price:,.2f} | {currency} | {change} ({session_str}) |")
     lines.append("")
     
     # Investment notes (from LOOP-STATE)
@@ -187,15 +239,20 @@ def generate_report(data: dict, output_path: str) -> dict:
         if "當前市場線索" in state:
             lines.append("### 當前市場線索")
             lines.append("")
-            start = state.find("## 當前市場線索")
-            if start != -1:
-                end = state.find("## ", start + 3)
-                if end == -1:
-                    end = len(state)
-                ctx = state[start:end].split("\n")[2:8]
-                for c in ctx:
-                    if c.strip():
-                        lines.append(c)
+            # Match the heading as a full line. `find("## ", start + 3)` used to
+            # be used here, but that also matches the "## " inside a "### "
+            # sub-heading, which truncated the section early.
+            import re as _re
+            m_ctx = _re.search(r'^##\s+當前市場線索.*$', state, _re.MULTILINE)
+            if m_ctx:
+                rest = state[m_ctx.end():]
+                m_next = _re.search(r'^##\s', rest, _re.MULTILINE)
+                ctx = rest[:m_next.start()] if m_next else rest
+                # Skip the blockquote intro line and blanks; keep the bullets.
+                bullets = [ln for ln in ctx.split("\n")
+                           if ln.strip().startswith("- ")][:6]
+                for c in bullets:
+                    lines.append(c)
             lines.append("")
     
     # Next watch
