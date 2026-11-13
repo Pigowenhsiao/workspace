@@ -2591,3 +2591,49 @@ if [ "$CHANGE_COUNT" -gt 0 ]; then ... fi
 - **[references/skill-index-2026-11-12-session.md](references/skill-index-2026-11-12-session.md)** — Pattern EEEE 新增（watchdog pipefail+SIGPIPE false negative：Vault 483 筆變更卻報 clean，修完正確報 520 筆）；Vault 內 218 筆 ` D` 經逐檔比對確認為 Inbox→08-Learning 搬移（211 檔全等 + 7 檔僅 frontmatter/link 路徑差異，零內容遺失）；Agent repo 與 origin/main 已 0/0 同步（推翻前次「落後 3 commits」結論）；Hermes 備份 `20261112_041319 (2.0G)`；cron output retention 移除 12 檔
 - **[references/skill-index-2026-11-12b-session.md](references/skill-index-2026-11-12b-session.md)** — 同日第二次 run（Hermes cron 18:07 CST = 10:07 UTC 推送）：五 Phase 全綠；sync-check DRIFT 為 **workspace 領先 canonical** 的反向形態（Pattern DDDD），以 superset 測試判方向後單向 workspace→canonical；11-03 reference 真分歧由 11-03/11-03b 更名機制拆開、canonical 兩份都收；孤兒 `.keep`（零引用 + cmp byte-identical 確診後 `git rm`）
 - **[references/skill-index-2026-11-12c-session.md](references/skill-index-2026-11-12c-session.md)** — 同日第三次 run（OpenClaw cron 16:00 UTC）：**撞上同日第二次 run 的 competing commit**（兩套排程同時寫 `skill-index-2026-11-12-session.md` → add/add conflict）。處置沿用 11-03/11-03b 命名機制：第二 run 版本另存 `11-12b-session.md`（零刪除）、本次留在 `11-12-session.md`；**並查清 3 個週期 cron job 連續 `Connection error.` 的根因＝strata SSH tunnel（`127.0.0.1:8081` → v100）在 2026-11-08 v100 端服務重啟期間 `Connection refused`**（journalctl 佐證），三 job 共用同一 provider 故同時紅，非各自邏輯錯誤；dangling commit `31f037843` 經 `git diff` 驗證 **607 files / +57841 但 0 筆 D**（無檔案只存在於 dangling，無資料遺失）
+
+## Pattern FFFF（2026-11-13 初發現）：cron 宣告的 skill 若解析失敗，job 仍會 `last_status=ok`
+
+**症狀**：`~/.hermes/logs/agent.log` 出現
+`cron.scheduler: Cron job '<job>': Ambiguous skill name <name>: use one of <path> — skipping`，
+但該 cron job 在 registry 裡仍是 `last_status=ok`、`failure_streak=0`。
+**job 宣告的 skill 根本沒被載入，job 卻報成功。**
+
+**根因**：
+1. Hermes loader（`tools/skills_tool.locate_skill`）在同一 tier 遇到**同名但內容不同**的 skill 不猜 → 回 `Ambiguous skill name`。
+2. cron scheduler（`cron/scheduler_prompt._load_cron_skill_parts`）收到後直接 `_skip(...)` → 該 skill 從 prompt 消失，job 照跑。
+3. registry 只記 job 的執行成敗，**不記 skill 載入成敗** → 綠燈。
+
+**量測方法（必須用 loader 自己的 venv，系統 python3 會在 `hermes_yaml` import 就炸）**：
+
+```bash
+cd ~/.hermes/hermes-agent && ./.venv/bin/python -c "
+import sys,json; sys.path.insert(0,'/home/pigo/.hermes/hermes-agent')
+from tools.skills_tool import skill_view
+d=json.load(open('/home/pigo/.hermes/cron/jobs.json'))
+jobs = d if isinstance(d,list) else d.get('jobs',d)
+if isinstance(jobs,dict): jobs=list(jobs.values())
+names=set()
+for j in jobs:
+    for s in (j.get('skills') or []): names.add(s)
+bad=[n for n in sorted(names) if not json.loads(skill_view(name=n)).get('success')]
+print('UNRESOLVABLE =', bad)
+"
+```
+
+**修法分兩種，依內容關係選（不要一律覆寫）**：
+
+| 內容關係 | 修法 |
+|---|---|
+| 同名副本是另一棵的**嚴格子集**（獨有檔案 = 0） | 單向覆寫成 byte-identical → loader 的 `provably_same_skill()` 判定為同一份，bare name 直接可解析 |
+| 兩邊**各有獨有內容** | 先把獨有檔案（references / scripts）搬進要保留的那棵樹，再把另一棵**移出掃描路徑**（`.archive/`，它在 `EXCLUDED_SKILL_DIRS` 裡）或改名 → **不要覆寫** |
+
+**預防**：
+1. **每個 cron job 的 `skills` 都要逐一量**，不能只驗 neat-freak 自己的名字（本次 12 個 skill 有 2 個壞掉）。
+2. 搬走任何 skill 樹之前，先 `diff <(cd A && find . -type f|sort) <(cd B && find . -type f|sort)` 列出獨有檔案並搬過去。
+3. `agent.log` 的 `Ambiguous skill name ... — skipping` 是唯一告警來源，registry `last_status` 不會反映——**這與 Pattern EEEE 同源：量測層報綠、被量測對象是壞的**。
+4. 修完必須重跑上面的量測，確認 `UNRESOLVABLE = []`，才算真的修好（**負向測試原則**，同 Pattern CCCC / DDDD）。
+
+## 附：2026-11-13 run 新增參考
+
+- **[references/skill-index-2026-11-13b-session.md](references/skill-index-2026-11-13b-session.md)** — Pattern FFFF 新增（cron 宣告的 skill 若 ambiguous 被 skip，job 仍報 `last_status=ok`；用 `~/.hermes/hermes-agent/.venv/bin/python` + `skill_view()` 逐一量 12 個 job 的 skills，修前 2 個 False、修後 12/12 True）；修掉 `neat-freak` / `mail-triage` 的 `productivity/` 同名副本（canonical 單向覆寫，覆寫前驗證嚴格子集）與 `llm-wiki` root/research 雙樹（先搬 4 scripts + 4 references 再把 root 移進 `.archive/`）；Vault index 補建（17,465 檔）；wikilink 20,669 斷鏈與 11-11 持平（+1）非本輪引入
