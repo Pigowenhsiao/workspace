@@ -2634,6 +2634,54 @@ print('UNRESOLVABLE =', bad)
 3. `agent.log` 的 `Ambiguous skill name ... — skipping` 是唯一告警來源，registry `last_status` 不會反映——**這與 Pattern EEEE 同源：量測層報綠、被量測對象是壞的**。
 4. 修完必須重跑上面的量測，確認 `UNRESOLVABLE = []`，才算真的修好（**負向測試原則**，同 Pattern CCCC / DDDD）。
 
+## Pattern GGGG（2026-11-16 初發現）：上一個 run 的籠統斷鏈標籤會被下一個 run 當免死金牌
+
+**症狀**：11-15 commit message 寫 "133→16 broken, rest are gitignored transcript scratch"，
+11-16 實測 16 條裡**只有 5 條真是 transcript scratch**：
+- 7 條是 arXiv 筆記落位 remap 漏網（可修）
+- 2 條是從未進過 git 的幽靈檔案（只能標記）
+- 1 條是筆記內文 wikilink 指舊 Inbox 路徑（可修）
+- （1 條是全形/半形檔名差異造成的重複列）
+
+**根因**：落位（filed）腳本會**剝掉檔名中的全形標點（：、，）**，而 index 連結是用原始標題檔名生成的。
+triage run 只 remap 它自己處理的批次，舊批次 index 行若連結檔名含全形標點就不會被抓到；
+下一個 run 看到 commit message 的籠統標籤就直接跳過，斷鏈永久滯留。
+
+**判定規則（每條斷鏈逐條定性，不接受批次標籤）**：
+1. `git log --all --name-only | grep <basename>` → 有歷史 = 搬過（找新位置）；無歷史 = 幽靈。
+2. NFC-normalize + 剝標點後做 basename 配對（`re.sub(r'[^0-9A-Za-z\u4e00-\u9fff]','',name)`）→ 命中 = remap 候選。
+3. 幽靈檔案保留 metadata 列改純文字標記（不刪行，保追溯）；scratch 連結轉純文字。
+4. 修完重跑斷鏈掃描歸零才算結案（負向測試原則）。
+
 ## 附：2026-11-13 run 新增參考
 
 - **[references/skill-index-2026-11-13b-session.md](references/skill-index-2026-11-13b-session.md)** — Pattern FFFF 新增（cron 宣告的 skill 若 ambiguous 被 skip，job 仍報 `last_status=ok`；用 `~/.hermes/hermes-agent/.venv/bin/python` + `skill_view()` 逐一量 12 個 job 的 skills，修前 2 個 False、修後 12/12 True）；修掉 `neat-freak` / `mail-triage` 的 `productivity/` 同名副本（canonical 單向覆寫，覆寫前驗證嚴格子集）與 `llm-wiki` root/research 雙樹（先搬 4 scripts + 4 references 再把 root 移進 `.archive/`）；Vault index 補建（17,465 檔）；wikilink 20,669 斷鏈與 11-11 持平（+1）非本輪引入
+
+## 附：2026-11-15 run 新增參考
+
+- **[references/skill-index-2026-11-15-session.md](references/skill-index-2026-11-15-session.md)** — 五 Phase 全綠；Vault dangling tree+commit（stash-merge 產物 `4a9a4fbb`）經「dangling→HEAD 逐檔差異 + NOT-ANCESTOR」定性後按 Pattern EEE 清除；workspace 領先 canonical 的 Pattern DDDD 反向形態**再現**（11-12 的 11-12/11-12b/11-12c 命名機制只落在 workspace 樹，canonical 未跟上 → canonical 舊版另存 11-12b 零刪除，再採 workspace 版）；RRR 語意補測抓到 upstream 改寫 vault-check frontmatter 未同步 index（760 三口徑、補測歸零後 push `818fb9a8`）；Active Skills 口徑 761→760（upstream 移除所致，雙向比對一致）
+
+## 附：2026-11-16 run 新增參考
+
+- **[references/skill-index-2026-11-16-session.md](references/skill-index-2026-11-16-session.md)** — 五 Phase 全綠；Pattern GGGG 新增（run 之間的籠統標籤會被下個 run 當免死金牌：11-15 說 "16 broken 全是 gitignored transcript scratch"，實測僅 5/16 是 transcript——7 條是 arXiv 落位 remap 漏網（落位腳本剝掉檔名全形標點 ：，，index 連結卻用原始標題檔名）、2 條是從未進 git 的幽靈檔案、1 條是筆記內文 wikilink 指舊 Inbox 路徑；每條斷鏈都要跑 `git log --all --name-only` + NFC basename 配對逐條定性）。本次 `00-Inbox/index.md` md-link 斷鏈 16→0（commit `61d660bd9`）
+
+## Pattern HHH（2026-11-16 初發現）：canonical 被上游 job 改寫，會讓「已修好的同名副本」重新變 ambiguous
+
+**症狀**：11-13 run 依 Pattern FFFF 把 `~/.hermes/skills/productivity/mail-triage` 覆寫成 root `mail-triage` 的 byte-identical 副本，loader 量測 12/12 success、ambiguity 歸零。
+11-16 02:44 的「每日 Gmail Ingest → llm-wiki → Push」job **直接改寫 root `~/.hermes/skills/mail-triage/`**（SKILL.md + `references/batch-ingest-workflow.md`：實測修正「索引 wikilink 必須帶 `.md`」、「legacy 早已是 LF-only」、「絕對不要用 `git add -A`」、前輪遺留郵件清理）。
+root 變新後兩份內容**再次分歧**（SKILL.md 差 12 行、reference 差 28 行），本輪 04:15 量測即得到：
+`Skill name collision for 'mail-triage': 2 candidates — ~/.hermes/skills/mail-triage/SKILL.md; ~/.hermes/skills/productivity/mail-triage/SKILL.md`
+→ 宣告 `mail-triage` 的 Gmail cron 再次面臨「skill 被 skip 但 job 報綠燈」風險（Pattern FFFF）。
+
+**根因**：Pattern FFFF 的「覆寫成 byte-identical → loader `provably_same_skill()` 自動解析」只保證**當下**兩份一樣，**沒有保證上游 job 不會再動其中一份**。
+任何一方被改寫，identical 前提立即失效，ambiguity 復發。這是 Pattern FFFF 的**復發機制**，不是新的 loader bug。
+
+**預防**：
+1. **修好後上游 job 不得只改一份**：若 cron 會改 skill 內容，改完必須立刻把相同變更同步回另一份副本（或兩份都改成 identical）。
+2. **每次 neat-freak Phase 3 都要重跑 cron-declared skill 的 `skill_view()` 量測**（12 個 skill 逐一量）——本輪就是靠它抓到復發；只靠 `sync-check.py`（只管 neat-freak 自己）看不到。
+3. **根本解法是讓 loader 只剩一個候選**：把重複樹移出掃描路徑（`.archive/`，在 `EXCLUDED_SKILL_DIRS` 內）。本輪對 `productivity/mail-triage` 即採此法：先備份 tarball，再整棵移入 `~/.hermes/skills/.archive/productivity-mail-triage-20261116/`，不覆寫、不刪除。
+4. 任何「修改 skill 檔」的動作都要先問：**有沒有同名副本會因此分歧？**
+
+## 附：2026-11-16b run 新增參考
+
+- **[references/skill-index-2026-11-16b-session.md](references/skill-index-2026-11-16b-session.md)** — Pattern HHH 新增（上游 job 改寫 canonical 副本 → 同名樹重新分歧 → ambiguity 復發）；本輪將 stale `productivity/mail-triage` 整棵移入 `.archive/`（零覆寫、零刪除、備份 tarball），cron-declared skills 量測 12/12 success；canonical neat-freak 補回 upstream 11-15／11-16 兩份 session reference 與 Pattern GGGG，五份 SKILL.md md5 全等 `70e781e1e4bc800ff1749065a4eed290`
