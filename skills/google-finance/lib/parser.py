@@ -36,6 +36,42 @@ RE_BODY_US = re.compile(r'US\$\s*([0-9,]+\.?\d*)')     # US$316.22 (Google Finan
 RE_BODY_NT = re.compile(r'NT\$\s*([0-9,]+\.?\d*)')
 RE_BODY_HK = re.compile(r'HK\$\s*([0-9,]+\.?\d*)')
 
+# Google Finance quote header (2026-11-12 fix).
+#
+# The live quote sits in the header block right after the ticker marker:
+#
+#     1303:TPE | add | 加入清單 | 南亞塑膠 | $293.00 | arrow_downward | -6.39%
+#
+# The previous close ("先前收在：$313.00") appears ~200 chars later, and the
+# open/high/low block ("開盤價 $315.00 / 高點 $325.50 / 低點 $292.00") ~1000
+# chars later. The old scoring heuristic could pick any of those instead of the
+# live price (it did for 1303 -> 313.00 and 2454 -> 3,990.00 on 2026-11-12,
+# both of which are the PREVIOUS close, verified against Yahoo Finance).
+#
+# So we parse the header structurally: a $-amount whose very next line is the
+# arrow icon, followed by the signed session change. When the header pattern
+# matches we trust it completely (price AND change come from the same pair);
+# otherwise we fall back to the old scoring heuristic.
+RE_BODY_QUOTE_HEADER = re.compile(
+    r'\$\s*([0-9,]+\.?\d*)\s*\n\s*'
+    r'(?:arrow_(?:upward|downward)\s*\n\s*)?'
+    r'([+\-])\s*([0-9]+(?:\.[0-9]+)?)%'
+)
+
+# The first $-amount after the ticker marker is always the live quote in the
+# header block. We anchor the header parse on it so a later "-amount followed
+# by a %" (e.g. the 收盤 / close row) can never be mistaken for the quote.
+RE_BODY_PRICE_TOKEN = re.compile(r'\$\s*([0-9,]+\.?\d*)')
+
+# How many chars after the ticker marker to scan for the quote header.
+# The header price is normally within the first ~80 chars (long company names
+# like "台灣塑膠工業股份有限公司" push it a bit further), while "先前收在" sits
+# at ~200 and the 開盤價/高點/低點 block at ~1000.
+HEADER_SCAN_LIMIT = 400
+
+# Labels that mark a price as "previous close" rather than the live quote.
+RE_PREV_CLOSE_LABEL = re.compile(r'(先前收在|前收盤|昨收|Previous close|Prev close)')
+
 # Sector/index codes that appear in Google Finance body but are NOT the target ticker.
 # These are SIX* (US sector ETFs) and similar 4-letter block codes.
 RE_SECTOR_BLOCK = re.compile(r'^[A-Z]{4}$')
@@ -128,6 +164,85 @@ def _pick_best_price(candidates: list[tuple[float, bool, bool, int]], currency_h
     return positive[0][0]
 
 
+def _parse_quote_header(search_text: str, currency_hint: str) -> dict | None:
+    """Parse the Google Finance quote header block (authoritative live price).
+
+    Header layout (zh-TW locale), captured from live pages 2026-11-12:
+
+        1303:TPE
+        add
+        加入清單
+        南亞塑膠
+        $293.00          <- LIVE price
+        arrow_downward
+        -6.39%           <- signed session change
+        (-20.00) 今天
+
+    US tickers carry an extra after-hours block right below the header, e.g.
+
+        LITE:NASDAQ
+        魯門特姆控股公司
+        $648.06
+        arrow_upward
+        +10.67%
+        (+62.49) 今天
+        已收盤：11月11日 ...
+        $632.00          <- after-hours price, NOT the close
+        arrow_downward
+        -2.48%
+
+    The header match is therefore constrained to the first HEADER_SCAN_LIMIT
+    chars after the ticker marker AND the matched price must not be preceded by
+    a previous-close label. The first header match wins: later $-amounts
+    (先前收在 / 開盤價 / 高點 / 低點 / after-hours) are all excluded by the
+    position limit and the label guard.
+
+    Returns a body-style dict on success, or None to let the caller fall back
+    to the scoring heuristic.
+    """
+    window = search_text[:HEADER_SCAN_LIMIT]
+
+    # Anchor on the FIRST $-amount after the ticker marker — in the header
+    # block that is always the live quote. Anchoring (rather than searching
+    # for any "$-amount followed by %") prevents a later row such as
+    # "收盤 $313.39 / +0.90%" from being mistaken for the quote.
+    first = RE_BODY_PRICE_TOKEN.search(window)
+    if not first:
+        return None
+
+    price_str = first.group(1)
+    try:
+        price = float(price_str.replace(",", ""))
+    except ValueError:
+        return None
+
+    # The signed session change sits right after the price (optionally
+    # separated by the arrow icon line).
+    after = window[first.end():first.end() + 120]
+    m = RE_BODY_CHANGE_PCT.search(after)
+    if not m:
+        return None
+    sign, pct_str = m.group(0)[0], m.group(1)
+    try:
+        change_pct = float(pct_str)
+    except ValueError:
+        return None
+    if sign == "-":
+        change_pct = -change_pct
+
+    # Guard: the anchored price must not be a previous-close label value.
+    prefix = window[:first.start()]
+    if RE_PREV_CLOSE_LABEL.search(prefix[-40:]):
+        return None
+
+    return {
+        "price": price,
+        "currency": currency_hint,
+        "change_pct": change_pct,
+        "source": "body",
+    }
+
+
 def parse_title(title: str) -> dict:
     """
     Parse Google Finance page title.
@@ -203,6 +318,25 @@ def parse_body(body_text: str, exchange: str = None, ticker: str = None) -> dict
     if not body_text:
         return {"price": None, "currency": None, "change_pct": None, "source": "body"}
     
+    # Guard 1: Google Finance redirects to the finance home page ("Page Not Found" /
+    # "We couldn't find any match for your search") for tickers it does not cover.
+    # In that case the body contains the market index ticker and hot-list quotes
+    # (e.g. 4533 -> $103.20 which is actually 0050 ETF, +3.62% which is IX0001).
+    # Parsing that produced completely wrong prices, so bail out instead.
+    not_found_markers = (
+        "Page Not Found",
+        "couldn't find any match",
+        "找不到符合您搜尋條件",
+        "找不到任何符合",
+    )
+    if any(m in body_text for m in not_found_markers):
+        return {"price": None, "currency": None, "change_pct": None, "source": "body"}
+    
+    # Guard 2: the target ticker must actually appear on the page. If the page has no
+    # "<TICKER>:<EXCHANGE>" marker we are looking at some other page, not a quote page.
+    if ticker and exchange and f"{ticker}:{exchange}" not in body_text:
+        return {"price": None, "currency": None, "change_pct": None, "source": "body"}
+    
     # For Taiwan stocks (TPE/TPEX), $ means NT$ 
     if exchange in ("TPE", "TPEX"):
         currency_hint = "TWD"
@@ -215,12 +349,27 @@ def parse_body(body_text: str, exchange: str = None, ticker: str = None) -> dict
     # after "<TICKER>:<EXCHANGE>" first appears. This excludes the hot-stocks
     # list at the top and unrelated news headlines further down.
     search_text = body_text
+    marker_anchored = False
     if ticker and exchange:
         marker = f"{ticker}:{exchange}"
         idx = body_text.find(marker)
         if idx >= 0:
             # Take ~2000 chars after the marker to cover header price + chart + high/low
             search_text = body_text[idx:idx + 2000]
+            marker_anchored = True
+
+    # --- Structured quote-header parse (authoritative when it matches) ---
+    # The live quote is the $-amount in the header block, immediately followed
+    # by the arrow icon and the signed session change. See the comment next to
+    # RE_BODY_QUOTE_HEADER for why this must win over the scoring heuristic.
+    #
+    # Only trust it on a marker-anchored slice: the "first $-amount is the live
+    # quote" assumption holds only for the region right after the
+    # "<TICKER>:<EXCHANGE>" marker, not for an arbitrary body.
+    if marker_anchored:
+        header = _parse_quote_header(search_text, currency_hint)
+        if header is not None:
+            return header
     
     # Collect ALL candidate matches across all currency patterns.
     # We merge NT$ + US$ + bare $ (and HK$ for HKG) into a single candidate pool,

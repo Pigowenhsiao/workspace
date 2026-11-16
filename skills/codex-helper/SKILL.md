@@ -1,3 +1,8 @@
+---
+name: Codex Helper
+description: Codex CLI 輔助 skill：把 OpenAI Codex CLI 當成外部 coding agent 來跑任務。當使用者要求「幫我寫 code」「用 codex」時觸發。
+---
+
 # Codex Helper Skill
 
 ## 觸發關鍵字

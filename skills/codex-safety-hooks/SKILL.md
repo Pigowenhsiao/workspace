@@ -1,3 +1,8 @@
+---
+name: Codex Safety Hooks
+description: Pigo 的 Codex 安全 hooks：阻擋危險命令並記錄所有 Codex 執行操作。當涉及 codex 安全、命令攔截、audit log 時觸發。
+---
+
 # Codex Safety Hooks
 
 Pigo 的 Codex 安全 hooks，阻擋危險命令並記錄所有操作。
